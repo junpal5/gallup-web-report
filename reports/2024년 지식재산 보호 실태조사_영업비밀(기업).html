@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2024 영업비밀 보호 실태조사 (기업)</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --primary:#0e4d8c; --primary-light:#1a6fbf;
+  --secondary:#00a86b; --accent:#e85d04;
+  --pink:#c0254d; --pink-light:#e8406a;
+  --bg:#f5f7fa; --card:#fff; --text:#1a1a2e;
+  --text-secondary:#5a6a7a; --border:#dde3ea;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);}
+
+/* ═══ 헤더 ═══ */
+.page-header{
+  background:linear-gradient(135deg,#c0254d 0%,#8b0d2f 40%,#0e2d5a 100%);
+  padding:36px 48px 30px; position:relative; overflow:hidden;
+}
+.page-header::before{content:'';position:absolute;top:-60px;right:-60px;width:300px;height:300px;
+  background:radial-gradient(circle,rgba(255,255,255,.06) 0%,transparent 70%);border-radius:50%;}
+.header-badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);
+  color:#fff;font-size:.72rem;font-weight:600;padding:4px 14px;border-radius:20px;margin-bottom:12px;}
+.page-header h1{color:#fff;font-size:1.8rem;font-weight:900;line-height:1.3;}
+.page-header p{color:rgba(255,255,255,.75);font-size:.85rem;margin-top:8px;}
+.header-note{display:inline-block;margin-top:12px;background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.85);
+  font-size:.7rem;padding:5px 14px;border-radius:6px;}
+
+/* ═══ 필터 바 ═══ */
+#filter-bar{
+  background:#fff;border-bottom:2px solid var(--border);
+  padding:14px 48px;display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;z-index:80;box-shadow:0 2px 8px rgba(0,0,0,.06);
+}
+#filter-bar .filter-label{font-size:.78rem;font-weight:700;color:var(--text-secondary);margin-right:4px;}
+.filter-btn{
+  display:inline-flex;align-items:center;gap:6px;padding:7px 18px;
+  border-radius:20px;border:2px solid var(--border);background:#f5f7fa;
+  font-size:.8rem;font-weight:600;color:var(--text-secondary);
+  cursor:pointer;transition:all .18s;font-family:'Noto Sans KR',sans-serif;
+}
+.filter-btn .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+.filter-btn.all   .dot{background:#888;}
+.filter-btn.type-a .dot{background:var(--pink);}
+.filter-btn.type-b .dot{background:var(--primary);}
+.filter-btn.active.all   {background:#f0f0f0;border-color:#888;color:#333;}
+.filter-btn.active.type-a{background:#fff0f4;border-color:var(--pink);color:var(--pink);}
+.filter-btn.active.type-b{background:#e8f0fb;border-color:var(--primary);color:var(--primary);}
+.filter-sep{width:1px;height:24px;background:var(--border);margin:0 4px;}
+
+/* ═══ 탭 네비 ═══ */
+#tab-nav{
+  background:#fff;border-bottom:2px solid var(--border);
+  padding:0 48px;display:flex;gap:0;overflow-x:auto;
+}
+.tab-btn{
+  flex-shrink:0;padding:14px 20px;border:none;background:none;
+  font-family:'Noto Sans KR',sans-serif;font-size:.82rem;font-weight:600;
+  color:var(--text-secondary);cursor:pointer;border-bottom:3px solid transparent;
+  margin-bottom:-2px;transition:all .18s;white-space:nowrap;
+}
+.tab-btn:hover{color:var(--pink);background:#fdf2f5;}
+.tab-btn.active{color:var(--pink);border-bottom-color:var(--pink);background:#fff8fa;}
+
+/* ═══ 탭 페이지 ═══ */
+.tab-page{display:none;padding:36px 48px 64px;animation:fadeIn .25s ease;}
+.tab-page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══ 섹션 ═══ */
+.section{margin-bottom:48px;}
+.section-header{display:flex;align-items:center;gap:12px;margin-bottom:22px;
+  padding-bottom:12px;border-bottom:2px solid var(--border);}
+.section-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--pink),var(--pink-light));
+  border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.section-title{font-size:1.15rem;font-weight:800;}
+.section-sub{font-size:.76rem;color:var(--text-secondary);margin-top:2px;}
+
+/* ═══ stat-grid ═══ */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:14px;margin-bottom:22px;}
+.stat-card{background:var(--card);border-radius:14px;padding:20px;border:1px solid var(--border);
+  text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.04);border-top:4px solid var(--border);}
+.stat-card .stat-val{font-size:1.9rem;font-weight:900;line-height:1;margin-bottom:6px;}
+.stat-card .stat-label{font-size:.74rem;color:var(--text-secondary);font-weight:500;}
+.stat-card .stat-sub{font-size:.67rem;color:var(--text-secondary);margin-top:4px;}
+.stat-blue{border-top-color:var(--primary);}.stat-blue .stat-val{color:var(--primary);}
+.stat-green{border-top-color:var(--secondary);}.stat-green .stat-val{color:var(--secondary);}
+.stat-orange{border-top-color:var(--accent);}.stat-orange .stat-val{color:var(--accent);}
+.stat-pink{border-top-color:var(--pink);}.stat-pink .stat-val{color:var(--pink);}
+.stat-purple{border-top-color:#7c3aed;}.stat-purple .stat-val{color:#7c3aed;}
+
+/* ═══ 카드 ═══ */
+.chart-card{background:var(--card);border-radius:14px;padding:24px;
+  border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.05);margin-bottom:20px;}
+.chart-card h3{font-size:.88rem;font-weight:700;margin-bottom:5px;}
+.chart-note{font-size:.71rem;color:var(--text-secondary);margin-bottom:14px;}
+
+/* ═══ 그리드 ═══ */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+
+/* ═══ 프로그레스 바 ═══ */
+.prog-row{display:flex;align-items:center;gap:12px;margin-bottom:9px;}
+.prog-label{font-size:.76rem;color:var(--text);font-weight:500;min-width:150px;max-width:150px;line-height:1.3;}
+.prog-track{flex:1;height:22px;background:#f0f3f7;border-radius:11px;overflow:hidden;position:relative;}
+.prog-fill{height:100%;border-radius:11px;display:flex;align-items:center;justify-content:flex-end;
+  padding-right:8px;font-size:.69rem;font-weight:700;color:#fff;min-width:36px;}
+.prog-fill.pink{background:linear-gradient(90deg,#c0254d,#e8406a);}
+.prog-fill.blue{background:linear-gradient(90deg,var(--primary),var(--primary-light));}
+.prog-fill.green{background:linear-gradient(90deg,#00896e,var(--secondary));}
+.prog-fill.orange{background:linear-gradient(90deg,#c44b04,var(--accent));}
+.prog-fill.gray{background:linear-gradient(90deg,#6b7280,#9ca3af);}
+
+/* 필터별 prog 표시 */
+.prog-group{margin-bottom:14px;}
+.prog-group .pg-label{font-size:.76rem;font-weight:600;color:var(--text);margin-bottom:6px;}
+.prog-series{display:flex;flex-direction:column;gap:4px;}
+.prog-series-row{display:flex;align-items:center;gap:8px;}
+.prog-series-row .ps-tag{font-size:.65rem;font-weight:700;width:62px;text-align:right;flex-shrink:0;}
+.ps-tag.all{color:#888;}
+.ps-tag.type-a{color:var(--pink);}
+.ps-tag.type-b{color:var(--primary);}
+.prog-series-row .prog-track{height:18px;}
+.prog-series-row .prog-fill{font-size:.65rem;}
+
+/* 데이터 필터 표시/숨김 */
+.data-all, .data-a, .data-b{transition:opacity .2s;}
+.data-all.hidden, .data-a.hidden, .data-b.hidden{display:none;}
+
+/* ═══ 하이라이트 박스 ═══ */
+.highlight-box{background:#f0f7ff;border-left:4px solid var(--primary);
+  border-radius:0 10px 10px 0;padding:13px 16px;font-size:.81rem;
+  color:var(--text);margin:12px 0;line-height:1.6;}
+.highlight-box.green{background:#f0fdf7;border-left-color:var(--secondary);}
+.highlight-box.orange{background:#fff4ee;border-left-color:var(--accent);}
+.highlight-box.pink{background:#fff0f4;border-left-color:var(--pink);}
+
+/* ═══ 표 ═══ */
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:.79rem;}
+th{background:var(--primary);color:#fff;font-weight:600;padding:9px 13px;text-align:center;white-space:nowrap;}
+td{padding:8px 13px;border-bottom:1px solid var(--border);text-align:center;color:var(--text);}
+tr:last-child td{border-bottom:none;}
+tr:nth-child(even) td{background:#f9fafb;}
+.td-high{color:var(--secondary);font-weight:700;}
+.td-low{color:var(--accent);}
+.total-row td{background:#f0f4ff!important;font-weight:700;}
+td:first-child{text-align:left;font-weight:500;}
+
+/* ═══ 도넛 ═══ */
+.doughnut-wrap{display:flex;align-items:center;gap:22px;}
+.doughnut-wrap canvas{max-width:180px;max-height:180px;}
+.doughnut-legend{flex:1;}
+.legend-item{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:.79rem;}
+.legend-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0;}
+
+/* ═══ 시사점 박스 ═══ */
+.implication{background:linear-gradient(135deg,#f0f4ff,#e8f4fd);border-radius:14px;
+  padding:20px 22px;border:1px solid #c5d9f1;}
+.implication h4{font-size:.88rem;font-weight:700;color:var(--primary);margin-bottom:10px;}
+.implication ul{list-style:none;}
+.implication ul li{font-size:.81rem;color:var(--text);padding:4px 0 4px 22px;position:relative;line-height:1.55;}
+.implication ul li::before{content:'☞';position:absolute;left:0;color:var(--pink);font-size:.77rem;}
+
+/* ═══ 교육 바 ═══ */
+.edu-bar-row{margin-bottom:13px;}
+.edu-bar-label{display:flex;justify-content:space-between;font-size:.77rem;margin-bottom:5px;font-weight:500;}
+.edu-bar-track{height:26px;border-radius:6px;display:flex;overflow:hidden;}
+.edu-bar-yes{background:var(--pink);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem;font-weight:700;}
+.edu-bar-no{background:#e5e7eb;display:flex;align-items:center;justify-content:center;color:#6b7280;font-size:.7rem;font-weight:700;}
+
+/* ═══ back-to-top ═══ */
+#back-to-top{position:fixed;bottom:28px;right:28px;width:42px;height:42px;
+  background:var(--pink);color:#fff;border:none;border-radius:50%;font-size:1rem;
+  cursor:pointer;display:none;align-items:center;justify-content:center;
+  box-shadow:0 4px 16px rgba(192,37,77,.4);z-index:999;transition:all .2s;}
+#back-to-top:hover{transform:translateY(-3px);}
+#back-to-top.visible{display:flex;}
+
+/* ═══ 반응형 ═══ */
+@media(max-width:900px){
+  .page-header,.tab-page{padding-left:18px;padding-right:18px;}
+  #filter-bar,#tab-nav{padding-left:18px;padding-right:18px;}
+  .grid-2{grid-template-columns:1fr;}
+  .stat-grid{grid-template-columns:repeat(2,1fr);}
+  .doughnut-wrap{flex-direction:column;}
+  .page-header h1{font-size:1.35rem;}
+}
+
+
+/* ═══ HTML 세로 바 차트 ═══ */
+.vbar-chart { width:100%; }
+.vbar-body {
+  display:flex; align-items:flex-end; gap:6px;
+  height:200px; padding-bottom:0; border-bottom:2px solid #dde3ea;
+  margin-top:8px;
+}
+.vbar-col { flex:1; display:flex; flex-direction:column; align-items:center; min-width:0; }
+.vbar-bars { display:flex; align-items:flex-end; gap:3px; height:170px; width:100%; justify-content:center; }
+.vbar-bar-wrap { display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+.vbar-val { font-size:.62rem; font-weight:700; margin-bottom:2px; white-space:nowrap; }
+.vbar-bar { width:18px; border-radius:4px 4px 0 0; min-height:2px; transition:height .4s; }
+.vbar-label { margin-top:7px; text-align:center; font-size:.68rem; color:#5a6a7a;
+  line-height:1.35; display:flex; flex-direction:column; align-items:center; }
+.vbar-label span { display:block; white-space:nowrap; }
+
+/* ═══ HTML 가로 바 차트 ═══ */
+.hbar-chart { width:100%; }
+.hbar-group { margin-bottom:14px; }
+.hbar-title { font-size:.8rem; font-weight:600; color:var(--text); margin-bottom:6px; line-height:1.4; }
+.hbar-row { display:flex; align-items:center; gap:8px; margin-bottom:3px; }
+.hbar-tag { font-size:.68rem; font-weight:700; width:46px; text-align:right; flex-shrink:0; }
+.hbar-tag.all  { color:#888; }
+.hbar-tag.ta   { color:var(--pink); }
+.hbar-tag.tb   { color:var(--primary); }
+.hbar-outer { flex:1; background:#f0f3f7; border-radius:6px; overflow:hidden; height:16px; }
+.hbar-inner { height:100%; border-radius:6px; display:flex; align-items:center;
+  justify-content:flex-end; padding-right:5px;
+  font-size:.64rem; font-weight:700; color:#fff; white-space:nowrap; min-width:2px; }
+.hbar-inner.pink  { background:linear-gradient(90deg,#c0254d,#e8406a); }
+.hbar-inner.blue  { background:linear-gradient(90deg,#0e4d8c,#1a6fbf); }
+.hbar-inner.pink3 { background:#f5a5b8; }
+.hbar-legend { display:flex; gap:16px; margin-bottom:14px; font-size:.75rem; }
+.hbar-legend span { display:flex; align-items:center; gap:5px; }
+.hbar-legend .ld { width:10px; height:10px; border-radius:2px; display:inline-block; }
+</style>
+</head>
+<body>
+
+<!-- ══ 헤더 ══ -->
+<div class="page-header">
+  <div class="header-badge">📊 지식재산 보호 실태조사 2024</div>
+  <h1>영업비밀 보호 실태조사 (기업) — 주요 결과 대시보드</h1>
+  <p>국내 기업의 영업비밀 관리·보호 실태를 종합적으로 파악한 조사 결과</p>
+  <div class="header-note">※ 영업비밀A: 3가지 법적 요건을 갖춘 영업비밀 &nbsp;|&nbsp; 영업비밀B: 외부 유출을 방지해야 할 정보 &nbsp;|&nbsp; 조사 대상: n=2,500개 기업</div>
+</div>
+
+<!-- ══ 필터 바 ══ -->
+<div id="filter-bar">
+  <span class="filter-label">📌 데이터 필터:</span>
+  <button class="filter-btn all active"     data-filter="all"    onclick="toggleFilter(this)"><span class="dot"></span>전체</button>
+  <button class="filter-btn type-a active"  data-filter="type-a" onclick="toggleFilter(this)"><span class="dot"></span>영업비밀A</button>
+  <button class="filter-btn type-b active"  data-filter="type-b" onclick="toggleFilter(this)"><span class="dot"></span>영업비밀B</button>
+  <span class="filter-sep"></span>
+  <span style="font-size:.71rem;color:var(--text-secondary);">중복 선택 가능 · 최소 1개 유지</span>
+</div>
+
+<!-- ══ 탭 네비 ══ -->
+<div id="tab-nav">
+  <button class="tab-btn active" onclick="switchTab(this,'tab-home')">🏠 개요 &amp; 시사점</button>
+  <button class="tab-btn" onclick="switchTab(this,'tab-mgmt')">💰 관리 비용</button>
+  <button class="tab-btn" onclick="switchTab(this,'tab-protect')">🛡️ 보호 활동</button>
+  <button class="tab-btn" onclick="switchTab(this,'tab-edu')">🎓 교육 &amp; 유출</button>
+  <button class="tab-btn" onclick="switchTab(this,'tab-policy')">🏛️ 정책 인지 &amp; 수요</button>
+  <button class="tab-btn" onclick="switchTab(this,'tab-techprot')">🔬 기술보호</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 1 : 개요 & 시사점
+══════════════════════════════════════ -->
+<div class="tab-page active" id="tab-home">
+
+  <!-- 조사 개요 -->
+  <div class="section" id="sec-overview">
+    <div class="section-header">
+      <div class="section-icon">📋</div>
+      <div><div class="section-title">조사 개요</div><div class="section-sub">조사 규모 및 주요 수치 한눈에 보기</div></div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card stat-pink">
+        <div class="stat-val">2,500</div>
+        <div class="stat-label">전체 조사 기업 수</div>
+        <div class="stat-sub">영업비밀A: 563 / 영업비밀B: 1,937</div>
+      </div>
+      <div class="stat-card stat-blue data-all">
+        <div class="stat-val">15.1%</div>
+        <div class="stat-label">연간 비용 지출 업체 비율</div>
+        <div class="stat-sub">전체 기준</div>
+      </div>
+      <div class="stat-card stat-blue data-a">
+        <div class="stat-val">10.7%</div>
+        <div class="stat-label">연간 비용 지출 업체 비율</div>
+        <div class="stat-sub">영업비밀A 기준</div>
+      </div>
+      <div class="stat-card stat-blue data-b">
+        <div class="stat-val">16.3%</div>
+        <div class="stat-label">연간 비용 지출 업체 비율</div>
+        <div class="stat-sub">영업비밀B 기준</div>
+      </div>
+      <div class="stat-card stat-green data-all">
+        <div class="stat-val" style="font-size:1.4rem;">평균 2.6백만</div>
+        <div class="stat-label">영업비밀 관리 연간 지출액</div>
+        <div class="stat-sub">비용 지출 업체 전체 기준</div>
+      </div>
+      <div class="stat-card stat-green data-a">
+        <div class="stat-val" style="font-size:1.4rem;">평균 2.3백만</div>
+        <div class="stat-label">영업비밀 관리 연간 지출액</div>
+        <div class="stat-sub">영업비밀A 기준</div>
+      </div>
+      <div class="stat-card stat-green data-b">
+        <div class="stat-val" style="font-size:1.4rem;">평균 2.7백만</div>
+        <div class="stat-label">영업비밀 관리 연간 지출액</div>
+        <div class="stat-sub">영업비밀B 기준</div>
+      </div>
+      <div class="stat-card stat-orange">
+        <div class="stat-val">0.5%</div>
+        <div class="stat-label">영업비밀 유출 피해 경험</div>
+        <div class="stat-sub">n=13개 업체</div>
+      </div>
+      <div class="stat-card stat-purple data-all">
+        <div class="stat-val">20.0%</div>
+        <div class="stat-label">직무교육 실시율</div>
+        <div class="stat-sub">전체 기준</div>
+      </div>
+      <div class="stat-card stat-purple data-a">
+        <div class="stat-val">29.2%</div>
+        <div class="stat-label">직무교육 실시율</div>
+        <div class="stat-sub">영업비밀A 기준</div>
+      </div>
+      <div class="stat-card stat-purple data-b">
+        <div class="stat-val">17.4%</div>
+        <div class="stat-label">직무교육 실시율</div>
+        <div class="stat-sub">영업비밀B 기준</div>
+      </div>
+    </div>
+    <div class="highlight-box pink">
+      <strong>🔑 핵심 정의:</strong> 영업비밀A는 ①비공지성 ②경제적 유용성 ③비밀관리성 등 <strong>3가지 법적 요건</strong>을 모두 갖춘 영업비밀이며, 영업비밀B는 법적 요건과 무관하게 기업이 외부 유출을 방지해야 한다고 인식하는 정보입니다.
+    </div>
+  </div>
+
+  <!-- 종합 시사점 -->
+  <div class="section" id="sec-implication">
+    <div class="section-header">
+      <div class="section-icon">💡</div>
+      <div><div class="section-title">종합 시사점</div><div class="section-sub">주요 조사 결과를 바탕으로 한 정책적 함의</div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="implication">
+        <h4>📌 관리 비용 및 예산</h4>
+        <ul>
+          <li>기업의 <strong>84.9%</strong>가 영업비밀 관리에 별도 예산을 지출하지 않아 보안 투자 수준이 전반적으로 낮음.</li>
+          <li><strong>40.0%</strong>는 별도 예산 없이 비밀유지서약서·계약서만으로 보호하고 있어 체계적 보안 투자가 미흡.</li>
+          <li>영업비밀B 기업의 <strong>23.3%</strong>는 예산 필요성은 인식하나 여력이 없어 지원 제도 마련이 필요.</li>
+        </ul>
+      </div>
+      <div class="implication">
+        <h4>📌 보호 활동 수준</h4>
+        <ul>
+          <li>기술적 관리 중 <strong>로그인 기록 보관(54.6%)</strong>은 높으나 <strong>전자문서 발송제한(3.8%)</strong>은 극히 낮아 실질적 유출 차단 조치가 부족.</li>
+          <li>영업비밀A 기업이 B 기업 대비 인적·물리적 관리 전반에서 약 <strong>2배</strong> 높은 실시율을 보여 법적 요건 인식이 관리 수준에 영향.</li>
+          <li>감시카메라 설치(영업비밀A <strong>63.5%</strong>)는 높으나, 문서 비밀 표기(<strong>7.9%</strong>)·원본증명서비스(<strong>0.8%</strong>)는 크게 미흡.</li>
+        </ul>
+      </div>
+      <div class="implication">
+        <h4>📌 교육 및 유출 대응</h4>
+        <ul>
+          <li>전체 기업의 <strong>80.0%</strong>가 직무교육을 미실시하며, 실시 기업도 <strong>87.7%</strong>가 자체 교육으로 전문성 한계 존재.</li>
+          <li>유출 주체는 <strong>퇴직자(38.5%)</strong>가 가장 많아 퇴직자 관리 및 비밀보호서약 강화가 시급.</li>
+          <li>유출 발생 시 <strong>내용증명·경고장(38.5%)</strong>이 주요 대응이나, 사실상 무대응(23.1%)도 상당수.</li>
+        </ul>
+      </div>
+      <div class="implication">
+        <h4>📌 정책 인지 및 수요</h4>
+        <ul>
+          <li>특허청 <strong>특별사법경찰(14.1%)</strong>·<strong>산업재산권 분쟁조정위원회(12.3%)</strong> 인지도가 낮아 적극적 홍보 필요.</li>
+          <li>애로사항 1순위는 <strong>세부적인 법·제도 정보 부족(34.3%)</strong>으로, 실무 가이드라인 보급이 최우선 과제.</li>
+          <li>기술보호 전략 보유 기업이 <strong>9.3%</strong>에 불과해 전략 수립 지원 및 컨설팅 제공 체계 구축이 필요.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div><!-- /tab-home -->
+
+
+<!-- ══════════════════════════════════════
+     TAB 2 : 관리 비용
+══════════════════════════════════════ -->
+<div class="tab-page" id="tab-mgmt">
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">💰</div>
+      <div><div class="section-title">영업비밀 관리 비용 현황</div><div class="section-sub">연간 지출 비용 규모 및 주요 사용 용도 (n=2,500)</div></div>
+    </div>
+
+    <div class="grid-2">
+      <!-- 도넛 -->
+      <div class="chart-card">
+        <h3>영업비밀 관리를 위한 연간 지출 비용</h3>
+        <div class="chart-note">※ 전체(n=2,500) 기준 비용 지출 여부</div>
+        <div class="doughnut-wrap">
+          <canvas id="chartExpense" width="180" height="180"></canvas>
+          <div class="doughnut-legend">
+            <div class="legend-item data-all"><div class="legend-dot" style="background:var(--pink)"></div><span><strong>15.1%</strong> 지출 있음 (전체)</span></div>
+            <div class="legend-item data-a"><div class="legend-dot" style="background:var(--pink-light)"></div><span><strong>10.7%</strong> 지출 있음 (영업비밀A)</span></div>
+            <div class="legend-item data-b"><div class="legend-dot" style="background:var(--primary)"></div><span><strong>16.3%</strong> 지출 있음 (영업비밀B)</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#e5e7eb"></div><span><strong>84.9%</strong> 지출 없음</span></div>
+            <div style="margin-top:14px;padding:11px;background:#fff0f4;border-radius:8px;border:1px solid #f4b8cb;">
+              <div style="font-size:.7rem;color:var(--text-secondary);">지출 업체 평균 (n=376)</div>
+              <div class="data-all" style="font-size:1.35rem;font-weight:900;color:var(--pink);">2.6백만원</div>
+              <div class="data-a" style="font-size:1.35rem;font-weight:900;color:var(--pink);">2.3백만원</div>
+              <div class="data-b" style="font-size:1.35rem;font-weight:900;color:var(--pink);">2.7백만원</div>
+              <div style="font-size:.68rem;color:var(--text-secondary);margin-top:3px;">제조업 3.7백만원 / 비제조업 2.1백만원</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 비용 용도 -->
+      <div class="chart-card">
+        <h3>비용의 주요 사용 용도 1순위 (n=376)</h3>
+        <div class="chart-note">※ 연간 지출 비용이 있는 업체 기준</div>
+
+        <div class="prog-group">
+          <div class="pg-label">통제구역 설정 및 통제 시스템 구축·유지</div>
+          <div class="prog-series">
+            <div class="prog-series-row data-all"><span class="ps-tag all">전체</span><div class="prog-track"><div class="prog-fill pink" style="width:52.9%">52.9%</div></div></div>
+            <div class="prog-series-row data-a"><span class="ps-tag type-a">영업A</span><div class="prog-track"><div class="prog-fill pink" style="width:46.5%">46.5%</div></div></div>
+            <div class="prog-series-row data-b"><span class="ps-tag type-b">영업B</span><div class="prog-track"><div class="prog-fill blue" style="width:54.2%">54.2%</div></div></div>
+          </div>
+        </div>
+        <div class="prog-group">
+          <div class="pg-label">컴퓨터 관리 및 통신보안</div>
+          <div class="prog-series">
+            <div class="prog-series-row data-all"><span class="ps-tag all">전체</span><div class="prog-track"><div class="prog-fill pink" style="width:17.6%">17.6%</div></div></div>
+            <div class="prog-series-row data-a"><span class="ps-tag type-a">영업A</span><div class="prog-track"><div class="prog-fill pink" style="width:26.8%">26.8%</div></div></div>
+            <div class="prog-series-row data-b"><span class="ps-tag type-b">영업B</span><div class="prog-track"><div class="prog-fill blue" style="width:15.9%">15.9%</div></div></div>
+          </div>
+        </div>
+        <div class="prog-group">
+          <div class="pg-label">변호사에게 자문</div>
+          <div class="prog-series">
+            <div class="prog-series-row data-all"><span class="ps-tag all">전체</span><div class="prog-track"><div class="prog-fill pink" style="width:16.3%">16.3%</div></div></div>
+            <div class="prog-series-row data-a"><span class="ps-tag type-a">영업A</span><div class="prog-track"><div class="prog-fill pink" style="width:3.1%">3.1%</div></div></div>
+            <div class="prog-series-row data-b"><span class="ps-tag type-b">영업B</span><div class="prog-track"><div class="prog-fill blue" style="width:18.8%">18.8%</div></div></div>
+          </div>
+        </div>
+        <div class="prog-group">
+          <div class="pg-label">전자매체(USB 등) 관리</div>
+          <div class="prog-series">
+            <div class="prog-series-row data-all"><span class="ps-tag all">전체</span><div class="prog-track"><div class="prog-fill pink" style="width:9.1%">9.1%</div></div></div>
+            <div class="prog-series-row data-a"><span class="ps-tag type-a">영업A</span><div class="prog-track"><div class="prog-fill pink" style="width:13.0%">13.0%</div></div></div>
+            <div class="prog-series-row data-b"><span class="ps-tag type-b">영업B</span><div class="prog-track"><div class="prog-fill blue" style="width:8.4%">8.4%</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 예산 미배정 이유 -->
+    <div class="chart-card" style="margin-top:8px;">
+      <h3>예산을 배정하지 않는 이유 1순위</h3>
+      <div class="chart-note">※ 연간 지출 비용이 없는 업체 기준 | 전체(n=2,124) / 영업비밀A(n=502) / 영업비밀B(n=1,621)</div>
+      <div id="chartNobudget"></div>
+      <div class="highlight-box orange" style="margin-top:14px;">
+        ⚠️ 기업의 <strong>40.0%</strong>가 별도 예산 없이 비밀유지서약서·계약서 등으로만 보호 중. 영업비밀B 기업의 <strong>23.3%</strong>는 예산 필요성은 인식하나 여력이 없어 소규모 기업 대상 지원이 필요합니다.
+      </div>
+    </div>
+  </div>
+</div><!-- /tab-mgmt -->
+
+
+<!-- ══════════════════════════════════════
+     TAB 3 : 보호 활동
+══════════════════════════════════════ -->
+<div class="tab-page" id="tab-protect">
+
+  <!-- 제도적 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">📜</div>
+      <div><div class="section-title">보호 활동 — 제도적 관리</div><div class="section-sub">전체(n=2,500) / 영업비밀A(n=563) / 영업비밀B(n=1,937)</div></div>
+    </div>
+    <div class="chart-card">
+      <h3>제도적 관리 활동 실시율</h3>
+      <div id="chartInstitutional"></div>
+    </div>
+  </div>
+
+  <!-- 인적 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">👥</div>
+      <div><div class="section-title">보호 활동 — 인적 관리</div><div class="section-sub">내부자·외부인·퇴직자 대상 인적 보안 활동</div></div>
+    </div>
+    <div class="chart-card">
+      <h3>인적 관리 활동 실시율</h3>
+      <div id="chartHuman"></div>
+      <div class="highlight-box" style="margin-top:12px;">
+        💡 영업비밀A 기업은 <strong>내부자 서약서(41.0%)</strong>, <strong>정기 교육(19.8%)</strong> 등 인적 관리가 영업비밀B(20.6%, 8.6%)보다 약 2배 높아 관리 수준 격차가 뚜렷합니다.
+      </div>
+    </div>
+  </div>
+
+  <!-- 물리적 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">🏗️</div>
+      <div><div class="section-title">보호 활동 — 물리적 관리</div><div class="section-sub">시설·문서·매체 등 물리적 보안 활동</div></div>
+    </div>
+    <div class="chart-card">
+      <h3>물리적 관리 활동 실시율</h3>
+      <div id="chartPhysical"></div>
+    </div>
+  </div>
+
+  <!-- 기술적 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">💻</div>
+      <div><div class="section-title">보호 활동 — 기술적 관리</div><div class="section-sub">정보시스템 및 IT 보안 관련 기술적 보호 활동</div></div>
+    </div>
+    <div class="chart-card">
+      <h3>기술적 관리 활동 실시율</h3>
+      <div id="chartTechMgmt"></div>
+      <div class="highlight-box green" style="margin-top:12px;">
+        ✅ <strong>로그인 기록 보관(54.6%)</strong>이 가장 높으나, <strong>전자문서 발송제한(3.8%)</strong>은 가장 낮아 실질적 정보 유출 차단 조치가 미흡합니다.
+      </div>
+    </div>
+  </div>
+
+</div><!-- /tab-protect -->
+
+
+<!-- ══════════════════════════════════════
+     TAB 4 : 교육 & 유출
+══════════════════════════════════════ -->
+<div class="tab-page" id="tab-edu">
+
+  <!-- 직무교육 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">🎓</div>
+      <div><div class="section-title">영업비밀 보호 관련 직무교육 현황</div><div class="section-sub">2023년 기준</div></div>
+    </div>
+
+    <div class="chart-card">
+      <h3>영업비밀 유형별 직무교육 실시 현황</h3>
+      <div class="chart-note">※ 직무교육을 실시하고 있는 업체 비율</div>
+
+      <div class="data-all">
+        <div class="edu-bar-row">
+          <div class="edu-bar-label"><span>전체 (n=2,500)</span><span style="color:var(--pink);font-weight:700;">20.0% 실시</span></div>
+          <div class="edu-bar-track"><div class="edu-bar-yes" style="width:20%">20.0%</div><div class="edu-bar-no" style="width:80%">80.0% 미실시</div></div>
+        </div>
+      </div>
+      <div class="data-a">
+        <div class="edu-bar-row">
+          <div class="edu-bar-label"><span>영업비밀A (n=563)</span><span style="color:var(--pink);font-weight:700;">29.2% 실시</span></div>
+          <div class="edu-bar-track"><div class="edu-bar-yes" style="width:29.2%">29.2%</div><div class="edu-bar-no" style="width:70.8%">70.8% 미실시</div></div>
+        </div>
+      </div>
+      <div class="data-b">
+        <div class="edu-bar-row">
+          <div class="edu-bar-label"><span>영업비밀B (n=1,937)</span><span style="color:var(--text-secondary);">17.4% 실시</span></div>
+          <div class="edu-bar-track"><div class="edu-bar-yes" style="width:17.4%">17.4%</div><div class="edu-bar-no" style="width:82.6%">82.6% 미실시</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="chart-card">
+        <h3>직무교육 실시 주기 (n=501)</h3>
+        <div class="chart-note">※ 직무교육 실시 업체 기준</div>
+        <div class="doughnut-wrap">
+          <canvas id="chartEduCycle" width="170" height="170"></canvas>
+          <div class="doughnut-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#c0254d"></div><span><strong>57.0%</strong> 연 1회</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#e8406a"></div><span><strong>28.7%</strong> 분기별 1회</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#f5a5b8"></div><span><strong>13.1%</strong> 수시</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#ffd6e0"></div><span><strong>1.2%</strong> 월 1회</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>직무교육 실시 주체 (n=501)</h3>
+        <div class="chart-note">※ 직무교육 실시 업체 기준</div>
+        <div class="doughnut-wrap">
+          <canvas id="chartEduOrg" width="170" height="170"></canvas>
+          <div class="doughnut-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#c0254d"></div><span><strong>87.7%</strong> 회사 자체적으로 실시</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#e5e7eb"></div><span><strong>12.6%</strong> 외부 전문기관 실시</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 유출 피해 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">⚠️</div>
+      <div><div class="section-title">영업비밀 유출 피해 현황 및 대응</div><div class="section-sub">2023년 기준 | 유출 피해 경험 업체: n=13 (사례 수 적어 가중치 없이 별도 분석)</div></div>
+    </div>
+
+    <div class="stat-grid" style="grid-template-columns:repeat(2,1fr);max-width:400px;">
+      <div class="stat-card stat-pink"><div class="stat-val">0.5%</div><div class="stat-label">유출 피해 경험 비율</div><div class="stat-sub">전체 2,500개 중 13개</div></div>
+      <div class="stat-card stat-orange"><div class="stat-val">99.5%</div><div class="stat-label">유출 피해 없음</div><div class="stat-sub">대부분의 기업</div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="chart-card">
+        <h3>유출된 영업비밀 종류 (복수응답, n=13)</h3>
+        <div class="prog-row"><div class="prog-label">신기술 개발 관련 아이디어·실험데이터·연구노트</div><div class="prog-track"><div class="prog-fill pink" style="width:30.8%">30.8%</div></div></div>
+        <div class="prog-row"><div class="prog-label">생산·제조 관련 노하우·공정·방법</div><div class="prog-track"><div class="prog-fill blue" style="width:23.1%">23.1%</div></div></div>
+        <div class="prog-row"><div class="prog-label">영업정보(고객·거래처정보 등)</div><div class="prog-track"><div class="prog-fill blue" style="width:23.1%">23.1%</div></div></div>
+        <div class="prog-row"><div class="prog-label">제품·부품·금형 등의 설계도</div><div class="prog-track"><div class="prog-fill green" style="width:15.4%">15.4%</div></div></div>
+        <div class="prog-row"><div class="prog-label">경영전략 정보</div><div class="prog-track"><div class="prog-fill green" style="width:15.4%">15.4%</div></div></div>
+        <div class="prog-row"><div class="prog-label">성분 정보</div><div class="prog-track"><div class="prog-fill orange" style="width:7.7%">7.7%</div></div></div>
+        <div class="prog-row"><div class="prog-label">서비스 제공 노하우</div><div class="prog-track"><div class="prog-fill gray" style="width:7.7%">7.7%</div></div></div>
+      </div>
+      <div>
+        <div class="chart-card" style="margin-bottom:16px;">
+          <h3>영업비밀 유출 주체 (복수응답, n=13)</h3>
+          <div class="prog-row"><div class="prog-label">퇴직자</div><div class="prog-track"><div class="prog-fill pink" style="width:38.5%">38.5%</div></div></div>
+          <div class="prog-row"><div class="prog-label">경쟁업체 관계자</div><div class="prog-track"><div class="prog-fill blue" style="width:23.1%">23.1%</div></div></div>
+          <div class="prog-row"><div class="prog-label">재직자</div><div class="prog-track"><div class="prog-fill orange" style="width:15.4%">15.4%</div></div></div>
+          <div class="prog-row"><div class="prog-label">협력업체 관계자</div><div class="prog-track"><div class="prog-fill orange" style="width:15.4%">15.4%</div></div></div>
+          <div class="prog-row"><div class="prog-label">거래처 관계자</div><div class="prog-track"><div class="prog-fill gray" style="width:7.7%">7.7%</div></div></div>
+        </div>
+        <div class="chart-card">
+          <h3>유출 시 대응방법 (복수응답, n=13)</h3>
+          <div class="prog-row"><div class="prog-label">내용증명·경고장 발송</div><div class="prog-track"><div class="prog-fill pink" style="width:38.5%">38.5%</div></div></div>
+          <div class="prog-row"><div class="prog-label">보안규정 및 시스템 정비</div><div class="prog-track"><div class="prog-fill blue" style="width:23.1%">23.1%</div></div></div>
+          <div class="prog-row"><div class="prog-label">유출한 대상에 대한 무대응</div><div class="prog-track"><div class="prog-fill blue" style="width:23.1%">23.1%</div></div></div>
+          <div class="prog-row"><div class="prog-label">민사소송</div><div class="prog-track"><div class="prog-fill orange" style="width:15.4%">15.4%</div></div></div>
+          <div class="prog-row"><div class="prog-label">유출직원 징계조치</div><div class="prog-track"><div class="prog-fill orange" style="width:15.4%">15.4%</div></div></div>
+          <div class="prog-row"><div class="prog-label">합의·협상 제안</div><div class="prog-track"><div class="prog-fill gray" style="width:7.7%">7.7%</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- /tab-edu -->
+
+
+<!-- ══════════════════════════════════════
+     TAB 5 : 정책 인지 & 수요
+══════════════════════════════════════ -->
+<div class="tab-page" id="tab-policy">
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">🏛️</div>
+      <div><div class="section-title">영업비밀 보호 관련 정책 인지도</div><div class="section-sub">특허청 제도에 대한 기업의 인지 현황</div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="chart-card">
+        <h3>특허청 '특별사법경찰' 제도 인지 여부</h3>
+        <div class="chart-note">※ 전체(n=2,500) / 영업비밀A(n=563) / 영업비밀B(n=1,937)</div>
+        <div class="data-all">
+          <div class="edu-bar-row"><div class="edu-bar-label"><span>전체</span><span style="color:var(--pink);font-weight:700;">14.1% 인지</span></div>
+          <div class="edu-bar-track"><div class="edu-bar-yes" style="width:14.1%">14.1%</div><div class="edu-bar-no" style="width:85.9%">85.9% 모름</div></div></div>
+        </div>
+        <div class="data-a">
+          <div class="edu-bar-row"><div class="edu-bar-label"><span>영업비밀A</span><span style="color:var(--pink);font-weight:700;">21.7% 인지</span></div>
+          <div class="edu-bar-track"><div class="edu-bar-yes" style="width:21.7%">21.7%</div><div class="edu-bar-no" style="width:78.3%">78.3% 모름</div></div></div>
+        </div>
+        <div class="data-b">
+          <div class="edu-bar-row"><div class="edu-bar-label"><span>영업비밀B</span><span style="color:var(--text-secondary);">11.9% 인지</span></div>
+          <div class="edu-bar-track"><div class="edu-bar-yes" style="width:11.9%">11.9%</div><div class="edu-bar-no" style="width:88.1%">88.1% 모름</div></div></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>특허청 '산업재산권 분쟁조정위원회' 인지 여부</h3>
+        <div class="chart-note">※ 전체(n=2,500) / 영업비밀A(n=563) / 영업비밀B(n=1,937)</div>
+        <div class="data-all">
+          <div class="edu-bar-row"><div class="edu-bar-label"><span>전체</span><span style="color:var(--pink);font-weight:700;">12.3% 인지</span></div>
+          <div class="edu-bar-track"><div class="edu-bar-yes" style="width:12.3%">12.3%</div><div class="edu-bar-no" style="width:87.7%">87.7% 모름</div></div></div>
+        </div>
+        <div class="data-a">
+          <div class="edu-bar-row"><div class="edu-bar-label"><span>영업비밀A</span><span style="color:var(--pink);font-weight:700;">19.9% 인지</span></div>
+          <div class="edu-bar-track"><div class="edu-bar-yes" style="width:19.9%">19.9%</div><div class="edu-bar-no" style="width:80.1%">80.1% 모름</div></div></div>
+        </div>
+        <div class="data-b">
+          <div class="edu-bar-row"><div class="edu-bar-label"><span>영업비밀B</span><span style="color:var(--text-secondary);">10.1% 인지</span></div>
+          <div class="edu-bar-track"><div class="edu-bar-yes" style="width:10.1%">10.1%</div><div class="edu-bar-no" style="width:89.9%">89.9% 모름</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="highlight-box orange">
+      ⚠️ 두 제도 모두 전체 인지율이 <strong>12~14%</strong> 수준으로 낮으며, 특히 영업비밀B 기업의 인지율이 더 낮아 맞춤형 홍보·교육이 필요합니다.
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">📣</div>
+      <div><div class="section-title">영업비밀 보호 관련 정책 수요</div><div class="section-sub">영업비밀 관리 과정에서 겪은 애로사항 1순위</div></div>
+    </div>
+    <div class="chart-card">
+      <h3>영업비밀 관리 과정에서 겪은 애로사항 1순위</h3>
+      <div class="chart-note">※ 전체(n=2,500) / 영업비밀A(n=563) / 영업비밀B(n=1,937)</div>
+      <div id="chartDemand"></div>
+      <div class="implication" style="margin-top:16px;">
+        <h4>📌 정책적 시사점</h4>
+        <ul>
+          <li>기업의 <strong>34.3%</strong>가 법·제도 정보 부족을 1순위로 꼽아 세부 지침 및 가이드라인 보급이 시급합니다.</li>
+          <li>경영진 관심 부족(20.6%)과 보안 전문인력 부족(18.3%)이 뒤를 이어 경영층 대상 인식 제고 프로그램이 필요합니다.</li>
+          <li>영업비밀B 기업의 경영진 관심 부족(22.1%)이 A(15.2%)보다 높아 법적 요건 미충족 기업 대상 맞춤형 지원이 요구됩니다.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div><!-- /tab-policy -->
+
+
+<!-- ══════════════════════════════════════
+     TAB 6 : 기술보호
+══════════════════════════════════════ -->
+<div class="tab-page" id="tab-techprot">
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">🔬</div>
+      <div><div class="section-title">기술보호 일반 현황</div><div class="section-sub">특허·영업비밀 보유 현황 및 기술보호 전략 (n=2,500)</div></div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card stat-blue data-all"><div class="stat-val">32.5%</div><div class="stat-label">특허 보유율</div><div class="stat-sub">전체 기준</div></div>
+      <div class="stat-card stat-blue data-a"><div class="stat-val">37.1%</div><div class="stat-label">특허 보유율</div><div class="stat-sub">영업비밀A 기준</div></div>
+      <div class="stat-card stat-blue data-b"><div class="stat-val">31.1%</div><div class="stat-label">특허 보유율</div><div class="stat-sub">영업비밀B 기준</div></div>
+      <div class="stat-card stat-pink data-all"><div class="stat-val">67.5%</div><div class="stat-label">영업비밀 보유율</div><div class="stat-sub">전체 기준</div></div>
+      <div class="stat-card stat-pink data-a"><div class="stat-val">62.9%</div><div class="stat-label">영업비밀 보유율</div><div class="stat-sub">영업비밀A 기준</div></div>
+      <div class="stat-card stat-pink data-b"><div class="stat-val">68.9%</div><div class="stat-label">영업비밀 보유율</div><div class="stat-sub">영업비밀B 기준</div></div>
+      <div class="stat-card stat-orange data-all"><div class="stat-val">9.3%</div><div class="stat-label">기술보호 전략 보유</div><div class="stat-sub">전체 기준</div></div>
+      <div class="stat-card stat-orange data-a"><div class="stat-val">11.5%</div><div class="stat-label">기술보호 전략 보유</div><div class="stat-sub">영업비밀A 기준</div></div>
+      <div class="stat-card stat-orange data-b"><div class="stat-val">8.6%</div><div class="stat-label">기술보호 전략 보유</div><div class="stat-sub">영업비밀B 기준</div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="chart-card">
+        <h3>특허와 영업비밀 중 더 중요하게 생각하는 것</h3>
+        <div class="chart-note">※ 전체(n=2,500) / 영업비밀A(n=563) / 영업비밀B(n=1,937)</div>
+        <div id="chartImportance"></div>
+      </div>
+      <div class="chart-card">
+        <h3>기술보호 전략 적용 시 가장 큰 애로사항 1순위</h3>
+        <div class="chart-note">※ 전체(n=2,500) / 영업비밀A(n=563) / 영업비밀B(n=1,937)</div>
+
+        <div class="prog-group">
+          <div class="pg-label">기술보호 전략에 관한 전문인력 부족</div>
+          <div class="prog-series">
+            <div class="prog-series-row data-all"><span class="ps-tag all">전체</span><div class="prog-track"><div class="prog-fill pink" style="width:23.7%">23.7%</div></div></div>
+            <div class="prog-series-row data-a"><span class="ps-tag type-a">영업A</span><div class="prog-track"><div class="prog-fill pink" style="width:21.0%">21.0%</div></div></div>
+            <div class="prog-series-row data-b"><span class="ps-tag type-b">영업B</span><div class="prog-track"><div class="prog-fill blue" style="width:24.5%">24.5%</div></div></div>
+          </div>
+        </div>
+        <div class="prog-group">
+          <div class="pg-label">기관장 및 경영진의 관심부족</div>
+          <div class="prog-series">
+            <div class="prog-series-row data-all"><span class="ps-tag all">전체</span><div class="prog-track"><div class="prog-fill pink" style="width:21.3%">21.3%</div></div></div>
+            <div class="prog-series-row data-a"><span class="ps-tag type-a">영업A</span><div class="prog-track"><div class="prog-fill pink" style="width:19.0%">19.0%</div></div></div>
+            <div class="prog-series-row data-b"><span class="ps-tag type-b">영업B</span><div class="prog-track"><div class="prog-fill blue" style="width:22.0%">22.0%</div></div></div>
+          </div>
+        </div>
+        <div class="prog-group">
+          <div class="pg-label">기술보호 전략 지침(방법론) 미비</div>
+          <div class="prog-series">
+            <div class="prog-series-row data-all"><span class="ps-tag all">전체</span><div class="prog-track"><div class="prog-fill pink" style="width:21.5%">21.5%</div></div></div>
+            <div class="prog-series-row data-a"><span class="ps-tag type-a">영업A</span><div class="prog-track"><div class="prog-fill pink" style="width:20.5%">20.5%</div></div></div>
+            <div class="prog-series-row data-b"><span class="ps-tag type-b">영업B</span><div class="prog-track"><div class="prog-fill blue" style="width:21.8%">21.8%</div></div></div>
+          </div>
+        </div>
+        <div class="prog-group">
+          <div class="pg-label">체계적인 교육·컨설팅 부족</div>
+          <div class="prog-series">
+            <div class="prog-series-row data-all"><span class="ps-tag all">전체</span><div class="prog-track"><div class="prog-fill pink" style="width:19.9%">19.9%</div></div></div>
+            <div class="prog-series-row data-a"><span class="ps-tag type-a">영업A</span><div class="prog-track"><div class="prog-fill pink" style="width:25.0%">25.0%</div></div></div>
+            <div class="prog-series-row data-b"><span class="ps-tag type-b">영업B</span><div class="prog-track"><div class="prog-fill blue" style="width:18.4%">18.4%</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="implication">
+      <h4>📌 종합 시사점</h4>
+      <ul>
+        <li>대부분의 기업(90.7%)이 기술보호 전략이 없어 체계적인 전략 수립을 위한 정부 지원 가이드라인이 필요합니다.</li>
+        <li>특허와 영업비밀을 조합하여 보호하는 것이 중요하다는 인식(33.0%)이 높지만 실제 전략으로 이어지지 못하고 있습니다.</li>
+        <li>전문인력 부족(23.7%)과 지침 미비(21.5%)가 핵심 장벽으로, 전문 컨설팅 지원 및 표준 매뉴얼 보급이 시급합니다.</li>
+        <li>영업비밀B 기업의 관심 없음 비율(32.1%)이 A(14.3%)보다 현저히 높아 기업 유형별 맞춤 지원이 요구됩니다.</li>
+      </ul>
+    </div>
+  </div>
+</div><!-- /tab-techprot -->
+
+<button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">▲</button>
+
+<script>
+/* ══ 탭 전환 ══ */
+function switchTab(btn, tabId) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+  // Chart.js 차트(도넛·세로막대)만 resize
+  setTimeout(() => {
+    Object.values(chartInstances).forEach(c => { if(c && c.resize) c.resize(); });
+  }, 60);
+}
+
+/* ══ 필터 ══ */
+const activeFilters = new Set(['all','type-a','type-b']);
+
+function toggleFilter(btn) {
+  const f = btn.dataset.filter;
+  if (activeFilters.has(f)) {
+    if (activeFilters.size === 1) return; // 최소 1개 유지
+    activeFilters.delete(f);
+    btn.classList.remove('active');
+  } else {
+    activeFilters.add(f);
+    btn.classList.add('active');
+  }
+  applyFilter();
+}
+
+function applyFilter() {
+  const showAll = activeFilters.has('all');
+  const showA   = activeFilters.has('type-a');
+  const showB   = activeFilters.has('type-b');
+
+  document.querySelectorAll('.data-all').forEach(el => el.classList.toggle('hidden', !showAll));
+  document.querySelectorAll('.data-a').forEach(el =>   el.classList.toggle('hidden', !showA));
+  document.querySelectorAll('.data-b').forEach(el =>   el.classList.toggle('hidden', !showB));
+
+  // Chart.js 데이터셋 표시 제어
+  const map = { 0: showAll, 1: showA, 2: showB };
+  Object.values(chartInstances).forEach(chart => {
+    if (!chart) return;
+    chart.data.datasets.forEach((ds, i) => {
+      // meta visibility
+      const meta = chart.getDatasetMeta(i);
+      if (meta) {
+        meta.hidden = !map[i];
+      }
+    });
+    chart.update();
+  });
+}
+
+/* ══ Chart.js ══ */
+const PINK='#c0254d', PINK2='#e8406a', PINK3='#f5a5b8';
+const BLUE='#0e4d8c', BLUE2='#1a6fbf';
+const gridColor='#f0f0f0';
+const defFont={family:'Noto Sans KR',size:11};
+const tickY={font:{family:'Noto Sans KR',size:11},color:'#1a1a2e'};
+const chartInstances = {};
+
+const barOpts = (axis='y', aspectRatio=2.5) => ({
+  responsive:true, maintainAspectRatio:true, aspectRatio,
+  layout:{padding:{left:0, right:10}},
+  plugins:{legend:{labels:{font:defFont,color:'#1a1a2e'}},tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.raw}%`}}},
+  scales:{
+    x:{
+      grid:{color:gridColor},
+      ticks:{font:defFont,color:'#5a6a7a', callback: axis==='y' ? v=>v+'%' : undefined}
+    },
+    y:{
+      grid:{color:gridColor},
+      ticks: axis==='y'
+        ? {font:{family:'Noto Sans KR',size:10},color:'#1a1a2e', autoSkip:false,
+           crossAlign:'far'}
+        : {font:defFont,color:'#5a6a7a', callback:v=>v+'%'}
+    }
+  }
+});
+
+
+
+/* ── HTML 세로 바 차트 렌더러 ── */
+function renderVbar(containerId, labels, datasets){
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  const max = Math.max(...datasets.flatMap(d=>d.data)) * 1.12;
+  const tagClass = ['all','a','b'];
+  const colors   = ['#c0254d','#1a6fbf','#f5a5b8'];
+  const dsCount  = datasets.length;
+  const colW = Math.floor(100 / labels.length);
+
+  let h = '<div class="vbar-chart">';
+  // legend
+  h += '<div class="hbar-legend">';
+  datasets.forEach((ds,i)=>{
+    h += `<span><span class="ld" style="background:${colors[i]}"></span>${ds.label}</span>`;
+  });
+  h += '</div>';
+  // chart body
+  h += '<div class="vbar-body">';
+  labels.forEach((label, li)=>{
+    h += `<div class="vbar-col">`;
+    h += `<div class="vbar-bars">`;
+    datasets.forEach((ds,di)=>{
+      const val = ds.data[li];
+      const pct = (val/max*100).toFixed(1);
+      const cls = tagClass[di];
+      h += `<div class="vbar-bar-wrap data-${cls}">`;
+      h += `<div class="vbar-val" style="color:${colors[di]}">${val}%</div>`;
+      h += `<div class="vbar-bar" style="height:${pct}%;background:${colors[di]}"></div>`;
+      h += `</div>`;
+    });
+    h += `</div>`;
+    // x축 레이블
+    const lines = label.split('\n');
+    h += `<div class="vbar-label">${lines.map(l=>`<span>${l}</span>`).join('')}</div>`;
+    h += `</div>`;
+  });
+  h += '</div></div>';
+  container.innerHTML = h;
+}
+
+/* ── HTML 가로 바 차트 렌더러 ── */
+function hbarMax(datasets){ return Math.max(...datasets.flatMap(d=>d.data)); }
+
+function renderHbar(containerId, labels, datasets){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  const max = hbarMax(datasets) * 1.1;
+  const tagClass = ['all','ta','tb'];
+  const barClass = ['pink','blue','pink3'];
+
+  let html = '<div class="hbar-chart">';
+  html += '<div class="hbar-legend">';
+  datasets.forEach((ds,i)=>{
+    const cls = barClass[i];
+    const bg = cls==='pink'?'#c0254d':cls==='blue'?'#0e4d8c':'#f5a5b8';
+    html += `<span><span class="ld" style="background:${bg}"></span>${ds.label}</span>`;
+  });
+  html += '</div>';
+
+  labels.forEach((label, li)=>{
+    html += `<div class="hbar-group">`;
+    html += `<div class="hbar-title">${label}</div>`;
+    datasets.forEach((ds, di)=>{
+      const val = ds.data[li];
+      const pct = (val/max*100).toFixed(1);
+      const show = val >= 3 ? val+'%' : '';
+      const cls = tagClass[di];
+      const bcls = barClass[di];
+      html += `<div class="hbar-row data-${cls==='all'?'all':cls==='ta'?'a':'b'}">`;
+      html += `<span class="hbar-tag ${cls}">${ds.label}</span>`;
+      html += `<div class="hbar-outer"><div class="hbar-inner ${bcls}" style="width:${pct}%">${show}</div></div>`;
+      html += `</div>`;
+    });
+    html += `</div>`;
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+
+
+function buildChart(key) {
+  const el = id => document.getElementById(id);
+
+  if (key === 'expense') {
+    chartInstances.expense = new Chart(el('chartExpense'),{
+      type:'doughnut',
+      data:{labels:['지출 있음 (15.1%)','지출 없음 (84.9%)'],
+        datasets:[{data:[15.1,84.9],backgroundColor:[PINK,'#e5e7eb'],borderWidth:0,hoverOffset:8}]},
+      options:{cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.label}`}}}}
+    });
+  }
+
+  if (key === 'nobudget') {
+    renderVbar('chartNobudget', [
+      '영업비밀 보호\n필요가 크지 않다',
+      '별도 예산 없이\n비밀유지서약서로 보호',
+      '예산 책정 필요하나\n여력이 없다',
+      '영업비밀 보호해야\n하는지 몰랐다',
+      '보호 필요하나\n방법을 모른다'
+    ],[
+      {label:'전체',   data:[37.4,40.0,21.0,1.2,0.5]},
+      {label:'영업비밀A',data:[38.5,45.1,13.6,1.9,0.9]},
+      {label:'영업비밀B',data:[37.0,38.4,23.3,1.0,0.3]}
+    ]);
+  }
+
+  if (key === 'institutional') {
+    renderHbar('chartInstitutional', [
+      '자체적인 영업비밀 관리규정 제정·운영',
+      '등급별 접근 인원 제한',
+      '정기적인 보안 점검 및 감사',
+      '영업비밀 관리규정 위반 시 징계규정 구비'
+    ],[
+      {label:'전체',   data:[53.1,22.5,21.7,17.8]},
+      {label:'영업비밀A',data:[46.6,20.4,22.1,12.1]},
+      {label:'영업비밀B',data:[55.0,23.2,21.5,19.4]}
+    ]);
+  }
+
+  if (key === 'human') {
+    renderHbar('chartHuman', [
+      '내부자 주기적 영업비밀보호 서약서 작성',
+      '정기적 영업비밀 교육 실시',
+      '외부인 비밀유지 계약 체결',
+      '근로자 경업금지 의무 부여',
+      '퇴직 시 비밀보호 서약서 징구'
+    ],[
+      {label:'전체',   data:[25.2,11.1,6.9,6.8,6.7]},
+      {label:'영업비밀A',data:[41.0,19.8,9.7,10.7,13.8]},
+      {label:'영업비밀B',data:[20.6,8.6,6.1,5.7,4.6]}
+    ]);
+  }
+
+  if (key === 'physical') {
+    renderHbar('chartPhysical', [
+      '중요시설 감시카메라 설치',
+      '중요시설 통제구역 지정',
+      '중요정보 영업비밀 자체 등록·관리',
+      'USB·PC 등 사외 반출절차 수립',
+      '외부인 출입통제',
+      '영업비밀 문서 비밀 표기',
+      '일반자료와 구분하여 보관',
+      '영업비밀 원본증명서비스 등록'
+    ],[
+      {label:'전체',   data:[39.0,27.1,22.8,12.4,11.3,7.9,5.8,0.8]},
+      {label:'영업비밀A',data:[63.5,37.4,35.1,11.7,20.9,12.9,12.1,3.5]},
+      {label:'영업비밀B',data:[31.9,24.1,19.2,12.5,8.4,6.5,4.0,0.0]}
+    ]);
+  }
+
+  if (key === 'techMgmt') {
+    renderHbar('chartTechMgmt', [
+      '정보시스템 로그인 기록 및 보관',
+      '영업비밀 저장영역 권한·암호 설정',
+      '보안설정(방화벽·백신) 점검',
+      '관리절차 마련 및 전자문서 발송제한'
+    ],[
+      {label:'전체',   data:[54.6,32.8,30.9,3.8]},
+      {label:'영업비밀A',data:[53.7,38.2,33.4,7.4]},
+      {label:'영업비밀B',data:[54.8,14.1,30.2,2.8]}
+    ]);
+  }
+
+  if (key === 'eduCycle') {
+    chartInstances.eduCycle = new Chart(el('chartEduCycle'),{
+      type:'doughnut',
+      data:{labels:['연 1회 (57.0%)','분기별 1회 (28.7%)','수시 (13.1%)','월 1회 (1.2%)'],
+        datasets:[{data:[57.0,28.7,13.1,1.2],backgroundColor:[PINK,PINK2,PINK3,'#ffd6e0'],borderWidth:0,hoverOffset:8}]},
+      options:{cutout:'60%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.label}`}}}}
+    });
+  }
+
+  if (key === 'eduOrg') {
+    chartInstances.eduOrg = new Chart(el('chartEduOrg'),{
+      type:'doughnut',
+      data:{labels:['회사 자체적으로 (87.7%)','외부 전문기관 (12.6%)'],
+        datasets:[{data:[87.7,12.6],backgroundColor:[PINK,'#e5e7eb'],borderWidth:0,hoverOffset:8}]},
+      options:{cutout:'60%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.label}`}}}}
+    });
+  }
+
+  if (key === 'demand') {
+    renderHbar('chartDemand', [
+      '세부적인 법·제도 정보 부족',
+      '기관장 및 경영진 관심 부족',
+      '보안 전문인력 부족',
+      '보안규정·지침 미비',
+      '연구자·직원 인식·교육 부족',
+      '보안시스템 구축 비용·자원 부족',
+      '협력사와의 이해관계',
+      '퇴직자·파견직 관리의 한계'
+    ],[
+      {label:'전체',   data:[34.3,20.6,18.3,16.3,5.5,3.8,0.6,0.6]},
+      {label:'영업비밀A',data:[32.9,15.2,17.3,18.7,6.2,6.5,1.0,2.2]},
+      {label:'영업비밀B',data:[34.7,22.1,18.6,15.6,5.3,3.0,0.5,0.1]}
+    ]);
+  }
+
+  if (key === 'importance') {
+    renderHbar('chartImportance', [
+      '기술 특성에 따라 조합하여 보호',
+      '관심 없음',
+      '영업비밀로 보호가 더 중요',
+      '특허로 보호가 더 중요'
+    ],[
+      {label:'전체',   data:[33.0,28.1,29.9,9.1]},
+      {label:'영업비밀A',data:[40.4,14.3,31.1,14.1]},
+      {label:'영업비밀B',data:[30.8,32.1,29.5,7.6]}
+    ]);
+  }
+
+  // 새로 만든 차트에 현재 필터 적용
+  applyFilter();
+}
+
+// 모든 차트 초기화 (HTML 바 차트는 즉시, Chart.js는 숨김 탭도 초기화)
+['expense','nobudget','institutional','human','physical','techMgmt',
+ 'eduCycle','eduOrg','demand','importance'].forEach(k => buildChart(k));
+
+/* ══ 스크롤 back-to-top ══ */
+window.addEventListener('scroll',()=>{
+  const btn=document.getElementById('back-to-top');
+  btn.classList.toggle('visible', window.scrollY > 400);
+});
+
+/* ══ 초기 필터 적용 ══ */
+applyFilter();
+</script>
+</body>
+</html>
