@@ -703,8 +703,13 @@ body::after {
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">보고서 URL <span>*</span></label>
-        <input class="form-input" id="fUrl" type="url" placeholder="https://username.github.io/repo/report.html">
+        <label class="form-label">Report Path <span>*</span></label>
+        <input class="form-input" id="fUrl" type="text" placeholder="reports/report-name.html or report-name.html">
+        <div class="gh-info" style="margin-top:8px; margin-bottom:0;">
+          In manifest mode, this value is generated automatically.<br>
+          It should come from <code>reports-manifest.json</code> or report metadata.
+        </div>
+      </div>
       </div>
       <div class="form-group">
         <label class="form-label">한 줄 설명</label>
@@ -740,48 +745,62 @@ const PRESET_COLORS = [
   '#7c3aed','#dc2626','#0891b2','#d97706','#be185d','#374151'
 ];
 
-/* 초기 샘플 보고서 */
+const REPORTS_MANIFEST_PATH = 'reports-manifest.json';
+const REPORTS_BASE_PATH = 'reports/';
+
+/* 珥덇린 ?섑뵆 蹂닿퀬??*/
 const DEFAULT_REPORTS = [
   {
-    id: 1, title: '2025년 기업정보화통계집',
-    client: '과학기술정보통신부', year: 2025, type: '사업체',
-    sample: '약 5,000개사',
-    desc: '국내 기업의 정보화 현황(인터넷·전자상거래·클라우드 등)을 파악하여 정책 수립 기초 자료로 활용.',
-    url: '2025년_기업정보화통계집_웹_보고서_260403.html', color: '#2d82d4'
+    id: 1,
+    title: '2025 IT Statistics',
+    client: 'Ministry of Science and ICT',
+    year: 2025,
+    type: 'Business',
+    sample: 'About 5,000 companies',
+    desc: 'Sample report used as a fallback when no manifest is available.',
+    url: 'reports/2025-it-statistics.html',
+    color: '#2d82d4'
   },
   {
-    id: 2, title: '2024년 시청점유율 기초조사',
-    client: '방송통신위원회', year: 2024, type: '가구',
-    sample: '전국 가구 표본',
-    desc: '국내 방송 매체별 시청점유율 실태를 파악하고 미디어 이용 행태 변화를 분석.',
-    url: '시청점유율기초조사_웹_보고서_260403.html', color: '#7c3aed'
+    id: 2,
+    title: '2024 Media Share Survey',
+    client: 'Korea Communications Commission',
+    year: 2024,
+    type: 'Household',
+    sample: 'National household panel',
+    desc: 'Another fallback sample report for manual mode.',
+    url: 'reports/2024-media-share.html',
+    color: '#7c3aed'
   }
 ];
 
-/* ─── 앱 상태 ─── */
+/* ??? ???곹깭 ??? */
 let reports   = [];
 let editMode  = false;
 let editingId = null;
 let selColor  = PRESET_COLORS[0];
-let fClient = '전체', fYear = '전체', fType = '전체';
+let fClient = 'All', fYear = 'All', fType = 'All';
 let ghCfg = { token:'', repo:'', branch:'main', path:'data.json', _sha:null };
+let manifestMode = false;
 
-/* ════════════════════════════════════════════
-   초기화
-════════════════════════════════════════════ */
 async function init() {
-  /* GitHub 설정 복원 */
   const savedGh = localStorage.getItem(LS_GH_KEY);
   if (savedGh) ghCfg = { ...ghCfg, ...JSON.parse(savedGh) };
 
-  /* 데이터 로드: GitHub → localStorage → 기본값 */
-  if (ghCfg.token && ghCfg.repo) {
-    setSyncStatus('busy', '불러오는 중…');
+  const manifestLoaded = await loadFromManifest();
+  if (manifestLoaded) {
+    manifestMode = true;
+    setSyncStatus('ok', 'Manifest mode');
+  } else if (ghCfg.token && ghCfg.repo) {
+    setSyncStatus('busy', 'Loading...');
     const ok = await fetchFromGitHub();
-    if (!ok) { loadFromLocalStorage(); setSyncStatus('error', 'GitHub 오류'); }
+    if (!ok) {
+      loadFromLocalStorage();
+      setSyncStatus('error', 'GitHub error');
+    }
   } else {
     loadFromLocalStorage();
-    setSyncStatus('', '미연결');
+    setSyncStatus('', 'Manual mode');
   }
 
   buildColorSwatches();
@@ -789,16 +808,64 @@ async function init() {
   updateStats();
   applyFilters();
 }
+function normalizeReportUrl(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  if (/^(https?:)?\/\//i.test(raw) || raw.startsWith('/') || raw.startsWith('./') || raw.startsWith('../')) {
+    return raw;
+  }
+  if (raw.endsWith('.html') && !raw.includes('/')) {
+    return `${REPORTS_BASE_PATH}${raw}`;
+  }
+  return raw;
+}
+
+function inferReportUrl(report) {
+  const explicit = normalizeReportUrl(report.url || report.path || report.file);
+  if (explicit) return explicit;
+  const slug = String(report.slug || '').trim();
+  return slug ? `${REPORTS_BASE_PATH}${slug}.html` : '';
+}
+
+function normalizeReport(report, fallbackId) {
+  const year = Number.parseInt(report.year, 10);
+  return {
+    id: Number.isFinite(Number(report.id)) ? Number(report.id) : fallbackId,
+    title: String(report.title || 'Untitled report'),
+    client: String(report.client || 'Uncategorized'),
+    year: Number.isFinite(year) ? year : new Date().getFullYear(),
+    type: String(report.type || 'Other'),
+    sample: String(report.sample || ''),
+    desc: String(report.desc || ''),
+    url: inferReportUrl(report),
+    color: report.color || PRESET_COLORS[(fallbackId - 1) % PRESET_COLORS.length]
+  };
+}
+
+async function loadFromManifest() {
+  try {
+    const res = await fetch(`${REPORTS_MANIFEST_PATH}?t=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) return false;
+    const data = await res.json();
+    if (!Array.isArray(data)) return false;
+    const normalized = data
+      .map((report, index) => normalizeReport(report, index + 1))
+      .filter(report => report.title && report.url);
+    if (!normalized.length) return false;
+    reports = normalized;
+    return true;
+  } catch (e) {
+    console.error('Manifest load:', e);
+    return false;
+  }
+}
 
 function loadFromLocalStorage() {
   const saved = localStorage.getItem(LS_KEY);
-  reports = saved ? JSON.parse(saved) : DEFAULT_REPORTS;
+  const source = saved ? JSON.parse(saved) : DEFAULT_REPORTS;
+  reports = source.map((report, index) => normalizeReport(report, index + 1));
 }
-
-/* ════════════════════════════════════════════
-   GitHub API
-════════════════════════════════════════════ */
-async function ghFetch(method, body = null) {
+async function ghFetch(method, body = null) {async function ghFetch(method, body = null) {
   const url = `https://api.github.com/repos/${ghCfg.repo}/contents/${ghCfg.path || 'data.json'}`;
   const opts = {
     method,
@@ -872,13 +939,14 @@ function setSyncStatus(state, label) {
 
 /* 통합 저장 함수 (localStorage + GitHub) */
 async function save() {
+  if (manifestMode) {
+    alert('Manifest mode is read-only here. Update reports/ and reports-manifest.json instead.');
+    return false;
+  }
   localStorage.setItem(LS_KEY, JSON.stringify(reports));
   if (ghCfg.token && ghCfg.repo) await pushToGitHub();
+  return true;
 }
-
-/* ════════════════════════════════════════════
-   GitHub 설정 모달
-════════════════════════════════════════════ */
 function openGhModal() {
   document.getElementById('ghToken').value  = ghCfg.token  || '';
   document.getElementById('ghRepo').value   = ghCfg.repo   || '';
@@ -922,22 +990,24 @@ async function testAndSaveGhConfig() {
 let pwPurpose = 'edit'; /* 현재 비밀번호 모달의 목적 */
 
 function requestEditMode() {
+  if (manifestMode) {
+    alert('Manifest mode is active. Upload HTML files to reports/ and refresh reports-manifest.json.');
+    return;
+  }
   if (editMode) { disableEditMode(); return; }
   pwPurpose = 'edit';
-  document.getElementById('pwIcon').textContent  = '🔐';
-  document.getElementById('pwTitle').textContent = '편집 모드 잠금 해제';
-  document.getElementById('pwSub').textContent   = '관리자 비밀번호를 입력하세요.';
+  document.getElementById('pwIcon').textContent  = 'LOCK';
+  document.getElementById('pwTitle').textContent = 'Unlock Edit Mode';
+  document.getElementById('pwSub').textContent   = 'Enter the admin password.';
   openPwModal();
 }
-
 function requestGhModal() {
   pwPurpose = 'github';
-  document.getElementById('pwIcon').textContent  = '⚙';
-  document.getElementById('pwTitle').textContent = 'GitHub 설정 잠금 해제';
-  document.getElementById('pwSub').textContent   = '관리자 비밀번호를 입력하세요.';
+  document.getElementById('pwIcon').textContent  = 'GH';
+  document.getElementById('pwTitle').textContent = 'Unlock GitHub Settings';
+  document.getElementById('pwSub').textContent   = 'Enter the admin password.';
   openPwModal();
 }
-
 function openPwModal() {
   document.getElementById('pwInput').value = '';
   document.getElementById('pwError').textContent = '';
@@ -1072,41 +1142,40 @@ function renderCards(list) {
   grid.innerHTML = '';
   if (!list.length) {
     grid.innerHTML = `<div class="empty-state">
-      <div class="empty-icon">🗂</div>
-      <p>조건에 맞는 보고서가 없습니다.<br>필터를 초기화하거나 검색어를 변경해 보세요.</p>
+      <div class="empty-icon">?뱛</div>
+      <p>No reports matched the current filters.<br>Reset the filters or try another keyword.</p>
     </div>`;
     return;
   }
   list.forEach(r => {
     const wrap = document.createElement('div');
-    wrap.className = `card-wrap${editMode ? ' edit-mode' : ''}`;
+    wrap.className = `card-wrap${editMode && !manifestMode ? ' edit-mode' : ''}`;
     wrap.innerHTML = `
       <div class="card-actions">
-        <button class="btn-card-edit" title="수정" onclick="openEditModal(${r.id})">✏</button>
-        <button class="btn-card-del"  title="삭제" onclick="deleteReport(${r.id})">🗑</button>
+        <button class="btn-card-edit" title="?섏젙" onclick="openEditModal(${r.id})">??/button>
+        <button class="btn-card-del"  title="??젣" onclick="deleteReport(${r.id})">?뿊</button>
       </div>
       <a class="report-card" href="${r.url}" target="_blank" rel="noopener"
-         ${editMode ? 'onclick="return false;"' : ''}>
+         ${editMode && !manifestMode ? 'onclick="return false;"' : ''}>
         <div class="card-color-bar" style="background:${r.color};"></div>
         <div class="card-body">
           <div class="card-meta-row">
             <span class="badge badge-client">${r.client}</span>
-            <span class="badge badge-year">${r.year}년</span>
+            <span class="badge badge-year">${r.year}</span>
             <span class="badge badge-type">${r.type}</span>
           </div>
           <div class="card-title">${r.title}</div>
-          <div class="card-desc">${r.desc || '—'}</div>
+          <div class="card-desc">${r.desc || 'No description provided.'}</div>
         </div>
         <div class="card-footer">
-          <div class="card-sample-size">표본: <strong>${r.sample || '—'}</strong></div>
-          <span class="btn-open">열기 →</span>
+          <div class="card-sample-size">Sample: <strong>${r.sample || '-'}</strong></div>
+          <span class="btn-open">Open ??/span>
         </div>
       </a>`;
     grid.appendChild(wrap);
   });
 }
-
-function resetFilters() {
+function resetFilters() {function resetFilters() {function resetFilters() {
   fClient = '전체'; fYear = '전체'; fType = '전체';
   document.getElementById('searchInput').value = '';
   applyFilters();
@@ -1116,8 +1185,12 @@ function resetFilters() {
    보고서 추가/수정 모달
 ════════════════════════════════════════════ */
 function openModal() {
+  if (manifestMode) {
+    alert('Manifest mode is active. Upload HTML files to reports/ instead of adding cards here.');
+    return;
+  }
   editingId = null;
-  document.getElementById('modalTitle').textContent = '📋 보고서 추가';
+  document.getElementById('modalTitle').textContent = 'Add Report';
   document.getElementById('editId').value = '';
   ['fTitle','fClient','fUrl','fDesc','fSample'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('fYear').value = new Date().getFullYear();
@@ -1128,10 +1201,14 @@ function openModal() {
 }
 
 function openEditModal(id) {
+  if (manifestMode) {
+    alert('Manifest mode is active. Edit the report HTML and manifest instead.');
+    return;
+  }
   const r = reports.find(x => x.id === id);
   if (!r) return;
   editingId = id;
-  document.getElementById('modalTitle').textContent = '✏ 보고서 수정';
+  document.getElementById('modalTitle').textContent = 'Edit Report';
   document.getElementById('editId').value   = id;
   document.getElementById('fTitle').value   = r.title;
   document.getElementById('fClient').value  = r.client;
@@ -1147,7 +1224,7 @@ function openEditModal(id) {
 
 function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
 
-/* 모달 오버레이 클릭 시 닫기 */
+/* 紐⑤떖 ?ㅻ쾭?덉씠 ?대┃ ???リ린 */
 ['modalOverlay','ghOverlay','pwOverlay','changePwOverlay'].forEach(id => {
   document.getElementById(id).addEventListener('click', function(e) {
     if (e.target !== this) return;
@@ -1161,14 +1238,14 @@ function closeModal() { document.getElementById('modalOverlay').classList.remove
 async function submitReport() {
   const title  = document.getElementById('fTitle').value.trim();
   const client = document.getElementById('fClient').value.trim();
-  const year   = parseInt(document.getElementById('fYear').value);
+  const year   = parseInt(document.getElementById('fYear').value, 10);
   const type   = document.getElementById('fType').value;
   const sample = document.getElementById('fSample').value.trim();
-  const url    = document.getElementById('fUrl').value.trim();
+  const url    = normalizeReportUrl(document.getElementById('fUrl').value.trim());
   const desc   = document.getElementById('fDesc').value.trim();
 
   if (!title || !client || !year || !type || !url) {
-    alert('제목, 발주처, 연도, 조사 유형, URL은 필수 항목입니다.');
+    alert('Title, client, year, type, and report path are required.');
     return;
   }
 
@@ -1181,22 +1258,28 @@ async function submitReport() {
   }
 
   closeModal();
-  await save();
-  buildFilters(); updateStats(); applyFilters();
+  const saved = await save();
+  if (!saved) return;
+  buildFilters();
+  updateStats();
+  applyFilters();
 }
 
 async function deleteReport(id) {
+  if (manifestMode) {
+    alert('Manifest mode is active. Remove the report from reports/ and the manifest.');
+    return;
+  }
   const r = reports.find(x => x.id === id);
-  if (!r || !confirm(`"${r.title}" 보고서를 삭제하시겠습니까?`)) return;
+  if (!r || !confirm(`Delete "${r.title}"?`)) return;
   reports = reports.filter(x => x.id !== id);
-  await save();
-  buildFilters(); updateStats(); applyFilters();
+  const saved = await save();
+  if (!saved) return;
+  buildFilters();
+  updateStats();
+  applyFilters();
 }
-
-/* ════════════════════════════════════════════
-   색상 스와치
-════════════════════════════════════════════ */
-function buildColorSwatches() {
+function buildColorSwatches() {function buildColorSwatches() {function buildColorSwatches() {
   const container = document.getElementById('colorSwatches');
   container.innerHTML = '';
   PRESET_COLORS.forEach(c => {
