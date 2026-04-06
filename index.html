@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>한국갤럽조사연구소 웹 보고서 포털</title>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════
+   CSS 변수
+══════════════════════════════════════════════ */
+:root {
+  --primary:       #1a5fa0;
+  --primary-light: #2d82d4;
+  --secondary:     #00c48c;
+  --accent:        #ff6b35;
+  --text:          #e8f0fe;
+  --text-sub:      rgba(220,235,255,0.62);
+  --border:        rgba(255,255,255,0.15);
+  --border-hover:  rgba(255,255,255,0.35);
+  --glass:         rgba(255,255,255,0.10);
+  --glass-hover:   rgba(255,255,255,0.18);
+  --glass-strong:  rgba(255,255,255,0.16);
+  --glass-blur:    blur(18px);
+  --glass-blur-sm: blur(10px);
+  --shadow-hover:  0 12px 40px rgba(0,0,20,0.42);
+  --radius:        16px;
+  --radius-sm:     10px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* 배경: 딥 블루 그라디언트 */
+body {
+  font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+  color: var(--text);
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 20%,  rgba(13,80,160,0.75) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 80%,  rgba(0,90,140,0.55) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 70% at 50% 50%,  rgba(8,30,80,1)     0%, transparent 100%),
+    #050d1e;
+  background-attachment: fixed;
+}
+/* 배경 장식 글로우 */
+body::before, body::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(80px);
+  opacity: 0.18;
+}
+body::before {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, #2d82d4, transparent 70%);
+  top: -150px; left: -150px;
+}
+body::after {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, #00c48c, transparent 70%);
+  bottom: -100px; right: -100px;
+}
+
+/* ── 헤더 ── */
+.site-header {
+  position: sticky; top: 0; z-index: 300;
+  height: 60px; padding: 0 36px;
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(5,20,55,0.65);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--border);
+}
+.logo-mark {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; font-weight: 800; color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 2px 10px rgba(45,130,212,0.4);
+}
+.logo-text { font-size: 0.97rem; font-weight: 700; letter-spacing: -0.3px; color: #fff; }
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+/* 동기화 뱃지 */
+.sync-badge {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 0.68rem; color: var(--text-sub);
+  padding: 4px 10px; border-radius: 12px;
+  border: 1px solid var(--border); background: var(--glass);
+}
+.sync-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #555; transition: background 0.3s;
+}
+.sync-dot.ok    { background: var(--secondary); }
+.sync-dot.error { background: var(--accent); }
+.sync-dot.busy  { background: #f59e0b; animation: blink 1s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+/* GitHub 설정 버튼 */
+.btn-github-cfg {
+  padding: 5px 12px; border-radius: 20px;
+  border: 1px solid var(--border); background: var(--glass);
+  color: var(--text-sub); font-size: 0.72rem; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: all 0.18s;
+  display: flex; align-items: center; gap: 4px;
+}
+.btn-github-cfg:hover { border-color: var(--border-hover); color: var(--text); background: var(--glass-hover); }
+
+/* 편집 모드 토글 */
+.edit-mode-toggle {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 0.72rem; color: var(--text-sub); cursor: pointer; user-select: none;
+  padding: 5px 10px; border-radius: 20px;
+  border: 1px solid var(--border); background: var(--glass);
+  transition: all 0.2s;
+}
+.edit-mode-toggle:hover { border-color: var(--border-hover); color: var(--text); }
+.toggle-switch {
+  width: 30px; height: 16px; background: rgba(255,255,255,0.2);
+  border-radius: 8px; position: relative; transition: background 0.2s;
+}
+.toggle-switch.on { background: var(--secondary); }
+.toggle-knob {
+  position: absolute; top: 2px; left: 2px;
+  width: 12px; height: 12px;
+  background: #fff; border-radius: 50%; transition: left 0.2s;
+}
+.toggle-switch.on .toggle-knob { left: 16px; }
+
+/* 보고서 추가 버튼 */
+.btn-add-report {
+  padding: 6px 14px; border-radius: 20px;
+  border: 1.5px solid rgba(45,130,212,0.6);
+  background: rgba(45,130,212,0.2); color: #fff;
+  font-size: 0.72rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: all 0.18s;
+  display: flex; align-items: center; gap: 4px;
+}
+.btn-add-report:hover { background: rgba(45,130,212,0.4); }
+
+.header-badge {
+  padding: 4px 12px; border-radius: 20px;
+  border: 1px solid var(--border); background: var(--glass);
+  font-size: 0.7rem; font-weight: 600; color: var(--text-sub);
+}
+
+/* ── 히어로 ── */
+.hero {
+  padding: 52px 40px 44px;
+  text-align: center; position: relative; z-index: 1;
+}
+.hero-eyebrow {
+  font-size: 0.71rem; font-weight: 600;
+  letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--secondary); margin-bottom: 14px; opacity: 0.9;
+}
+.hero-title {
+  font-size: 2.1rem; font-weight: 800;
+  letter-spacing: -0.8px; line-height: 1.2; color: #fff;
+  text-shadow: 0 2px 20px rgba(0,0,40,0.5); margin-bottom: 10px;
+}
+.hero-title span { color: var(--secondary); }
+.hero-desc { font-size: 0.88rem; color: var(--text-sub); margin-bottom: 30px; line-height: 1.7; }
+
+/* 검색창 */
+.search-wrap { display: flex; justify-content: center; margin-bottom: 36px; }
+.search-box {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; max-width: 480px;
+  background: var(--glass-strong); border: 1.5px solid var(--border);
+  border-radius: 12px; padding: 0 18px;
+  backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.search-box:focus-within {
+  border-color: rgba(45,130,212,0.7);
+  box-shadow: 0 0 0 3px rgba(45,130,212,0.15);
+}
+.search-box input {
+  flex: 1; background: transparent; border: none; outline: none;
+  color: #fff; font-size: 0.9rem; padding: 13px 0; font-family: inherit;
+}
+.search-box input::placeholder { color: rgba(220,235,255,0.38); }
+.search-icon { opacity: 0.5; font-size: 1rem; }
+
+/* 히어로 통계 카드 */
+.hero-stats { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.hero-stat {
+  background: var(--glass); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 22px;
+  backdrop-filter: var(--glass-blur-sm); -webkit-backdrop-filter: var(--glass-blur-sm);
+  min-width: 100px; text-align: center;
+}
+.hero-stat-num { font-size: 1.5rem; font-weight: 800; color: #fff; }
+.hero-stat-lbl { font-size: 0.67rem; color: var(--text-sub); margin-top: 2px; letter-spacing: 0.3px; }
+
+/* ── 메인 레이아웃 ── */
+.main-layout {
+  display: flex; gap: 20px;
+  max-width: 1400px; margin: 0 auto;
+  padding: 20px 36px 60px; align-items: flex-start;
+  position: relative; z-index: 1;
+}
+
+/* ── 필터 사이드바 ── */
+.filter-sidebar {
+  width: 220px; flex-shrink: 0;
+  background: var(--glass); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px 16px;
+  position: sticky; top: 72px;
+  backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+}
+.filter-title {
+  font-size: 0.69rem; font-weight: 700; color: var(--text-sub);
+  letter-spacing: 1px; text-transform: uppercase;
+  margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+}
+.filter-group { margin-bottom: 18px; }
+.filter-group-label {
+  font-size: 0.72rem; font-weight: 700; color: var(--text);
+  margin-bottom: 8px; display: flex; align-items: center; gap: 5px;
+}
+.dot-badge { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.chip-group { display: flex; flex-wrap: wrap; gap: 4px; }
+.chip {
+  padding: 4px 9px; border-radius: 20px;
+  border: 1px solid var(--border); background: rgba(255,255,255,0.05);
+  font-size: 0.68rem; font-weight: 500; color: var(--text-sub);
+  cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.chip:hover  { border-color: var(--border-hover); color: var(--text); background: var(--glass-hover); }
+.chip.active { background: rgba(45,130,212,0.35); color: #fff; border-color: rgba(45,130,212,0.7); font-weight: 700; }
+.filter-reset {
+  width: 100%; padding: 7px; margin-top: 6px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: transparent; color: var(--text-sub);
+  font-size: 0.72rem; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: all 0.15s;
+}
+.filter-reset:hover { border-color: rgba(255,107,53,0.5); color: var(--accent); background: rgba(255,107,53,0.08); }
+
+/* ── 콘텐츠 영역 ── */
+.content-area { flex: 1; min-width: 0; }
+.result-meta {
+  font-size: 0.78rem; color: var(--text-sub); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.result-count { font-weight: 700; color: #fff; }
+.sort-select {
+  margin-left: auto; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 5px 10px;
+  font-size: 0.73rem; font-family: inherit; color: var(--text);
+  background: var(--glass); cursor: pointer; outline: none;
+}
+.sort-select option { background: #0a1946; }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+/* ── 보고서 카드 ── */
+.card-wrap { position: relative; }
+.card-wrap.edit-mode .card-actions { display: flex; }
+.card-actions {
+  display: none; position: absolute; top: 14px; right: 12px;
+  gap: 4px; z-index: 10;
+}
+.btn-card-edit, .btn-card-del {
+  width: 26px; height: 26px; border-radius: 50%; border: none;
+  cursor: pointer; font-size: 0.68rem;
+  display: flex; align-items: center; justify-content: center;
+}
+.btn-card-edit { background: rgba(255,255,255,0.18); color: #fff; }
+.btn-card-del  { background: rgba(220,50,50,0.25);   color: #fca5a5; }
+.btn-card-edit:hover { background: rgba(45,130,212,0.6); }
+.btn-card-del:hover  { background: rgba(220,50,50,0.6); color: #fff; }
+
+.report-card {
+  display: flex; flex-direction: column;
+  background: var(--glass); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+  text-decoration: none; color: inherit; cursor: pointer;
+  transition: transform 0.22s, box-shadow 0.22s, border-color 0.22s, background 0.22s;
+  backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+}
+.report-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+  border-color: rgba(255,255,255,0.28);
+  background: var(--glass-hover);
+}
+.card-color-bar { height: 4px; width: 100%; flex-shrink: 0; }
+.card-body { padding: 16px 16px 12px; flex: 1; }
+.card-meta-row { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+.badge { padding: 3px 8px; border-radius: 12px; font-size: 0.63rem; font-weight: 700; }
+.badge-client { background: rgba(45,130,212,0.2); color: #93c5fd; border: 1px solid rgba(45,130,212,0.3); }
+.badge-year   { background: rgba(0,196,140,0.15);  color: #6ee7b7; border: 1px solid rgba(0,196,140,0.3); }
+.badge-type   { background: rgba(255,107,53,0.15);  color: #fca572; border: 1px solid rgba(255,107,53,0.3); }
+.card-title { font-size: 0.93rem; font-weight: 700; color: #fff; line-height: 1.4; margin-bottom: 8px; }
+.card-desc {
+  font-size: 0.75rem; color: var(--text-sub); line-height: 1.65;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.card-footer {
+  padding: 10px 16px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.card-sample-size { font-size: 0.7rem; color: var(--text-sub); }
+.card-sample-size strong { color: rgba(220,235,255,0.85); font-weight: 600; }
+.btn-open {
+  padding: 5px 13px; border-radius: 20px; font-size: 0.7rem; font-weight: 700;
+  border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1);
+  color: #fff; display: flex; align-items: center; gap: 3px; transition: all 0.15s;
+}
+.report-card:hover .btn-open { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.35); }
+
+/* 빈 상태 */
+.empty-state { grid-column: 1 / -1; text-align: center; padding: 70px 20px; color: var(--text-sub); }
+.empty-state .empty-icon { font-size: 3rem; margin-bottom: 14px; opacity: 0.4; }
+.empty-state p { font-size: 0.85rem; line-height: 1.8; }
+
+/* ══════════════════════════════════════════════
+   모달 공통
+══════════════════════════════════════════════ */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,5,20,0.7); z-index: 500;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: rgba(10,25,70,0.82);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 18px;
+  box-shadow: 0 24px 80px rgba(0,0,40,0.6);
+  backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+  animation: modalIn 0.22s ease;
+  color: var(--text); overflow: hidden;
+}
+.modal-lg { width: 540px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+.modal-sm { width: 340px; max-width: 92vw; }
+@keyframes modalIn {
+  from { transform: scale(0.93) translateY(10px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+.modal-header {
+  padding: 20px 22px 16px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-header h3 { font-size: 0.97rem; font-weight: 700; color: #fff; }
+.modal-close {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: none; background: rgba(255,255,255,0.08);
+  cursor: pointer; font-size: 0.88rem;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-sub); transition: all 0.15s;
+}
+.modal-close:hover { background: rgba(220,50,50,0.3); color: #fca5a5; }
+.modal-body { padding: 20px 22px; }
+.modal-footer { padding: 14px 22px 20px; display: flex; gap: 8px; justify-content: flex-end; border-top: 1px solid var(--border); }
+
+/* 폼 */
+.form-group { margin-bottom: 15px; }
+.form-label { display: block; font-size: 0.74rem; font-weight: 700; color: var(--text-sub); margin-bottom: 6px; }
+.form-label span { color: #f87171; }
+.form-input, .form-select, .form-textarea {
+  width: 100%; padding: 9px 12px;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius-sm);
+  font-size: 0.83rem; font-family: inherit; color: #fff;
+  background: rgba(255,255,255,0.07); outline: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: rgba(45,130,212,0.7);
+  background: rgba(255,255,255,0.10);
+  box-shadow: 0 0 0 3px rgba(45,130,212,0.12);
+}
+.form-input::placeholder, .form-textarea::placeholder { color: rgba(220,235,255,0.3); }
+.form-select option { background: #0a1946; color: #fff; }
+.form-textarea { min-height: 68px; resize: vertical; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* 색상 스와치 */
+.color-picker-row { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
+.color-swatch {
+  width: 26px; height: 26px; border-radius: 6px;
+  border: 2px solid transparent; cursor: pointer; transition: transform 0.15s, border-color 0.15s;
+}
+.color-swatch:hover    { transform: scale(1.18); }
+.color-swatch.selected { border-color: #fff; transform: scale(1.1); }
+.color-custom input { width: 34px; height: 26px; border: none; border-radius: 6px; cursor: pointer; padding: 0; background: transparent; }
+
+/* 버튼 */
+.btn-cancel {
+  padding: 8px 16px; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); background: transparent;
+  font-size: 0.78rem; font-weight: 600; cursor: pointer;
+  font-family: inherit; color: var(--text-sub); transition: all 0.15s;
+}
+.btn-cancel:hover { background: var(--glass-hover); color: var(--text); }
+.btn-submit {
+  padding: 8px 20px; border: none; border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: #fff; font-size: 0.78rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: opacity 0.15s;
+  box-shadow: 0 4px 14px rgba(29,100,200,0.35);
+}
+.btn-submit:hover { opacity: 0.88; }
+
+/* GitHub 설정 안내 박스 */
+.gh-info {
+  font-size: 0.73rem; color: var(--text-sub); line-height: 1.75;
+  background: rgba(0,0,0,0.2); border-radius: 8px;
+  padding: 10px 12px; margin-bottom: 16px;
+  border: 1px solid var(--border);
+}
+.gh-info code {
+  background: rgba(255,255,255,0.1); border-radius: 4px;
+  padding: 1px 5px; font-size: 0.78rem; color: #93c5fd;
+}
+
+/* 비밀번호 모달 전용 */
+.pw-icon  { font-size: 2.2rem; text-align: center; margin-bottom: 8px; }
+.pw-title { font-size: 0.95rem; font-weight: 700; color: #fff; text-align: center; margin-bottom: 4px; }
+.pw-sub   { font-size: 0.75rem; color: var(--text-sub); text-align: center; margin-bottom: 18px; }
+.pw-error { font-size: 0.73rem; color: #f87171; text-align: center; margin-top: 10px; min-height: 18px; }
+#pwInput  { text-align: center; letter-spacing: 6px; font-size: 1.1rem; font-weight: 700; }
+
+/* 반응형 */
+@media (max-width: 900px) {
+  .main-layout { flex-direction: column; padding: 14px 16px 40px; }
+  .filter-sidebar { width: 100%; position: static; }
+  .hero { padding: 36px 16px 32px; }
+  .site-header { padding: 0 14px; }
+  .logo-text { font-size: 0.82rem; }
+}
+@media (max-width: 600px) {
+  .card-grid { grid-template-columns: 1fr; }
+  .hero-title { font-size: 1.55rem; }
+  .hero-stats { gap: 8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ 헤더 ══════════════ -->
+<header class="site-header">
+  <div class="logo-mark">G</div>
+  <div class="logo-text">한국갤럽조사연구소 웹 보고서 포털</div>
+  <div class="header-right">
+    <!-- GitHub 동기화 상태 -->
+    <div class="sync-badge" id="syncBadge" title="GitHub 동기화 상태">
+      <div class="sync-dot" id="syncDot"></div>
+      <span id="syncLabel">미연결</span>
+    </div>
+    <!-- GitHub 설정 버튼 -->
+    <button class="btn-github-cfg" onclick="openGhModal()">⚙ GitHub</button>
+    <!-- 편집 모드 (비밀번호 필요) -->
+    <div class="edit-mode-toggle" onclick="requestEditMode()" title="편집 모드 (비밀번호 필요)">
+      <div class="toggle-switch" id="toggleSwitch"><div class="toggle-knob"></div></div>
+      <span id="toggleLabel">편집 모드</span>
+    </div>
+    <!-- 보고서 추가 (편집 모드일 때만 활성) -->
+    <button class="btn-add-report" id="btnAddReport" onclick="openModal()" style="opacity:0.35;pointer-events:none;">
+      ＋ 보고서 추가
+    </button>
+    <div class="header-badge" id="totalBadge">총 0건</div>
+  </div>
+</header>
+
+<!-- ══════════════ 히어로 ══════════════ -->
+<section class="hero">
+  <div class="hero-eyebrow">Gallup Korea · Research Portal</div>
+  <div class="hero-title">웹 <span>보고서</span> 모음</div>
+  <div class="hero-desc">발주처 · 연도 · 조사 유형별 필터로 원하는 보고서에 빠르게 접근하세요.</div>
+  <div class="search-wrap">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="보고서 제목, 발주처 검색..." oninput="applyFilters()">
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-num" id="statTotal">0</div>
+      <div class="hero-stat-lbl">전체 보고서</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num" id="statClients">0</div>
+      <div class="hero-stat-lbl">발주처</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num" id="statYears">0</div>
+      <div class="hero-stat-lbl">조사 연도</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num" id="statTypes">0</div>
+      <div class="hero-stat-lbl">조사 유형</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 메인 레이아웃 ══════════════ -->
+<div class="main-layout">
+
+  <!-- 필터 사이드바 -->
+  <aside class="filter-sidebar">
+    <div class="filter-title">🎛 필터</div>
+    <div class="filter-group">
+      <div class="filter-group-label"><span class="dot-badge" style="background:#93c5fd;"></span> 발주처</div>
+      <div class="chip-group" id="clientChips"></div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-label"><span class="dot-badge" style="background:#6ee7b7;"></span> 조사 연도</div>
+      <div class="chip-group" id="yearChips"></div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-label"><span class="dot-badge" style="background:#fca572;"></span> 조사 유형</div>
+      <div class="chip-group" id="typeChips"></div>
+    </div>
+    <button class="filter-reset" onclick="resetFilters()">✕ 필터 초기화</button>
+  </aside>
+
+  <!-- 카드 그리드 -->
+  <div class="content-area">
+    <div class="result-meta">
+      <span><span class="result-count" id="resultCount">0</span>건의 보고서</span>
+      <select class="sort-select" id="sortSelect" onchange="applyFilters()">
+        <option value="newest">최신순</option>
+        <option value="oldest">오래된순</option>
+        <option value="name">이름순</option>
+        <option value="client">발주처순</option>
+      </select>
+    </div>
+    <div class="card-grid" id="cardGrid"></div>
+  </div>
+</div>
+
+<!-- ══════════════ 비밀번호 모달 ══════════════ -->
+<div class="modal-overlay" id="pwOverlay">
+  <div class="modal modal-sm">
+    <div class="modal-body" style="padding:28px 26px 20px;">
+      <div class="pw-icon">🔐</div>
+      <div class="pw-title">편집 모드 잠금 해제</div>
+      <div class="pw-sub">관리자 비밀번호를 입력하세요.</div>
+      <input class="form-input" type="password" id="pwInput"
+        placeholder="비밀번호" maxlength="20"
+        onkeydown="if(event.key==='Enter')checkPassword()">
+      <div class="pw-error" id="pwError"></div>
+    </div>
+    <div class="modal-footer" style="border:none;padding-top:0;">
+      <button class="btn-cancel" onclick="closePwModal()">취소</button>
+      <button class="btn-submit" onclick="checkPassword()">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ GitHub 설정 모달 ══════════════ -->
+<div class="modal-overlay" id="ghOverlay">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>⚙ GitHub 자동 저장 설정</h3>
+      <button class="modal-close" onclick="closeGhModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="gh-info">
+        보고서 목록을 GitHub 레포지토리의 <code>data.json</code>에 자동 저장합니다.<br>
+        팀원 모두가 같은 데이터를 공유할 수 있습니다.<br><br>
+        ① GitHub <b>Personal Access Token (PAT)</b> — <code>repo</code> 권한 필요<br>
+        ② 저장소: <code>username/repository</code> 형식 입력<br>
+        ③ 브랜치: 보통 <code>main</code>
+      </div>
+      <div class="form-group">
+        <label class="form-label">GitHub Personal Access Token <span>*</span></label>
+        <input class="form-input" type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">레포지토리 <span>*</span></label>
+          <input class="form-input" type="text" id="ghRepo" placeholder="username/report-portal">
+        </div>
+        <div class="form-group">
+          <label class="form-label">브랜치</label>
+          <input class="form-input" type="text" id="ghBranch" placeholder="main">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">data.json 경로</label>
+        <input class="form-input" type="text" id="ghPath" placeholder="data.json">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeGhModal()">취소</button>
+      <button class="btn-submit" id="btnGhTest" onclick="testAndSaveGhConfig()">연결 테스트 &amp; 저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ 보고서 추가/편집 모달 ══════════════ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 id="modalTitle">📋 보고서 추가</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editId">
+      <div class="form-group">
+        <label class="form-label">보고서 제목 <span>*</span></label>
+        <input class="form-input" id="fTitle" type="text" placeholder="예: 2025년 기업정보화통계집">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">발주처 <span>*</span></label>
+          <input class="form-input" id="fClient" type="text" placeholder="예: 과학기술정보통신부">
+        </div>
+        <div class="form-group">
+          <label class="form-label">조사 연도 <span>*</span></label>
+          <input class="form-input" id="fYear" type="number" placeholder="2025" min="2000" max="2099">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">조사 유형 <span>*</span></label>
+          <select class="form-select" id="fType">
+            <option value="">선택...</option>
+            <option value="사업체">사업체</option>
+            <option value="가구">가구</option>
+            <option value="개인">개인</option>
+            <option value="혼합">혼합 (사업체+가구)</option>
+            <option value="기타">기타</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">표본 수</label>
+          <input class="form-input" id="fSample" type="text" placeholder="예: 5,000개사">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">보고서 URL <span>*</span></label>
+        <input class="form-input" id="fUrl" type="url" placeholder="https://username.github.io/repo/report.html">
+      </div>
+      <div class="form-group">
+        <label class="form-label">한 줄 설명</label>
+        <textarea class="form-textarea" id="fDesc" placeholder="조사 목적, 주요 내용 등을 간략히 입력하세요."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">대표 색상 (카드 상단 바)</label>
+        <div class="color-picker-row" id="colorSwatches"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">취소</button>
+      <button class="btn-submit" onclick="submitReport()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ JavaScript ══════════════ -->
+<script>
+/* ─── 상수 ─── */
+const LS_KEY    = 'gallup-portal-v1';   /* 보고서 데이터 */
+const LS_GH_KEY = 'gallup-portal-gh';  /* GitHub 설정 */
+const EDIT_PW   = '1205';              /* 편집 모드 비밀번호 */
+
+const PRESET_COLORS = [
+  '#0e4d8c','#2d82d4','#00a86b','#e85d04',
+  '#7c3aed','#dc2626','#0891b2','#d97706','#be185d','#374151'
+];
+
+/* 초기 샘플 보고서 */
+const DEFAULT_REPORTS = [
+  {
+    id: 1, title: '2025년 기업정보화통계집',
+    client: '과학기술정보통신부', year: 2025, type: '사업체',
+    sample: '약 5,000개사',
+    desc: '국내 기업의 정보화 현황(인터넷·전자상거래·클라우드 등)을 파악하여 정책 수립 기초 자료로 활용.',
+    url: '2025년_기업정보화통계집_웹_보고서_260403.html', color: '#2d82d4'
+  },
+  {
+    id: 2, title: '2024년 시청점유율 기초조사',
+    client: '방송통신위원회', year: 2024, type: '가구',
+    sample: '전국 가구 표본',
+    desc: '국내 방송 매체별 시청점유율 실태를 파악하고 미디어 이용 행태 변화를 분석.',
+    url: '시청점유율기초조사_웹_보고서_260403.html', color: '#7c3aed'
+  }
+];
+
+/* ─── 앱 상태 ─── */
+let reports   = [];
+let editMode  = false;
+let editingId = null;
+let selColor  = PRESET_COLORS[0];
+let fClient = '전체', fYear = '전체', fType = '전체';
+let ghCfg = { token:'', repo:'', branch:'main', path:'data.json', _sha:null };
+
+/* ════════════════════════════════════════════
+   초기화
+════════════════════════════════════════════ */
+async function init() {
+  /* GitHub 설정 복원 */
+  const savedGh = localStorage.getItem(LS_GH_KEY);
+  if (savedGh) ghCfg = { ...ghCfg, ...JSON.parse(savedGh) };
+
+  /* 데이터 로드: GitHub → localStorage → 기본값 */
+  if (ghCfg.token && ghCfg.repo) {
+    setSyncStatus('busy', '불러오는 중…');
+    const ok = await fetchFromGitHub();
+    if (!ok) { loadFromLocalStorage(); setSyncStatus('error', 'GitHub 오류'); }
+  } else {
+    loadFromLocalStorage();
+    setSyncStatus('', '미연결');
+  }
+
+  buildColorSwatches();
+  buildFilters();
+  updateStats();
+  applyFilters();
+}
+
+function loadFromLocalStorage() {
+  const saved = localStorage.getItem(LS_KEY);
+  reports = saved ? JSON.parse(saved) : DEFAULT_REPORTS;
+}
+
+/* ════════════════════════════════════════════
+   GitHub API
+════════════════════════════════════════════ */
+async function ghFetch(method, body = null) {
+  const url = `https://api.github.com/repos/${ghCfg.repo}/contents/${ghCfg.path || 'data.json'}`;
+  const opts = {
+    method,
+    headers: {
+      'Authorization': `token ${ghCfg.token}`,
+      'Content-Type' : 'application/json',
+      'Accept'       : 'application/vnd.github.v3+json'
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  return fetch(url, opts);
+}
+
+/* GitHub에서 읽기 */
+async function fetchFromGitHub() {
+  try {
+    const res = await ghFetch('GET');
+    if (res.status === 404) {
+      /* 파일 없으면 기본값 업로드 */
+      loadFromLocalStorage();
+      await pushToGitHub('초기 데이터 생성');
+      setSyncStatus('ok', '연결됨');
+      return true;
+    }
+    if (!res.ok) return false;
+    const data = await res.json();
+    const json = JSON.parse(atob(data.content.replace(/\n/g, '')));
+    reports = Array.isArray(json) ? json : DEFAULT_REPORTS;
+    ghCfg._sha = data.sha;  /* 업데이트 시 필요한 sha 저장 */
+    setSyncStatus('ok', '연결됨');
+    return true;
+  } catch (e) {
+    console.error('GitHub fetch:', e);
+    return false;
+  }
+}
+
+/* GitHub에 쓰기 */
+async function pushToGitHub(message = '보고서 데이터 업데이트') {
+  if (!ghCfg.token || !ghCfg.repo) return false;
+  try {
+    setSyncStatus('busy', '저장 중…');
+    /* sha가 없으면 먼저 조회 */
+    if (!ghCfg._sha) {
+      const res = await ghFetch('GET');
+      if (res.ok) { const d = await res.json(); ghCfg._sha = d.sha; }
+    }
+    /* Base64 인코딩 (한글 포함 안전 처리) */
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(reports, null, 2))));
+    const body = { message, content, branch: ghCfg.branch || 'main' };
+    if (ghCfg._sha) body.sha = ghCfg._sha;
+
+    const res = await ghFetch('PUT', body);
+    if (!res.ok) { setSyncStatus('error', '저장 실패'); return false; }
+    const d = await res.json();
+    ghCfg._sha = d.content.sha;  /* 새 sha로 갱신 */
+    setSyncStatus('ok', '저장됨');
+    setTimeout(() => setSyncStatus('ok', '연결됨'), 3000);
+    return true;
+  } catch (e) {
+    console.error('GitHub push:', e);
+    setSyncStatus('error', '저장 실패');
+    return false;
+  }
+}
+
+function setSyncStatus(state, label) {
+  document.getElementById('syncDot').className = `sync-dot${state ? ' '+state : ''}`;
+  document.getElementById('syncLabel').textContent = label;
+}
+
+/* 통합 저장 함수 (localStorage + GitHub) */
+async function save() {
+  localStorage.setItem(LS_KEY, JSON.stringify(reports));
+  if (ghCfg.token && ghCfg.repo) await pushToGitHub();
+}
+
+/* ════════════════════════════════════════════
+   GitHub 설정 모달
+════════════════════════════════════════════ */
+function openGhModal() {
+  document.getElementById('ghToken').value  = ghCfg.token  || '';
+  document.getElementById('ghRepo').value   = ghCfg.repo   || '';
+  document.getElementById('ghBranch').value = ghCfg.branch || 'main';
+  document.getElementById('ghPath').value   = ghCfg.path   || 'data.json';
+  document.getElementById('ghOverlay').classList.add('open');
+}
+function closeGhModal() { document.getElementById('ghOverlay').classList.remove('open'); }
+
+async function testAndSaveGhConfig() {
+  const token  = document.getElementById('ghToken').value.trim();
+  const repo   = document.getElementById('ghRepo').value.trim();
+  const branch = document.getElementById('ghBranch').value.trim() || 'main';
+  const path   = document.getElementById('ghPath').value.trim()   || 'data.json';
+  if (!token || !repo) { alert('Token과 레포지토리는 필수입니다.'); return; }
+
+  ghCfg = { token, repo, branch, path, _sha: null };
+  localStorage.setItem(LS_GH_KEY, JSON.stringify({ token, repo, branch, path }));
+
+  const btn = document.getElementById('btnGhTest');
+  btn.textContent = '테스트 중…'; btn.disabled = true;
+  setSyncStatus('busy', '테스트 중…');
+
+  const ok = await fetchFromGitHub();
+  btn.textContent = '연결 테스트 & 저장'; btn.disabled = false;
+
+  if (ok) {
+    buildFilters(); updateStats(); applyFilters();
+    closeGhModal();
+    alert('✅ GitHub 연결 성공! 데이터를 불러왔습니다.');
+  } else {
+    setSyncStatus('error', '연결 실패');
+    alert('❌ 연결 실패.\nToken·레포지토리·브랜치를 다시 확인하세요.\n형식 예: username/repo-name');
+  }
+}
+
+/* ════════════════════════════════════════════
+   편집 모드 (비밀번호 보호)
+════════════════════════════════════════════ */
+function requestEditMode() {
+  if (editMode) { disableEditMode(); return; }
+  /* 편집 진입 시 비밀번호 확인 */
+  document.getElementById('pwInput').value = '';
+  document.getElementById('pwError').textContent = '';
+  document.getElementById('pwOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('pwInput').focus(), 120);
+}
+
+function checkPassword() {
+  if (document.getElementById('pwInput').value === EDIT_PW) {
+    closePwModal();
+    enableEditMode();
+  } else {
+    document.getElementById('pwError').textContent = '비밀번호가 올바르지 않습니다.';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+  }
+}
+
+function closePwModal() { document.getElementById('pwOverlay').classList.remove('open'); }
+
+function enableEditMode() {
+  editMode = true;
+  document.getElementById('toggleSwitch').classList.add('on');
+  document.getElementById('toggleLabel').textContent = '편집 중';
+  const btn = document.getElementById('btnAddReport');
+  btn.style.opacity = '1'; btn.style.pointerEvents = 'auto';
+  applyFilters();
+}
+
+function disableEditMode() {
+  editMode = false;
+  document.getElementById('toggleSwitch').classList.remove('on');
+  document.getElementById('toggleLabel').textContent = '편집 모드';
+  const btn = document.getElementById('btnAddReport');
+  btn.style.opacity = '0.35'; btn.style.pointerEvents = 'none';
+  applyFilters();
+}
+
+/* ════════════════════════════════════════════
+   통계 · 필터 · 렌더
+════════════════════════════════════════════ */
+function updateStats() {
+  const u = arr => [...new Set(arr)].length;
+  document.getElementById('statTotal').textContent   = reports.length;
+  document.getElementById('statClients').textContent = u(reports.map(r => r.client));
+  document.getElementById('statYears').textContent   = u(reports.map(r => r.year));
+  document.getElementById('statTypes').textContent   = u(reports.map(r => r.type));
+  document.getElementById('totalBadge').textContent  = `총 ${reports.length}건`;
+}
+
+function buildFilters() {
+  const mk = (id, values, cur, onChange) => {
+    const el = document.getElementById(id);
+    el.innerHTML = '';
+    [{ v:'전체', label:'전체' }, ...values.map(v => ({ v, label: v }))].forEach(({ v, label }) => {
+      const c = document.createElement('div');
+      c.className = `chip${String(v) === String(cur) ? ' active' : ''}`;
+      c.textContent = label;
+      c.onclick = () => onChange(String(v));
+      el.appendChild(c);
+    });
+  };
+  mk('clientChips', [...new Set(reports.map(r => r.client))], fClient, v => { fClient = v; applyFilters(); });
+  mk('yearChips',   [...new Set(reports.map(r => String(r.year)))].sort((a,b)=>b-a), fYear, v => { fYear = v; applyFilters(); });
+  mk('typeChips',   [...new Set(reports.map(r => r.type))], fType, v => { fType = v; applyFilters(); });
+}
+
+function applyFilters() {
+  buildFilters();
+  const q    = document.getElementById('searchInput').value.trim().toLowerCase();
+  const sort = document.getElementById('sortSelect').value;
+
+  let filtered = reports.filter(r => {
+    if (fClient !== '전체' && r.client !== fClient) return false;
+    if (fYear   !== '전체' && String(r.year) !== fYear) return false;
+    if (fType   !== '전체' && r.type !== fType) return false;
+    if (q && !r.title.toLowerCase().includes(q) && !r.client.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  filtered.sort((a, b) => {
+    if (sort === 'newest') return b.year - a.year || b.id - a.id;
+    if (sort === 'oldest') return a.year - b.year || a.id - b.id;
+    if (sort === 'name')   return a.title.localeCompare(b.title, 'ko');
+    if (sort === 'client') return a.client.localeCompare(b.client, 'ko');
+    return 0;
+  });
+
+  document.getElementById('resultCount').textContent = filtered.length;
+  renderCards(filtered);
+}
+
+function renderCards(list) {
+  const grid = document.getElementById('cardGrid');
+  grid.innerHTML = '';
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">🗂</div>
+      <p>조건에 맞는 보고서가 없습니다.<br>필터를 초기화하거나 검색어를 변경해 보세요.</p>
+    </div>`;
+    return;
+  }
+  list.forEach(r => {
+    const wrap = document.createElement('div');
+    wrap.className = `card-wrap${editMode ? ' edit-mode' : ''}`;
+    wrap.innerHTML = `
+      <div class="card-actions">
+        <button class="btn-card-edit" title="수정" onclick="openEditModal(${r.id})">✏</button>
+        <button class="btn-card-del"  title="삭제" onclick="deleteReport(${r.id})">🗑</button>
+      </div>
+      <a class="report-card" href="${r.url}" target="_blank" rel="noopener"
+         ${editMode ? 'onclick="return false;"' : ''}>
+        <div class="card-color-bar" style="background:${r.color};"></div>
+        <div class="card-body">
+          <div class="card-meta-row">
+            <span class="badge badge-client">${r.client}</span>
+            <span class="badge badge-year">${r.year}년</span>
+            <span class="badge badge-type">${r.type}</span>
+          </div>
+          <div class="card-title">${r.title}</div>
+          <div class="card-desc">${r.desc || '—'}</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-sample-size">표본: <strong>${r.sample || '—'}</strong></div>
+          <span class="btn-open">열기 →</span>
+        </div>
+      </a>`;
+    grid.appendChild(wrap);
+  });
+}
+
+function resetFilters() {
+  fClient = '전체'; fYear = '전체'; fType = '전체';
+  document.getElementById('searchInput').value = '';
+  applyFilters();
+}
+
+/* ════════════════════════════════════════════
+   보고서 추가/수정 모달
+════════════════════════════════════════════ */
+function openModal() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent = '📋 보고서 추가';
+  document.getElementById('editId').value = '';
+  ['fTitle','fClient','fUrl','fDesc','fSample'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fYear').value = new Date().getFullYear();
+  document.getElementById('fType').value = '';
+  selColor = PRESET_COLORS[0];
+  buildColorSwatches();
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function openEditModal(id) {
+  const r = reports.find(x => x.id === id);
+  if (!r) return;
+  editingId = id;
+  document.getElementById('modalTitle').textContent = '✏ 보고서 수정';
+  document.getElementById('editId').value   = id;
+  document.getElementById('fTitle').value   = r.title;
+  document.getElementById('fClient').value  = r.client;
+  document.getElementById('fYear').value    = r.year;
+  document.getElementById('fType').value    = r.type;
+  document.getElementById('fSample').value  = r.sample || '';
+  document.getElementById('fUrl').value     = r.url;
+  document.getElementById('fDesc').value    = r.desc || '';
+  selColor = r.color || PRESET_COLORS[0];
+  buildColorSwatches();
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+
+/* 모달 오버레이 클릭 시 닫기 */
+['modalOverlay','ghOverlay','pwOverlay'].forEach(id => {
+  document.getElementById(id).addEventListener('click', function(e) {
+    if (e.target !== this) return;
+    if (id === 'pwOverlay')  closePwModal();
+    else if (id === 'ghOverlay') closeGhModal();
+    else closeModal();
+  });
+});
+
+async function submitReport() {
+  const title  = document.getElementById('fTitle').value.trim();
+  const client = document.getElementById('fClient').value.trim();
+  const year   = parseInt(document.getElementById('fYear').value);
+  const type   = document.getElementById('fType').value;
+  const sample = document.getElementById('fSample').value.trim();
+  const url    = document.getElementById('fUrl').value.trim();
+  const desc   = document.getElementById('fDesc').value.trim();
+
+  if (!title || !client || !year || !type || !url) {
+    alert('제목, 발주처, 연도, 조사 유형, URL은 필수 항목입니다.');
+    return;
+  }
+
+  if (editingId !== null) {
+    const idx = reports.findIndex(r => r.id === editingId);
+    if (idx !== -1) reports[idx] = { ...reports[idx], title, client, year, type, sample, url, desc, color: selColor };
+  } else {
+    const newId = reports.length ? Math.max(...reports.map(r => r.id)) + 1 : 1;
+    reports.push({ id: newId, title, client, year, type, sample, url, desc, color: selColor });
+  }
+
+  closeModal();
+  await save();
+  buildFilters(); updateStats(); applyFilters();
+}
+
+async function deleteReport(id) {
+  const r = reports.find(x => x.id === id);
+  if (!r || !confirm(`"${r.title}" 보고서를 삭제하시겠습니까?`)) return;
+  reports = reports.filter(x => x.id !== id);
+  await save();
+  buildFilters(); updateStats(); applyFilters();
+}
+
+/* ════════════════════════════════════════════
+   색상 스와치
+════════════════════════════════════════════ */
+function buildColorSwatches() {
+  const container = document.getElementById('colorSwatches');
+  container.innerHTML = '';
+  PRESET_COLORS.forEach(c => {
+    const sw = document.createElement('div');
+    sw.className = `color-swatch${c === selColor ? ' selected' : ''}`;
+    sw.style.background = c; sw.title = c;
+    sw.onclick = () => selectColor(c);
+    container.appendChild(sw);
+  });
+  const custom = document.createElement('div');
+  custom.className = 'color-custom';
+  custom.innerHTML = `<input type="color" value="${selColor}" title="직접 입력"
+    onchange="selectColor(this.value)" oninput="selectColor(this.value)">`;
+  container.appendChild(custom);
+}
+
+function selectColor(c) {
+  selColor = c;
+  const toRgb = h => {
+    const r=parseInt(h.slice(1,3),16), g=parseInt(h.slice(3,5),16), b=parseInt(h.slice(5,7),16);
+    return `rgb(${r}, ${g}, ${b})`;
+  };
+  document.querySelectorAll('.color-swatch').forEach(sw => {
+    sw.classList.toggle('selected', sw.style.background === c || sw.style.background === toRgb(c));
+  });
+}
+
+/* 실행 */
+init();
+</script>
+</body>
+</html>
