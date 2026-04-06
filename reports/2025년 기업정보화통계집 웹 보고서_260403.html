@@ -1,0 +1,2510 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2025 기업정보화통계집 웹 보고서</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --primary: #0e4d8c;
+  --primary-light: #1a6fbf;
+  --secondary: #00a86b;
+  --accent: #e85d04;
+  --bg: #f5f7fa;
+  --card: #ffffff;
+  --text: #1a1a2e;
+  --text-secondary: #5a6a7a;
+  --border: #dde3ea;
+  --sidebar-width: 270px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; padding-left: var(--sidebar-width); }
+
+/* 헤더 */
+.header { background: var(--primary); color: #fff; padding: 18px 32px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); min-height: 82px; }
+.header-logo { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px; }
+.header-sub { font-size: 0.8rem; opacity: 0.75; margin-top: 2px; }
+.header-badge { margin-left: auto; background: rgba(255,255,255,0.15); border-radius: 20px; padding: 4px 14px; font-size: 0.75rem; }
+
+/* 메인 탭 (챕터) */
+.main-tabs-bar { background: #fff; border-bottom: 2px solid var(--border); display: flex; overflow-x: auto; padding: 0 24px; gap: 2px; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.main-tab { padding: 14px 18px; cursor: pointer; white-space: nowrap; color: var(--text-secondary); font-weight: 500; font-size: 0.82rem; border-bottom: 3px solid transparent; transition: all 0.2s; }
+.main-tab:hover { color: var(--primary); background: #f0f7ff; }
+.main-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 700; background: #f8fbff; }
+
+/* 본문 */
+.content-area { max-width: none; margin: 0; padding: 28px 32px 40px; }
+.chapter-panel { display: none; }
+.chapter-panel.active { display: block; }
+
+/* 서브탭 */
+.sub-tabs-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 22px; }
+.sub-tab { padding: 7px 16px; border-radius: 20px; border: 1.5px solid var(--border); cursor: pointer; font-size: 0.78rem; font-weight: 500; color: var(--text-secondary); transition: all 0.18s; background: #fff; }
+.sub-tab:hover { border-color: var(--primary-light); color: var(--primary); }
+.sub-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.sub-panel { display: none; }
+.sub-panel.active { display: block; }
+
+/* 섹션 제목 */
+.section-title { font-size: 1.15rem; font-weight: 700; color: var(--primary); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
+.section-subtitle { font-size: 0.95rem; font-weight: 600; color: var(--text); margin: 20px 0 12px; }
+
+/* 카드 그리드 */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 22px; }
+.stat-card { background: var(--card); border-radius: 10px; padding: 18px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); border-top: 3px solid var(--border); }
+.stat-card.stat-blue { border-top-color: var(--primary); }
+.stat-card.stat-green { border-top-color: var(--secondary); }
+.stat-card.stat-orange { border-top-color: var(--accent); }
+.stat-card.stat-purple { border-top-color: #7c3aed; }
+.stat-label { font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500; }
+.stat-value { font-size: 1.8rem; font-weight: 700; line-height: 1; }
+.stat-blue .stat-value { color: var(--primary); }
+.stat-green .stat-value { color: var(--secondary); }
+.stat-orange .stat-value { color: var(--accent); }
+.stat-purple .stat-value { color: #7c3aed; }
+.stat-note { font-size: 0.7rem; color: var(--text-secondary); margin-top: 5px; }
+
+/* 차트 카드 */
+.chart-card { background: var(--card); border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+.chart-title { font-size: 0.88rem; font-weight: 600; color: var(--text); margin-bottom: 14px; }
+.chart-note { font-size: 0.71rem; color: var(--text-secondary); margin-top: 8px; }
+.chart-container { position: relative; height: 260px; }
+.chart-container.tall { height: 340px; }
+.chart-container.short { height: 180px; }
+
+/* 프로그레스 바 */
+.prog-section { background: var(--card); border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+.prog-row { display: flex; align-items: center; margin-bottom: 10px; gap: 10px; }
+.prog-label { width: 200px; font-size: 0.78rem; color: var(--text); flex-shrink: 0; text-align: right; }
+.prog-track { flex: 1; background: #eef2f7; border-radius: 4px; height: 22px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-right: 8px; justify-content: flex-end; font-size: 0.72rem; font-weight: 700; color: #fff; transition: width 0.7s ease; }
+.prog-fill.green { background: var(--secondary); }
+.prog-fill.blue { background: var(--primary-light); }
+.prog-fill.orange { background: var(--accent); }
+.prog-fill.purple { background: #7c3aed; }
+
+/* 하이라이트 박스 */
+.highlight-box { border-radius: 8px; padding: 14px 18px; margin-bottom: 16px; font-size: 0.82rem; line-height: 1.7; }
+.highlight-box.green { background: #e6f9f1; border-left: 4px solid var(--secondary); }
+.highlight-box.orange { background: #fff3ec; border-left: 4px solid var(--accent); }
+.highlight-box.blue { background: #e8f2fc; border-left: 4px solid var(--primary); }
+.highlight-box strong { font-weight: 700; }
+
+/* 시사점 */
+.implication { background: #f0f7ff; border-radius: 10px; padding: 18px 20px; margin-top: 18px; }
+.implication h4 { font-size: 0.88rem; font-weight: 700; color: var(--primary); margin-bottom: 10px; }
+.implication ul { list-style: none; padding: 0; }
+.implication ul li { font-size: 0.8rem; line-height: 1.7; padding-left: 20px; position: relative; color: var(--text); margin-bottom: 4px; }
+.implication ul li::before { content: '☞'; position: absolute; left: 0; color: var(--primary); }
+
+/* 표 */
+.table-wrap { overflow-x: auto; margin-bottom: 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+th { background: var(--primary); color: #fff; padding: 9px 12px; text-align: center; font-weight: 600; white-space: nowrap; }
+td { padding: 8px 12px; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
+td:first-child { text-align: left; color: var(--text); font-weight: 500; }
+tr:nth-child(even) { background: #f8f9fc; }
+tr:hover { background: #eef2f7; }
+.total-row td { background: #e8f2fc !important; font-weight: 700; color: var(--primary); }
+.val-high { color: var(--secondary); font-weight: 700; }
+.val-low { color: var(--accent); }
+
+/* 토글 */
+.stat-toggle-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; padding: 7px 16px; background: #f0f7ff; border: 1px solid #b8d4f0; border-radius: 6px; font-size: 0.8rem; font-weight: 600; color: var(--primary); cursor: pointer; transition: all 0.18s; }
+.stat-toggle-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+.stat-toggle-btn .arrow-icon { font-size: 0.72rem; transition: transform 0.25s; }
+.stat-toggle-btn.open .arrow-icon { transform: rotate(180deg); }
+.stat-table-panel { display: none; margin-top: 10px; animation: slideDown 0.22s ease; }
+.stat-table-panel.open { display: block; }
+@keyframes slideDown { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+
+/* 요약 카드 */
+.overview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.overview-card { background: var(--card); border-radius: 10px; padding: 18px 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+.overview-card h4 { font-size: 0.82rem; font-weight: 700; color: var(--primary); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.overview-item { display: flex; justify-content: space-between; margin-bottom: 7px; font-size: 0.78rem; }
+.overview-item .key { color: var(--text-secondary); }
+.overview-item .val { font-weight: 600; color: var(--text); }
+
+/* 두 칼럼 */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+.sub-panel-layout { display: block; }
+.tab-toc { position: fixed; top: 0; left: 0; width: var(--sidebar-width); height: 100vh; overflow-y: auto; align-self: start; background: linear-gradient(180deg, #174d86 0%, #1d5a98 100%); border-right: 1px solid rgba(255,255,255,0.08); border-radius: 0; padding: 28px 18px 32px; box-shadow: 8px 0 24px rgba(12,34,58,0.16); z-index: 220; }
+.tab-toc-title { font-size: 1.18rem; font-weight: 700; color: #fff; margin-bottom: 18px; letter-spacing: -0.02em; line-height: 1.4; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.14); white-space: pre-line; }
+.tab-toc-section { margin-bottom: 18px; }
+.tab-toc-section-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.56); margin-bottom: 10px; }
+.tab-toc-nav { display: flex; flex-direction: column; gap: 4px; }
+.tab-toc-link { display: block; padding: 10px 12px; border-radius: 10px; color: rgba(255,255,255,0.82); text-decoration: none; font-size: 0.83rem; line-height: 1.5; transition: all 0.18s; }
+.tab-toc-link:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.tab-toc-link.active { background: rgba(255,255,255,0.18); color: #fff; font-weight: 700; }
+.tab-toc-link.level-0 { font-weight: 600; }
+.tab-toc-link.level-2 { padding-left: 24px; font-size: 0.78rem; color: rgba(232,242,252,0.82); }
+.sub-panel-content { min-width: 0; max-width: 1280px; }
+.toc-anchor-target { scroll-margin-top: 92px; }
+
+/* 모바일 */
+@media (max-width: 700px) {
+  body { padding-left: 0; }
+  .header { min-height: auto; }
+  .content-area { padding: 16px 12px; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .main-tab { padding: 12px 12px; font-size: 0.75rem; }
+  .prog-label { width: 110px; font-size: 0.72rem; }
+  .sub-panel-layout { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  .tab-toc { position: static; top: auto; left: auto; width: auto; height: auto; overflow: visible; background: var(--card); border-right: none; border: 1px solid var(--border); border-radius: 12px; padding: 16px 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .tab-toc-title { font-size: 0.78rem; color: var(--primary); margin-bottom: 12px; padding-bottom: 0; border-bottom: none; }
+  .tab-toc-section-label { color: var(--text-secondary); }
+  .tab-toc-link { color: var(--text-secondary); padding: 8px 10px; font-size: 0.78rem; }
+  .tab-toc-link:hover { background: #eef5fc; color: var(--primary); }
+  .tab-toc-link.active { background: #e8f2fc; color: var(--primary); }
+  .tab-toc-link.level-2 { padding-left: 20px; font-size: 0.75rem; color: var(--text-secondary); }
+}
+
+/* 뒤로가기 */
+#back-to-top { display: none; position: fixed; bottom: 28px; right: 28px; background: var(--primary); color: #fff; width: 44px; height: 44px; border-radius: 50%; border: none; font-size: 1.2rem; cursor: pointer; box-shadow: 0 3px 10px rgba(0,0,0,0.2); z-index: 999; }
+#back-to-top:hover { background: var(--primary-light); }
+
+/* 두 줄 레이아웃 */
+.info-rows { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 600px) { .info-rows { grid-template-columns: 1fr; } }
+.info-row { background: #f8f9fc; border-radius: 6px; padding: 10px 14px; font-size: 0.78rem; }
+.info-row .lbl { color: var(--text-secondary); margin-bottom: 3px; }
+.info-row .val { font-weight: 600; color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- 헤더 -->
+<div class="header">
+  <div>
+    <div class="header-logo">2025 기업정보화통계집</div>
+    <div class="header-sub">과학기술정보통신부 · 한국지능정보사회진흥원 | 기준: 2024년 12월 31일</div>
+  </div>
+  <div class="header-badge">Enterprise Informatization Statistics</div>
+</div>
+
+<!-- 메인 탭 -->
+<div class="main-tabs-bar">
+  <div class="main-tab active" onclick="switchMain(0, this)">📋 조사 개요</div>
+  <div class="main-tab" onclick="switchMain(1, this)">📊 표본 설계</div>
+  <div class="main-tab" onclick="switchMain(2, this)">🔍 품질 관리</div>
+  <div class="main-tab" onclick="switchMain(3, this)">Ⅰ. 정보화 기반</div>
+  <div class="main-tab" onclick="switchMain(4, this)">Ⅱ. 정보화 응용</div>
+  <div class="main-tab" onclick="switchMain(5, this)">Ⅲ. 지능정보기술</div>
+  <div class="main-tab" onclick="switchMain(6, this)">Ⅳ. 정보화 투자</div>
+</div>
+
+<div class="content-area">
+
+<!-- ========== 챕터 0: 조사 개요 ========== -->
+<div class="chapter-panel active" id="ch0">
+  <div class="sub-tabs-bar">
+    <div class="sub-tab active" onclick="switchSub('ch0', 0, this)">조사 목적 · 연혁</div>
+    <div class="sub-tab" onclick="switchSub('ch0', 1, this)">조사 대상</div>
+    <div class="sub-tab" onclick="switchSub('ch0', 2, this)">조사 내용</div>
+    <div class="sub-tab" onclick="switchSub('ch0', 3, this)">실사 개요</div>
+  </div>
+
+  <!-- 서브0: 목적·연혁 -->
+  <div class="sub-panel active" id="ch0-sub0">
+    <div class="section-title">조사 목적 및 연혁</div>
+    <div class="stat-grid">
+      <div class="stat-card stat-blue">
+        <div class="stat-label">조사 연도 (회차)</div>
+        <div class="stat-value">27<span style="font-size:1rem">회</span></div>
+        <div class="stat-note">1999년 첫 실시 → 매년 시행</div>
+      </div>
+      <div class="stat-card stat-green">
+        <div class="stat-label">목표 모집단</div>
+        <div class="stat-value" style="font-size:1.4rem">211,615<span style="font-size:0.9rem">개</span></div>
+        <div class="stat-note">전국 10인 이상 민간 기업체</div>
+      </div>
+      <div class="stat-card stat-orange">
+        <div class="stat-label">유효 응답 기업체</div>
+        <div class="stat-value" style="font-size:1.4rem">12,264<span style="font-size:0.9rem">개</span></div>
+        <div class="stat-note">유효응답률 98.1%</div>
+      </div>
+      <div class="stat-card stat-purple">
+        <div class="stat-label">조사 주기</div>
+        <div class="stat-value" style="font-size:1.3rem">연 1회</div>
+        <div class="stat-note">국가승인 지정통계 제120008호</div>
+      </div>
+    </div>
+    <div class="highlight-box blue">
+      <strong>조사 목적:</strong> 급변하는 정보화 환경과 신규 정보화정책 수요에 따라 우리나라 기업체의 정보화 현황을 다양한 측면에서 파악하기 위해 실시하며, 정보화 관련 정책 수립 및 연구에 필요한 기초자료로 활용됩니다. 경제개발협력기구(OECD), 유엔무역 개발회의(UNCTAD) 등 국제기구에 우리나라 공식 통계 자료로 제공됩니다.
+    </div>
+    <div class="overview-grid">
+      <div class="overview-card">
+        <h4>📅 주요 연혁</h4>
+        <div class="overview-item"><span class="key">최초 실시</span><span class="val">1999년</span></div>
+        <div class="overview-item"><span class="key">통계단위 변경</span><span class="val">2020년 (1인→10인 이상)</span></div>
+        <div class="overview-item"><span class="key">조사명 변경</span><span class="val">2024년 (기업정보화통계조사)</span></div>
+        <div class="overview-item"><span class="key">국가승인 지정</span><span class="val">2004년 7월 15일</span></div>
+        <div class="overview-item"><span class="key">2025년 회차</span><span class="val">제27회</span></div>
+      </div>
+      <div class="overview-card">
+        <h4>📌 법적 근거</h4>
+        <div class="overview-item"><span class="key">통계법 제17조</span><span class="val">국가승인 지정통계</span></div>
+        <div class="overview-item"><span class="key">지능정보화기본법</span><span class="val">제66조 (지표조사)</span></div>
+        <div class="overview-item"><span class="key">동법 시행령</span><span class="val">제53조 (지표개발·보급)</span></div>
+        <div class="overview-item"><span class="key">통계번호</span><span class="val">제120008호</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 서브1: 조사 대상 -->
+  <div class="sub-panel" id="ch0-sub1">
+    <div class="section-title">조사 대상 (범위)</div>
+    <div class="stat-grid">
+      <div class="stat-card stat-blue">
+        <div class="stat-label">목표 모집단</div>
+        <div class="stat-value" style="font-size:1.3rem">211,615<span style="font-size:0.8rem">개</span></div>
+        <div class="stat-note">10인 이상 민간 기업체</div>
+      </div>
+      <div class="stat-card stat-green">
+        <div class="stat-label">총 종사자 수</div>
+        <div class="stat-value" style="font-size:1.3rem">1,042<span style="font-size:0.8rem">만명</span></div>
+        <div class="stat-note">기업체당 평균 49.24명</div>
+      </div>
+    </div>
+    <div class="highlight-box blue">
+      <strong>표본 추출틀:</strong> 통계청 2024 기업통계등록부 4분기 기준 (2024년 12월 기준) | 공공부문 제외, 순수 민간 부문 전체 산업
+    </div>
+    <div class="section-subtitle">업종별 모집단 구성</div>
+    <div class="chart-card">
+      <div class="chart-title">업종별 기업체 구성비 (상위 업종)</div>
+      <div class="chart-container">
+        <canvas id="chart-industry"></canvas>
+      </div>
+      <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-overview-industry')">
+        📊 통계표 보기 <span class="arrow-icon">▼</span>
+      </button>
+      <div class="stat-table-panel" id="tbl-overview-industry">
+        <div class="table-wrap" style="margin-top:10px;">
+          <table>
+            <tr><th>업종</th><th>기업체수(개)</th><th>구성비(%)</th><th>종사자수(명)</th><th>구성비(%)</th></tr>
+            <tr class="total-row"><td>전 체</td><td class="val-high">211,615</td><td>100.00</td><td>10,419,544</td><td>100.00</td></tr>
+            <tr><td>제조업</td><td>65,369</td><td class="val-high">30.89</td><td>3,461,446</td><td>33.22</td></tr>
+            <tr><td>건설업</td><td>30,394</td><td>14.36</td><td>1,183,061</td><td>11.35</td></tr>
+            <tr><td>도매 및 소매업</td><td>28,620</td><td>13.52</td><td>1,006,247</td><td>9.66</td></tr>
+            <tr><td>보건업 및 사회복지서비스업</td><td>14,900</td><td>7.04</td><td>482,811</td><td>4.63</td></tr>
+            <tr><td>전문·과학·기술서비스업</td><td>14,647</td><td>6.92</td><td>550,659</td><td>5.28</td></tr>
+            <tr><td>정보통신업</td><td>11,502</td><td>5.44</td><td>648,542</td><td>6.22</td></tr>
+            <tr><td>사업시설관리·사업지원</td><td>10,975</td><td>5.19</td><td>1,239,256</td><td>11.89</td></tr>
+            <tr><td>숙박 및 음식점업</td><td>10,950</td><td>5.17</td><td>394,324</td><td>3.78</td></tr>
+            <tr><td>운수 및 창고업</td><td>7,740</td><td>3.66</td><td>558,248</td><td>5.36</td></tr>
+          </table>
+        </div>
+        <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">BASE = 전국 10인 이상 민간 기업체(통계청 2024 기업통계등록부)</div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">규모별 모집단 구성</div>
+      <div class="chart-container short">
+        <canvas id="chart-size"></canvas>
+      </div>
+      <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-overview-size')">
+        📊 통계표 보기 <span class="arrow-icon">▼</span>
+      </button>
+      <div class="stat-table-panel" id="tbl-overview-size">
+        <div class="table-wrap" style="margin-top:10px;">
+          <table>
+            <tr><th>규모</th><th>기업체수(개)</th><th>구성비(%)</th><th>종사자수(명)</th><th>구성비(%)</th></tr>
+            <tr class="total-row"><td>전 체</td><td>211,615</td><td>100.00</td><td>10,419,544</td><td>100.00</td></tr>
+            <tr><td>10~49명</td><td class="val-high">180,930</td><td class="val-high">85.50</td><td>3,431,364</td><td>32.93</td></tr>
+            <tr><td>50~249명</td><td>26,144</td><td>12.35</td><td>2,531,082</td><td>24.29</td></tr>
+            <tr><td>250~999명</td><td>3,696</td><td>1.75</td><td>1,653,438</td><td>15.87</td></tr>
+            <tr><td>1,000명 이상</td><td class="val-low">845</td><td class="val-low">0.40</td><td>2,803,660</td><td class="val-high">26.91</td></tr>
+          </table>
+        </div>
+        <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">BASE = 전국 10인 이상 민간 기업체, 단위: 개, 명, %</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 서브2: 조사 내용 -->
+  <div class="sub-panel" id="ch0-sub2">
+    <div class="section-title">조사 내용 (항목)</div>
+    <div class="highlight-box blue">
+      조사항목은 <strong>4개 분야(정보화 기반, 정보화 응용, 지능정보기술 활용, 정보화 투자)</strong>로 구성되며, OECD·UNCTAD 등 국제기구의 분류기준 권고안을 반영하여 지표를 구성합니다.
+    </div>
+    <div class="overview-grid">
+      <div class="overview-card">
+        <h4>Ⅰ. 정보화 기반</h4>
+        <div class="overview-item"><span class="key">컴퓨터</span><span class="val">보유·종류·이용률</span></div>
+        <div class="overview-item"><span class="key">네트워크(서버)</span><span class="val">구축 여부</span></div>
+        <div class="overview-item"><span class="key">인터넷</span><span class="val">접속·방법·이용률</span></div>
+      </div>
+      <div class="overview-card">
+        <h4>Ⅱ. 정보화 응용</h4>
+        <div class="overview-item"><span class="key">웹사이트</span><span class="val">이용·형태·기능</span></div>
+        <div class="overview-item"><span class="key">전자상거래</span><span class="val">구매·판매·비중</span></div>
+        <div class="overview-item"><span class="key">전자정부·공공데이터</span><span class="val">이용 여부·유형</span></div>
+        <div class="overview-item"><span class="key">경영정보시스템(ERP·CRM)</span><span class="val">운영·방식</span></div>
+        <div class="overview-item"><span class="key">원격근무</span><span class="val">운영 여부·방식</span></div>
+      </div>
+      <div class="overview-card">
+        <h4>Ⅲ. 지능정보기술 활용</h4>
+        <div class="overview-item"><span class="key">사물인터넷(IoT)</span><span class="val">이용·유형·목적</span></div>
+        <div class="overview-item"><span class="key">클라우드 컴퓨팅</span><span class="val">이용·유형·목적</span></div>
+        <div class="overview-item"><span class="key">데이터 분석</span><span class="val">이용·유형·목적·형태</span></div>
+        <div class="overview-item"><span class="key">데이터 거래</span><span class="val">구매·판매 여부</span></div>
+        <div class="overview-item"><span class="key">인공지능(AI)</span><span class="val">이용·투자·유형·효과</span></div>
+      </div>
+      <div class="overview-card">
+        <h4>Ⅳ. 정보화 투자</h4>
+        <div class="overview-item"><span class="key">정보화 투자</span><span class="val">현황·유형·투자율</span></div>
+        <div class="overview-item"><span class="key">AI 투자율</span><span class="val">비용 지출 비율</span></div>
+        <div class="overview-item"><span class="key">정보화 전담인력</span><span class="val">보유·형태</span></div>
+      </div>
+    </div>
+    <div class="highlight-box orange">
+      <strong>2025년 주요 변경 항목:</strong> ① 경영정보시스템(ERP/CRM) 보기항목 재구성 ② AI 이용·투자 응답 이원화 ③ AI 이용 형태 보기항목 재구성 ④ <strong>AI 이용 효과 문항 신설</strong> ⑤ 정보화 효과 문항 삭제
+    </div>
+  </div>
+
+  <!-- 서브3: 실사 개요 -->
+  <div class="sub-panel" id="ch0-sub3">
+    <div class="section-title">실사 개요</div>
+    <div class="info-rows">
+      <div class="info-row"><div class="lbl">조사 기준시점</div><div class="val">2024년 12월 31일 현재</div></div>
+      <div class="info-row"><div class="lbl">조사 대상기간</div><div class="val">2024년 1월 1일 ~ 12월 31일</div></div>
+      <div class="info-row"><div class="lbl">조사 실시기간</div><div class="val">2025년 7월 29일 ~ 10월 2일 (약 10주)</div></div>
+      <div class="info-row"><div class="lbl">목표 표본수</div><div class="val">12,500개</div></div>
+      <div class="info-row"><div class="lbl">최종 유효응답</div><div class="val">12,264개 (유효응답률 98.1%)</div></div>
+      <div class="info-row"><div class="lbl">조사 주관기관</div><div class="val">과학기술정보통신부</div></div>
+      <div class="info-row"><div class="lbl">조사 전담기관</div><div class="val">한국지능정보사회진흥원</div></div>
+      <div class="info-row"><div class="lbl">조사 수행기관</div><div class="val">㈜한국갤럽조사연구소</div></div>
+      <div class="info-row"><div class="lbl">조사 방법</div><div class="val">대인면접조사 (웹·이메일·팩스 병행)</div></div>
+      <div class="info-row"><div class="lbl">통계 분석 도구</div><div class="val">SPSS Statistics 25</div></div>
+    </div>
+    <div class="section-subtitle" style="margin-top:20px;">무응답 현황</div>
+    <div class="chart-card">
+      <div class="chart-title">무응답 사유 구성</div>
+      <div class="chart-container short">
+        <canvas id="chart-nonresponse"></canvas>
+      </div>
+      <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-nonresponse')">
+        📊 통계표 보기 <span class="arrow-icon">▼</span>
+      </button>
+      <div class="stat-table-panel" id="tbl-nonresponse">
+        <div class="table-wrap" style="margin-top:10px;">
+          <table>
+            <tr><th>무응답 사유</th><th>비율(%)</th></tr>
+            <tr><td>기타 (담당자 부재 등)</td><td class="val-high">36%</td></tr>
+            <tr><td>응답 거부</td><td>34%</td></tr>
+            <tr><td>리스트 이상 (결번·주소 오류 등)</td><td>29%</td></tr>
+            <tr><td>휴·폐업</td><td class="val-low">1%</td></tr>
+            <tr class="total-row"><td>합계</td><td>100%</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 챕터 1: 표본 설계 ========== -->
+<div class="chapter-panel" id="ch1">
+  <div class="sub-tabs-bar">
+    <div class="sub-tab active" onclick="switchSub('ch1', 0, this)">모집단 구성</div>
+    <div class="sub-tab" onclick="switchSub('ch1', 1, this)">층화 및 분류 기준</div>
+    <div class="sub-tab" onclick="switchSub('ch1', 2, this)">표본 배분 결과</div>
+  </div>
+
+  <div class="sub-panel active" id="ch1-sub0">
+    <div class="section-title">조사 모집단 구성</div>
+    <div class="stat-grid">
+      <div class="stat-card stat-blue">
+        <div class="stat-label">전체 기업체수</div>
+        <div class="stat-value" style="font-size:1.3rem">211,615<span style="font-size:0.8rem">개</span></div>
+        <div class="stat-note">2024년 12월 기준</div>
+      </div>
+      <div class="stat-card stat-green">
+        <div class="stat-label">총 종사자 수</div>
+        <div class="stat-value" style="font-size:1.3rem">1,042<span style="font-size:0.8rem">만명</span></div>
+      </div>
+      <div class="stat-card stat-orange">
+        <div class="stat-label">기업체당 평균 종사자</div>
+        <div class="stat-value">49.2<span style="font-size:0.9rem">명</span></div>
+      </div>
+      <div class="stat-card stat-purple">
+        <div class="stat-label">표준편차</div>
+        <div class="stat-value">468.8<span style="font-size:0.9rem">명</span></div>
+        <div class="stat-note">규모 편차 매우 큼</div>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="chart-card">
+        <div class="chart-title">업종별 기업체 구성비 (%)</div>
+        <div class="chart-container tall">
+          <canvas id="chart-industry2"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">규모별 기업체 구성비 (%)</div>
+        <div class="chart-container tall">
+          <canvas id="chart-size2"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-panel" id="ch1-sub1">
+    <div class="section-title">층화 및 분류 기준</div>
+    <div class="highlight-box blue">
+      <strong>층화 구조:</strong> 업종별 16개 × 규모별 4개 = <strong>총 64개 층</strong>으로 2단계 층화 | 국제기구 파트너십(OECD, UNCTAD, ITU)의 분류기준 권고안 적용
+    </div>
+    <div class="two-col">
+      <div class="overview-card">
+        <h4>📂 업종 분류 (16개)</h4>
+        <div class="overview-item"><span class="key">1</span><span class="val">농림수산업(광업포함)</span></div>
+        <div class="overview-item"><span class="key">2</span><span class="val">제조업</span></div>
+        <div class="overview-item"><span class="key">3</span><span class="val">전기·가스·수도업</span></div>
+        <div class="overview-item"><span class="key">4</span><span class="val">건설업</span></div>
+        <div class="overview-item"><span class="key">5</span><span class="val">도매 및 소매업</span></div>
+        <div class="overview-item"><span class="key">6</span><span class="val">운수 및 창고업</span></div>
+        <div class="overview-item"><span class="key">7</span><span class="val">숙박 및 음식점업</span></div>
+        <div class="overview-item"><span class="key">8</span><span class="val">정보통신업</span></div>
+        <div class="overview-item"><span class="key">9</span><span class="val">금융 및 보험업</span></div>
+        <div class="overview-item"><span class="key">10~16</span><span class="val">부동산업 등 서비스업</span></div>
+      </div>
+      <div class="overview-card">
+        <h4>📏 규모 분류 (4개)</h4>
+        <div class="overview-item"><span class="key">규모 1층</span><span class="val">10~49명 (소규모)</span></div>
+        <div class="overview-item"><span class="key">규모 2층</span><span class="val">50~249명 (중소규모)</span></div>
+        <div class="overview-item"><span class="key">규모 3층</span><span class="val">250~999명 (중대규모)</span></div>
+        <div class="overview-item"><span class="key">규모 4층</span><span class="val">1,000명 이상 (대규모)</span></div>
+        <div style="margin-top:12px;font-size:0.76rem;color:var(--text-secondary);">
+          ※ OECD 기준: 10~49명, 50~249명, 250명 이상<br>
+          ※ UNCTAD 기준: 1~9명, 10~49명, 50~249명, 250명 이상
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-panel" id="ch1-sub2">
+    <div class="section-title">표본 배분 결과</div>
+    <div class="stat-grid">
+      <div class="stat-card stat-blue">
+        <div class="stat-label">목표 표본수</div>
+        <div class="stat-value" style="font-size:1.4rem">12,500<span style="font-size:0.8rem">개</span></div>
+        <div class="stat-note">목표 변동계수 0.37% 기준</div>
+      </div>
+      <div class="stat-card stat-green">
+        <div class="stat-label">최종 유효응답</div>
+        <div class="stat-value" style="font-size:1.4rem">12,264<span style="font-size:0.8rem">개</span></div>
+        <div class="stat-note">유효응답률 98.1%</div>
+      </div>
+      <div class="stat-card stat-orange">
+        <div class="stat-label">전수 조사층</div>
+        <div class="stat-value">933<span style="font-size:0.9rem">개</span></div>
+        <div class="stat-note">1,000명 이상 기업체</div>
+      </div>
+      <div class="stat-card stat-purple">
+        <div class="stat-label">과표본추출</div>
+        <div class="stat-value">2,150<span style="font-size:0.9rem">개</span></div>
+        <div class="stat-note">층별 최소 표본 50개 확보</div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">규모별 표본 배분 현황</div>
+      <div class="chart-container">
+        <canvas id="chart-sample"></canvas>
+      </div>
+      <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-sample')">
+        📊 통계표 보기 <span class="arrow-icon">▼</span>
+      </button>
+      <div class="stat-table-panel" id="tbl-sample">
+        <div class="table-wrap" style="margin-top:10px;">
+          <table>
+            <tr><th>규모</th><th>모집단(개)</th><th>모집단 구성비(%)</th><th>표본 배분(개)</th><th>표본 구성비(%)</th></tr>
+            <tr><td>10~49명</td><td>180,930</td><td>85.50</td><td>5,722</td><td>45.78</td></tr>
+            <tr><td>50~249명</td><td>26,144</td><td>12.35</td><td>3,777</td><td>30.22</td></tr>
+            <tr><td>250~999명</td><td>3,696</td><td>1.75</td><td>2,156</td><td>17.25</td></tr>
+            <tr><td>1,000명 이상</td><td>845</td><td>0.40</td><td>845</td><td>6.76</td></tr>
+            <tr class="total-row"><td>합계</td><td>211,615</td><td>100.00</td><td>12,500</td><td>100.00</td></tr>
+          </table>
+        </div>
+        <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">네이만 배분법 적용, 95% 신뢰수준 기준</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 챕터 2: 품질 관리 ========== -->
+<div class="chapter-panel" id="ch2">
+  <div class="sub-tabs-bar">
+    <div class="sub-tab active" onclick="switchSub('ch2', 0, this)">조사 과정 품질관리</div>
+    <div class="sub-tab" onclick="switchSub('ch2', 1, this)">무응답 대체</div>
+    <div class="sub-tab" onclick="switchSub('ch2', 2, this)">모수 추정</div>
+  </div>
+
+  <div class="sub-panel active" id="ch2-sub0">
+    <div class="section-title">조사 과정 품질관리</div>
+    <div class="overview-grid">
+      <div class="overview-card">
+        <h4>📋 초기 접촉 단계</h4>
+        <div class="overview-item"><span class="key">사전 안내</span><span class="val">조사공문·배너 발송</span></div>
+        <div class="overview-item"><span class="key">홍보 자료</span><span class="val">조사 안내 자료집 제공</span></div>
+        <div class="overview-item"><span class="key">결과 공유</span><span class="val">결과 확인 방법 안내</span></div>
+      </div>
+      <div class="overview-card">
+        <h4>📝 자료 입력 단계</h4>
+        <div class="overview-item"><span class="key">이중 확인</span><span class="val">Double Check System</span></div>
+        <div class="overview-item"><span class="key">지침서 점검</span><span class="val">사전 작성 지침 체계적 점검</span></div>
+        <div class="overview-item"><span class="key">전화 재확인</span><span class="val">부정확 응답 재조사</span></div>
+        <div class="overview-item"><span class="key">사후 검증(QC)</span><span class="val">조사원별 설문지 검증</span></div>
+      </div>
+      <div class="overview-card">
+        <h4>🔢 코딩 단계</h4>
+        <div class="overview-item"><span class="key">코딩 요원</span><span class="val">실태조사 경험자 선발</span></div>
+        <div class="overview-item"><span class="key">사전교육</span><span class="val">코딩 지침서 교육</span></div>
+        <div class="overview-item"><span class="key">집단 작업</span><span class="val">협의 과정으로 혼란 최소화</span></div>
+      </div>
+      <div class="overview-card">
+        <h4>💻 전산 처리 단계</h4>
+        <div class="overview-item"><span class="key">Logic 설계</span><span class="val">Survey-Craft 활용</span></div>
+        <div class="overview-item"><span class="key">데이터 클리닝</span><span class="val">전산요원 지침 기반 수행</span></div>
+        <div class="overview-item"><span class="key">Cross Check</span><span class="val">문항 간 논리적 일관성 검증</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-panel" id="ch2-sub1">
+    <div class="section-title">무응답 대체</div>
+    <div class="stat-grid">
+      <div class="stat-card stat-green">
+        <div class="stat-label">최종 유효응답률</div>
+        <div class="stat-value">98.1<span style="font-size:1rem">%</span></div>
+        <div class="stat-note">12,264개 / 12,500개</div>
+      </div>
+    </div>
+    <div class="highlight-box blue">
+      <strong>무응답 대체 방법 — Hot-deck Imputation (핫덱 대체법):</strong><br>
+      UNCTAD 권고 대체방법을 적용하여, 해당 문항을 응답한 기업체들을 성격이 비슷한 집단으로 범주화한 후, 무응답 기업체가 속하는 범주의 평균값으로 대체합니다.<br><br>
+      • <strong>범주형 문항:</strong> 재조사 및 검색을 통해 대체<br>
+      • <strong>연속형 문항:</strong> 업종×규모별 해당 범주의 평균값으로 대체
+    </div>
+  </div>
+
+  <div class="sub-panel" id="ch2-sub2">
+    <div class="section-title">모수 추정 방법</div>
+    <div class="highlight-box blue">
+      업종·규모 64개 층, 지역(17개 시도), 조직형태(개인·법인)의 모집단 자료를 바탕으로 <strong>사후 층화 — 반복비례가중법(Raking Ratio Method)</strong>을 적용하여 표본 가중치를 산출합니다.
+    </div>
+    <div class="overview-grid">
+      <div class="overview-card">
+        <h4>⚖️ 가중치 계산 방법</h4>
+        <div class="overview-item"><span class="key">설계 가중치</span><span class="val">표본 추출률 기반</span></div>
+        <div class="overview-item"><span class="key">무응답 보정</span><span class="val">응답률 고려 가중치 조정</span></div>
+        <div class="overview-item"><span class="key">레이킹 비 조정</span><span class="val">업종·규모·지역·조직형태 동시 고려</span></div>
+      </div>
+      <div class="overview-card">
+        <h4>📊 주요 층별 평균 가중치 (예시)</h4>
+        <div class="overview-item"><span class="key">전체 평균</span><span class="val">17.25</span></div>
+        <div class="overview-item"><span class="key">제조업 10~49명</span><span class="val">47.22</span></div>
+        <div class="overview-item"><span class="key">건설업 10~49명</span><span class="val">38.18</span></div>
+        <div class="overview-item"><span class="key">정보통신업 10~49명</span><span class="val">30.73</span></div>
+        <div class="overview-item"><span class="key">금융·보험업 10~49명</span><span class="val">4.05</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 챕터 3: 정보화 기반 ========== -->
+<div class="chapter-panel" id="ch3">
+  <div class="sub-tabs-bar">
+    <div class="sub-tab active" onclick="switchSub('ch3', 0, this)">컴퓨터</div>
+    <div class="sub-tab" onclick="switchSub('ch3', 1, this)">인터넷</div>
+  </div>
+
+  <!-- 컴퓨터 -->
+  <div class="sub-panel active" id="ch3-sub0">
+    <div class="section-title">Ⅰ. 정보화 기반 — 컴퓨터</div>
+    <div class="stat-grid">
+      <div class="stat-card stat-blue">
+        <div class="stat-label">컴퓨터 보유율</div>
+        <div class="stat-value">100.0<span style="font-size:1rem">%</span></div>
+        <div class="stat-note">전년과 동일</div>
+      </div>
+      <div class="stat-card stat-green">
+        <div class="stat-label">직원 컴퓨터 이용률 (평균)</div>
+        <div class="stat-value">67.5<span style="font-size:1rem">%</span></div>
+        <div class="stat-note">전년 대비 유사 수준</div>
+      </div>
+      <div class="stat-card stat-orange">
+        <div class="stat-label">네트워크(서버) 구축률</div>
+        <div class="stat-value">86.0<span style="font-size:1rem">%</span></div>
+        <div class="stat-note">전년 대비 유사 수준</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="chart-card">
+        <div class="chart-title">컴퓨터 종류별 보유 현황 (복수응답, %)</div>
+        <div class="chart-container">
+          <canvas id="chart-computer-type"></canvas>
+        </div>
+        <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-computer-type')">
+          📊 통계표 보기 <span class="arrow-icon">▼</span>
+        </button>
+        <div class="stat-table-panel" id="tbl-computer-type">
+          <div class="table-wrap" style="margin-top:10px;">
+            <table>
+              <tr><th>컴퓨터 종류</th><th>보유율(%)</th><th>전년 대비</th></tr>
+              <tr><td>데스크탑 컴퓨터</td><td class="val-high">95.7</td><td>유사</td></tr>
+              <tr><td>노트북</td><td>48.8</td><td class="val-high">+4.7%p</td></tr>
+              <tr><td>스마트폰 등 모바일 기기</td><td>46.2</td><td>유사</td></tr>
+            </table>
+          </div>
+          <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">BASE = 컴퓨터 보유 기업체, 기준: 2024년 12월 31일, 복수응답</div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">네트워크(서버) 구축률 — 업종별 상·하위 (%, n=컴퓨터 보유 기업체)</div>
+        <div class="chart-container">
+          <canvas id="chart-network"></canvas>
+        </div>
+        <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-network')">
+          📊 통계표 보기 <span class="arrow-icon">▼</span>
+        </button>
+        <div class="stat-table-panel" id="tbl-network">
+          <div class="table-wrap" style="margin-top:10px;">
+            <table>
+              <tr><th>업종</th><th>네트워크 구축률(%)</th></tr>
+              <tr><td>금융 및 보험업</td><td class="val-high">98.5</td></tr>
+              <tr><td>보건업 및 사회복지서비스업</td><td class="val-high">96.5</td></tr>
+              <tr><td>정보통신업</td><td>94.1</td></tr>
+              <tr><td>전 체</td><td><strong>86.0</strong></td></tr>
+              <tr><td>부동산업</td><td>79.7</td></tr>
+              <tr><td>전기 등 공기조절공급/수도 등</td><td>78.0</td></tr>
+              <tr><td>농림수산업(광업포함)</td><td class="val-low">71.6</td></tr>
+            </table>
+          </div>
+          <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">BASE = 컴퓨터 보유 기업체, 기준: 2024년 12월 31일</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="prog-section">
+      <div class="chart-title" style="margin-bottom:16px;">직원의 업무상 컴퓨터 이용률 — 주요 업종 비교 (%)</div>
+      <div class="prog-row"><div class="prog-label">금융 및 보험업</div><div class="prog-track"><div class="prog-fill green" style="width:96.8%">96.8%</div></div></div>
+      <div class="prog-row"><div class="prog-label">정보통신업</div><div class="prog-track"><div class="prog-fill green" style="width:93.2%">93.2%</div></div></div>
+      <div class="prog-row"><div class="prog-label">교육서비스업</div><div class="prog-track"><div class="prog-fill blue" style="width:89.1%">89.1%</div></div></div>
+      <div class="prog-row"><div class="prog-label">전문·과학·기술서비스업</div><div class="prog-track"><div class="prog-fill blue" style="width:88.4%">88.4%</div></div></div>
+      <div class="prog-row"><div class="prog-label">전 체 (평균)</div><div class="prog-track"><div class="prog-fill blue" style="width:67.5%">67.5%</div></div></div>
+      <div class="prog-row"><div class="prog-label">사업시설관리·지원</div><div class="prog-track"><div class="prog-fill orange" style="width:53.6%">53.6%</div></div></div>
+      <div class="prog-row"><div class="prog-label">농림수산업(광업포함)</div><div class="prog-track"><div class="prog-fill orange" style="width:47.4%">47.4%</div></div></div>
+      <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-computer-use')">
+        📊 통계표 보기 <span class="arrow-icon">▼</span>
+      </button>
+      <div class="stat-table-panel" id="tbl-computer-use">
+        <div class="table-wrap" style="margin-top:10px;">
+          <table>
+            <tr><th>규모</th><th>이용률(%)</th></tr>
+            <tr><td>10~49명</td><td class="val-high">67.7</td></tr>
+            <tr><td>50~249명</td><td>66.1</td></tr>
+            <tr><td>250명 이상</td><td>65.8</td></tr>
+            <tr class="total-row"><td>전 체</td><td>67.5</td></tr>
+            <tr><th colspan="2" style="text-align:left;">조직 형태</th></tr>
+            <tr><td>회사법인</td><td class="val-high">67.9</td></tr>
+            <tr><td>개인사업체</td><td>65.6</td></tr>
+          </table>
+        </div>
+        <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">BASE = 컴퓨터 보유 기업체, 주: 주 1회 이상 컴퓨터 이용 직원 비율</div>
+      </div>
+    </div>
+    <div class="implication">
+      <h4>주요 시사점</h4>
+      <ul>
+        <li>전국 10인 이상 민간 기업체의 컴퓨터 보유율은 <strong>100%</strong>로, 사실상 전 기업이 컴퓨터를 보유하고 있음</li>
+        <li>노트북 보유율(48.8%)이 전년 대비 4.7%p 증가하며 모바일 업무 환경으로의 전환이 진행 중</li>
+        <li>금융·보험업 등 사무직 중심 업종에서 컴퓨터 이용률과 네트워크 구축률이 높게 나타나는 반면, 농림수산업 등은 상대적으로 낮은 수준</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 인터넷 -->
+  <div class="sub-panel" id="ch3-sub1">
+
+<h2 class="section-title">2. 인터넷 접속</h2>
+
+<div class="stat-grid">
+  <div class="stat-card stat-blue">
+    <div class="stat-label">인터넷 접속률</div>
+    <div class="stat-value">100<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">전체 조사 기업체</div>
+  </div>
+  <div class="stat-card stat-green">
+    <div class="stat-label">직원 인터넷 이용률(평균)</div>
+    <div class="stat-value">65.9<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">인터넷 접속 기업 기준</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">인터넷 접속 방법 (복수응답, 단위: %)</div>
+  <div class="chart-container short">
+    <canvas id="chart-internet-method"></canvas>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: 인터넷 접속 기업체 / 복수응답 합계치</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-internet-method')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-internet-method">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>접속 방법</th><th>비율(%)</th></tr></thead>
+        <tbody>
+          <tr><td>광대역</td><td style="color:var(--secondary);font-weight:700">77.1</td></tr>
+          <tr><td>업무용 LAN(유선)</td><td style="color:var(--secondary);font-weight:700">70.6</td></tr>
+          <tr><td>모바일 인터넷</td><td>37.5</td></tr>
+          <tr><td>전화회선</td><td style="color:var(--accent)">16.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">복수응답 / 단위: %</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">산업별 직원 업무용 인터넷 이용률(평균) — 주요 업종 (단위: %)</div>
+  <div class="prog-section" style="background:transparent;box-shadow:none;padding:0;">
+    <div class="prog-row"><div class="prog-label">금융 및 보험업</div><div class="prog-track"><div class="prog-fill green" style="width:95%">95.0%</div></div></div>
+    <div class="prog-row"><div class="prog-label">정보통신업</div><div class="prog-track"><div class="prog-fill green" style="width:91.9%">91.9%</div></div></div>
+    <div class="prog-row"><div class="prog-label">교육 서비스업</div><div class="prog-track"><div class="prog-fill blue" style="width:88%">88.0%</div></div></div>
+    <div class="prog-row"><div class="prog-label">전문·과학·기술서비스업</div><div class="prog-track"><div class="prog-fill blue" style="width:87.6%">87.6%</div></div></div>
+    <div class="prog-row"><div class="prog-label">전체 평균</div><div class="prog-track"><div class="prog-fill blue" style="width:65.9%">65.9%</div></div></div>
+    <div class="prog-row"><div class="prog-label">농림수산업</div><div class="prog-track"><div class="prog-fill orange" style="width:50.8%">50.8%</div></div></div>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: 인터넷 접속 기업체</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-internet-emprate')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-internet-emprate">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>산업</th><th>직원 이용률(%)</th></tr></thead>
+        <tbody>
+          <tr><td>금융 및 보험업</td><td style="color:var(--secondary);font-weight:700">95.0</td></tr>
+          <tr><td>정보통신업</td><td style="color:var(--secondary);font-weight:700">91.9</td></tr>
+          <tr><td>교육 서비스업</td><td>88.0</td></tr>
+          <tr><td>전문·과학·기술서비스업</td><td>87.6</td></tr>
+          <tr><td>전체 평균</td><td>65.9</td></tr>
+          <tr><td>농림수산업</td><td style="color:var(--accent)">50.8</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">BASE=전체 / 단위: %</div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<!-- ========== 챕터 4: 정보화 응용 ========== -->
+<div class="chapter-panel" id="ch4">
+  <div class="sub-tabs-bar">
+    <div class="sub-tab active" onclick="switchSub('ch4', 0, this)">웹사이트</div>
+    <div class="sub-tab" onclick="switchSub('ch4', 1, this)">전자상거래</div>
+    <div class="sub-tab" onclick="switchSub('ch4', 2, this)">전자정부·공공데이터</div>
+    <div class="sub-tab" onclick="switchSub('ch4', 3, this)">경영정보시스템</div>
+    <div class="sub-tab" onclick="switchSub('ch4', 4, this)">원격근무</div>
+  </div>
+  <div class="sub-panel active" id="ch4-sub0">
+
+<h2 class="section-title">1. 웹사이트(홈페이지 등)</h2>
+
+<div class="stat-grid">
+  <div class="stat-card stat-blue">
+    <div class="stat-label">웹사이트 이용률</div>
+    <div class="stat-value">71.7<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">전국 종사자 10인 이상 기업체</div>
+  </div>
+  <div class="stat-card stat-green">
+    <div class="stat-label">250인 이상 이용률</div>
+    <div class="stat-value">93.0<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">대기업 중심 높은 이용률</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">웹사이트 이용 형태 (복수응답, 단위: %)</div>
+  <div class="chart-container short">
+    <canvas id="chart-web-type"></canvas>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: 웹사이트 이용 기업체 / 복수응답 합계치</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-web-type')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-web-type">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>이용 형태</th><th>비율(%)</th></tr></thead>
+        <tbody>
+          <tr><td>홈페이지</td><td style="color:var(--secondary);font-weight:700">92.1</td></tr>
+          <tr><td>소셜미디어(SNS)</td><td>28.2</td></tr>
+          <tr><td>이커머스 플랫폼</td><td>26.1</td></tr>
+          <tr><td>모바일 앱</td><td style="color:var(--accent)">12.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">복수응답 / 단위: %</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">웹사이트 제공 기능 (복수응답, 단위: %)</div>
+  <div class="chart-container short">
+    <canvas id="chart-web-func"></canvas>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: 웹사이트 이용 기업체 / 복수응답 합계치</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-web-func')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-web-func">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>제공 기능</th><th>비율(%)</th></tr></thead>
+        <tbody>
+          <tr><td>고객지원 서비스</td><td style="color:var(--secondary);font-weight:700">45.1</td></tr>
+          <tr><td>주문·판매</td><td>37.5</td></tr>
+          <tr><td>외부링크 지원서비스</td><td>16.5</td></tr>
+          <tr><td>장치인증 서비스</td><td style="color:var(--accent)">2.7</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">복수응답 / 단위: %</div>
+  </div>
+</div>
+
+</div>
+  <div class="sub-panel" id="ch4-sub1">
+
+<h2 class="section-title">2. 전자상거래</h2>
+
+<div class="stat-grid">
+  <div class="stat-card stat-blue">
+    <div class="stat-label">전자상거래 이용률</div>
+    <div class="stat-value">57.4<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">전년 대비 1.0%p 증가</div>
+  </div>
+  <div class="stat-card stat-green">
+    <div class="stat-label">전자상거래 구매율</div>
+    <div class="stat-value">55.8<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">구매(발주) 경험 기업체</div>
+  </div>
+  <div class="stat-card stat-orange">
+    <div class="stat-label">전자상거래 판매율</div>
+    <div class="stat-value">24.2<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">판매(수주) 경험 기업체</div>
+  </div>
+  <div class="stat-card stat-purple">
+    <div class="stat-label">전자상거래 판매 비중(평균)</div>
+    <div class="stat-value">48.5<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">총 판매액 대비</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">전자상거래 판매(수주) 고객 유형별 비중 (단위: %)</div>
+  <div class="chart-container short" style="max-width:320px;margin:0 auto">
+    <canvas id="chart-ec-customer"></canvas>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: 전자상거래 판매(수주) 기업체</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-ec-customer')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-ec-customer">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>고객 유형</th><th>비중(%)</th></tr></thead>
+        <tbody>
+          <tr><td>최종 개인(소비자)</td><td style="color:var(--secondary);font-weight:700">43.9</td></tr>
+          <tr><td>기업</td><td>39.1</td></tr>
+          <tr><td>정부/공공기관</td><td style="color:var(--accent)">17.0</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">BASE=전자상거래 판매 기업체 / 단위: %</div>
+  </div>
+</div>
+
+<div class="highlight-box blue">
+  <strong>전자상거래 활용 현황</strong><br>
+  전자상거래 이용률은 교육 서비스업(79.7%)에서 가장 높으며, 250인 이상 대기업(72.5%)이 소규모 기업 대비 높은 이용률을 보임.
+  판매 고객은 최종 개인(소비자) 비중이 43.9%로 가장 높으나, 기업 간 거래(B2B)도 39.1%로 상당한 비중 차지.
+</div>
+
+</div>
+  <div class="sub-panel" id="ch4-sub2">
+
+<h2 class="section-title">3. 전자정부 서비스 및 공공데이터</h2>
+
+<div class="stat-grid">
+  <div class="stat-card stat-green">
+    <div class="stat-label">전자정부 서비스 이용률</div>
+    <div class="stat-value">95.8<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">전국 종사자 10인 이상 기업체</div>
+  </div>
+  <div class="stat-card stat-blue">
+    <div class="stat-label">공공데이터 이용률</div>
+    <div class="stat-value">54.9<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">전년 대비 큰 폭 상승</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">전자정부 서비스 이용 유형 (복수응답, 단위: %)</div>
+  <div class="chart-container short">
+    <canvas id="chart-egov-type"></canvas>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: 전자정부 서비스 이용 기업체 / 복수응답 합계치</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-egov-type')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-egov-type">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>이용 유형</th><th>비율(%)</th></tr></thead>
+        <tbody>
+          <tr><td>정보검색·조회</td><td style="color:var(--secondary);font-weight:700">92.4</td></tr>
+          <tr><td>각종 신청 서식 취득</td><td>84.8</td></tr>
+          <tr><td>행정민원 온라인 처리</td><td>84.5</td></tr>
+          <tr><td>각종 신청 서식 작성·제출</td><td style="color:var(--accent)">83.9</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">복수응답 / 단위: %</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">공공데이터 이용 목적 (복수응답, 단위: %)</div>
+  <div class="chart-container short">
+    <canvas id="chart-pubdata-purpose"></canvas>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: 공공데이터 이용 기업체 / 복수응답 합계치</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-pubdata-purpose')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-pubdata-purpose">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>이용 목적</th><th>비율(%)</th></tr></thead>
+        <tbody>
+          <tr><td>기업 내부 이용</td><td style="color:var(--secondary);font-weight:700">93.6</td></tr>
+          <tr><td>기능적 활용</td><td>40.5</td></tr>
+          <tr><td>수익 창출</td><td>15.8</td></tr>
+          <tr><td>전략적 활용</td><td style="color:var(--accent)">10.6</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">복수응답 / 단위: %</div>
+  </div>
+</div>
+
+</div>
+  <div class="sub-panel" id="ch4-sub3">
+
+<h2 class="section-title">5. 경영정보시스템</h2>
+
+<div class="stat-grid">
+  <div class="stat-card stat-blue">
+    <div class="stat-label">경영정보시스템 운영률</div>
+    <div class="stat-value">71.0<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">전년 대비 비슷한 수준</div>
+  </div>
+  <div class="stat-card stat-green">
+    <div class="stat-label">ERP 운영률</div>
+    <div class="stat-value">65.0<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">경영정보시스템 중 가장 높음</div>
+  </div>
+  <div class="stat-card stat-orange">
+    <div class="stat-label">CRM 운영률</div>
+    <div class="stat-value">22.1<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">고객관계관리 시스템</div>
+  </div>
+</div>
+
+<div class="two-col">
+<div class="chart-card">
+  <div class="chart-title">ERP 운영 방식 (단위: %)</div>
+  <div class="chart-container short" style="max-width:320px;margin:0 auto">
+    <canvas id="chart-erp-method"></canvas>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: ERP 운영 기업체</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-erp-method')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-erp-method">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>운영 방식</th><th>비율(%)</th></tr></thead>
+        <tbody>
+          <tr><td>아웃소싱</td><td style="color:var(--secondary);font-weight:700">81.0</td></tr>
+          <tr><td>자체구축+아웃소싱 병행</td><td>13.5</td></tr>
+          <tr><td>자체구축</td><td style="color:var(--accent)">5.6</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">BASE=ERP 운영 기업체 / 단위: %</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">CRM 운영 방식 (단위: %)</div>
+  <div class="chart-container short" style="max-width:320px;margin:0 auto">
+    <canvas id="chart-crm-method"></canvas>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: CRM 운영 기업체</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-crm-method')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-crm-method">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>운영 방식</th><th>비율(%)</th></tr></thead>
+        <tbody>
+          <tr><td>아웃소싱</td><td style="color:var(--secondary);font-weight:700">73.2</td></tr>
+          <tr><td>자체구축</td><td>15.7</td></tr>
+          <tr><td>자체구축+아웃소싱 병행</td><td style="color:var(--accent)">11.1</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">BASE=CRM 운영 기업체 / 단위: %</div>
+  </div>
+</div>
+</div>
+
+</div>
+  <div class="sub-panel" id="ch4-sub4">
+
+<h2 class="section-title">6. 원격근무(스마트워크)</h2>
+
+<div class="stat-grid">
+  <div class="stat-card stat-blue">
+    <div class="stat-label">원격근무 운영률</div>
+    <div class="stat-value">18.4<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">전년 대비 비슷한 수준</div>
+  </div>
+  <div class="stat-card stat-green">
+    <div class="stat-label">250인 이상 운영률</div>
+    <div class="stat-value">38.8<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">규모별 가장 높은 운영률</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">원격근무 운영 방식 (복수응답, 단위: %)</div>
+  <div class="chart-container short">
+    <canvas id="chart-remote-method"></canvas>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: 원격근무 운영 기업체 / 복수응답 합계치</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-remote-method')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-remote-method">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>운영 방식</th><th>비율(%)</th></tr></thead>
+        <tbody>
+          <tr><td>이동/모바일 근무</td><td style="color:var(--secondary);font-weight:700">75.7</td></tr>
+          <tr><td>재택근무</td><td>41.6</td></tr>
+          <tr><td>스마트오피스 근무</td><td style="color:var(--accent)">8.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">복수응답 / 단위: %</div>
+  </div>
+</div>
+
+<div class="highlight-box blue">
+  <strong>원격근무 현황</strong><br>
+  원격근무는 금융·보험업(37.7%)에서 가장 활발하게 운영되며, 기업 규모가 클수록 운영률이 높은 경향.
+  운영 방식으로는 이동/모바일 근무가 75.7%로 가장 많고, 재택근무(41.6%)가 뒤를 이음.
+</div>
+
+</div>
+</div>
+
+<!-- ========== 챕터 5: 지능정보기술 ========== -->
+<div class="chapter-panel" id="ch5">
+  <div class="sub-tabs-bar">
+    <div class="sub-tab active" onclick="switchSub('ch5', 0, this)">사물인터넷(IoT)</div>
+    <div class="sub-tab" onclick="switchSub('ch5', 1, this)">클라우드 컴퓨팅</div>
+    <div class="sub-tab" onclick="switchSub('ch5', 2, this)">데이터 분석</div>
+    <div class="sub-tab" onclick="switchSub('ch5', 3, this)">데이터 거래</div>
+    <div class="sub-tab" onclick="switchSub('ch5', 4, this)">인공지능(AI)</div>
+  </div>
+  <div class="sub-panel active" id="ch5-sub0">
+
+<h2 class="section-title">1. 사물인터넷(IoT)</h2>
+
+<div class="stat-grid">
+  <div class="stat-card stat-blue">
+    <div class="stat-label">IoT 기기·서비스 이용률</div>
+    <div class="stat-value">55.8<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">전년 대비 비슷한 수준</div>
+  </div>
+  <div class="stat-card stat-green">
+    <div class="stat-label">250인 이상 이용률</div>
+    <div class="stat-value">73.9<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">규모가 클수록 이용률 증가</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">IoT 기기·서비스 이용 유형 (복수응답, 단위: %)</div>
+  <div class="chart-container short">
+    <canvas id="chart-iot-type"></canvas>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: IoT 이용 기업체 / 복수응답 합계치</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-iot-type')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-iot-type">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>이용 유형</th><th>비율(%)</th></tr></thead>
+        <tbody>
+          <tr><td>보안/감시 서비스</td><td style="color:var(--secondary);font-weight:700">81.2</td></tr>
+          <tr><td>연결 서비스</td><td>45.2</td></tr>
+          <tr><td>고객서비스</td><td>25.2</td></tr>
+          <tr><td>물류재고·상태관리</td><td style="color:var(--accent)">12.1</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">복수응답 / 단위: %</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">IoT 기기·서비스 이용 목적 (복수응답, 단위: %)</div>
+  <div class="chart-container short">
+    <canvas id="chart-iot-purpose"></canvas>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: IoT 이용 기업체 / 복수응답 합계치</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-iot-purpose')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-iot-purpose">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>이용 목적</th><th>비율(%)</th></tr></thead>
+        <tbody>
+          <tr><td>업무효율 증가</td><td style="color:var(--secondary);font-weight:700">58.7</td></tr>
+          <tr><td>정보보안 강화</td><td style="color:var(--secondary);font-weight:700">57.5</td></tr>
+          <tr><td>근로환경 개선</td><td>28.5</td></tr>
+          <tr><td>업무방식 다양화</td><td style="color:var(--accent)">22.9</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">복수응답 / 단위: %</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">IoT 미이용 사유 (복수응답, 단위: %)</div>
+  <div class="prog-section" style="background:transparent;box-shadow:none;padding:0;">
+    <div class="prog-row"><div class="prog-label">경제적 비용 부담</div><div class="prog-track"><div class="prog-fill orange" style="width:43.5%">43.5%</div></div></div>
+    <div class="prog-row"><div class="prog-label">인프라·역량 부족</div><div class="prog-track"><div class="prog-fill orange" style="width:38.5%">38.5%</div></div></div>
+    <div class="prog-row"><div class="prog-label">서비스(기술) 복잡함</div><div class="prog-track"><div class="prog-fill orange" style="width:20.2%">20.2%</div></div></div>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: IoT 미이용 기업체 / 복수응답 합계치</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-iot-nonuse')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-iot-nonuse">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>미이용 사유</th><th>비율(%)</th></tr></thead>
+        <tbody>
+          <tr><td>경제적 비용 부담</td><td style="color:var(--accent)">43.5</td></tr>
+          <tr><td>인프라·역량 부족</td><td>38.5</td></tr>
+          <tr><td>서비스(기술) 복잡함</td><td>20.2</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">복수응답 / 단위: %</div>
+  </div>
+</div>
+
+</div>
+  <div class="sub-panel" id="ch5-sub1">
+
+<h2 class="section-title">2. 클라우드 컴퓨팅 서비스</h2>
+
+<div class="stat-grid">
+  <div class="stat-card stat-green">
+    <div class="stat-label">클라우드 서비스 이용률</div>
+    <div class="stat-value">77.7<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">전년 대비 3.5%p 증가</div>
+  </div>
+  <div class="stat-card stat-blue">
+    <div class="stat-label">250인 이상 이용률</div>
+    <div class="stat-value">94.8<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">규모가 클수록 이용률 증가</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">클라우드 서비스 이용 유형 (복수응답, 단위: %)</div>
+  <div class="chart-container">
+    <canvas id="chart-cloud-type"></canvas>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: 클라우드 이용 기업체 / 복수응답 합계치</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-cloud-type')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-cloud-type">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>이용 유형</th><th>비율(%)</th></tr></thead>
+        <tbody>
+          <tr><td>이메일</td><td style="color:var(--secondary);font-weight:700">82.9</td></tr>
+          <tr><td>ERP 소프트웨어</td><td>59.7</td></tr>
+          <tr><td>오피스 소프트웨어</td><td>48.3</td></tr>
+          <tr><td>보안 소프트웨어</td><td>44.7</td></tr>
+          <tr><td>파일 스토리지</td><td style="color:var(--accent)">36.9</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">복수응답 / 단위: %</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">클라우드 서비스 이용 목적 (복수응답, 단위: %)</div>
+  <div class="chart-container short">
+    <canvas id="chart-cloud-purpose"></canvas>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: 클라우드 이용 기업체 / 복수응답 합계치</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-cloud-purpose')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-cloud-purpose">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>이용 목적</th><th>비율(%)</th></tr></thead>
+        <tbody>
+          <tr><td>업무효율 증가</td><td style="color:var(--secondary);font-weight:700">82.9</td></tr>
+          <tr><td>정보보안 강화</td><td>32.3</td></tr>
+          <tr><td>생산성·정보공유 증대</td><td>28.7</td></tr>
+          <tr><td>업무방식 다양화</td><td style="color:var(--accent)">27.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">복수응답 / 단위: %</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">클라우드 미이용 사유 (복수응답, 단위: %)</div>
+  <div class="prog-section" style="background:transparent;box-shadow:none;padding:0;">
+    <div class="prog-row"><div class="prog-label">경제적 비용 부담</div><div class="prog-track"><div class="prog-fill orange" style="width:35.1%">35.1%</div></div></div>
+    <div class="prog-row"><div class="prog-label">인프라·역량 부족</div><div class="prog-track"><div class="prog-fill orange" style="width:34.8%">34.8%</div></div></div>
+    <div class="prog-row"><div class="prog-label">보안에 대한 우려</div><div class="prog-track"><div class="prog-fill orange" style="width:25.5%">25.5%</div></div></div>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: 클라우드 미이용 기업체 / 복수응답 합계치</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-cloud-nonuse')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-cloud-nonuse">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>미이용 사유</th><th>비율(%)</th></tr></thead>
+        <tbody>
+          <tr><td>경제적 비용 부담</td><td style="color:var(--accent)">35.1</td></tr>
+          <tr><td>인프라·역량 부족</td><td>34.8</td></tr>
+          <tr><td>보안에 대한 우려</td><td>25.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">복수응답 / 단위: %</div>
+  </div>
+</div>
+
+</div>
+  <div class="sub-panel" id="ch5-sub2">
+
+<h2 class="section-title">3. 데이터 분석 및 서비스</h2>
+
+<div class="stat-grid">
+  <div class="stat-card stat-blue">
+    <div class="stat-label">데이터분석 서비스 이용률</div>
+    <div class="stat-value">40.7<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">전년 대비 비슷한 수준</div>
+  </div>
+  <div class="stat-card stat-green">
+    <div class="stat-label">250인 이상 이용률</div>
+    <div class="stat-value">59.7<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">규모가 클수록 이용률 증가</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">이용 데이터 유형 (복수응답, 단위: %)</div>
+  <div class="chart-container short">
+    <canvas id="chart-data-type"></canvas>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: 데이터분석 이용 기업체 / 복수응답 합계치</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-data-type')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-data-type">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>데이터 유형</th><th>비율(%)</th></tr></thead>
+        <tbody>
+          <tr><td>공공데이터</td><td style="color:var(--secondary);font-weight:700">76.6</td></tr>
+          <tr><td>고객정보 데이터</td><td>43.1</td></tr>
+          <tr><td>거래데이터</td><td>33.5</td></tr>
+          <tr><td>웹데이터</td><td>23.6</td></tr>
+          <tr><td>센서데이터</td><td style="color:var(--accent)">15.6</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">복수응답 / 단위: %</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">데이터분석 이용 목적 (복수응답, 단위: %)</div>
+  <div class="chart-container short">
+    <canvas id="chart-data-purpose"></canvas>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: 데이터분석 이용 기업체 / 복수응답 합계치</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-data-purpose')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-data-purpose">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>이용 목적</th><th>비율(%)</th></tr></thead>
+        <tbody>
+          <tr><td>업무효율 증가</td><td style="color:var(--secondary);font-weight:700">76.4</td></tr>
+          <tr><td>생산성·정보공유 증대</td><td>38.7</td></tr>
+          <tr><td>의사결정 지원</td><td>35.0</td></tr>
+          <tr><td>비용절감</td><td>30.0</td></tr>
+          <tr><td>마케팅·판매</td><td style="color:var(--accent)">28.7</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">복수응답 / 단위: %</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">데이터분석 이용 형태 (단위: %)</div>
+  <div class="chart-container short" style="max-width:360px;margin:0 auto">
+    <canvas id="chart-data-form"></canvas>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: 데이터분석 이용 기업체</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-data-form')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-data-form">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>이용 형태</th><th>비율(%)</th></tr></thead>
+        <tbody>
+          <tr><td>외부 서비스 체계 분석환경 이용</td><td style="color:var(--secondary);font-weight:700">62.9</td></tr>
+          <tr><td>운영환경 자체 구축</td><td>21.0</td></tr>
+          <tr><td>자체구축+타 서비스 체계 이용</td><td style="color:var(--accent)">16.0</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">BASE=데이터분석 이용 기업체 / 단위: %</div>
+  </div>
+</div>
+
+</div>
+  <div class="sub-panel" id="ch5-sub3">
+    <div class="section-title">Ⅲ. 지능정보기술 — 데이터 거래</div>
+    <div class="overview-card">
+      <h4>📌 조사 항목 구성</h4>
+      <div class="overview-item"><span class="key">4.1</span><span class="val">데이터 거래 여부</span></div>
+      <div class="overview-item"><span class="key">4.2</span><span class="val">데이터 구매 여부</span></div>
+      <div class="overview-item"><span class="key">4.3</span><span class="val">데이터 판매 여부</span></div>
+    </div>
+    <div class="highlight-box blue">세부 통계는 원본 통계집 p.118~123(전체) 및 p.268~273(규모·업종별)을 참고하시기 바랍니다.</div>
+  </div>
+  <div class="sub-panel" id="ch5-sub4">
+
+<h2 class="section-title">5. 인공지능(AI) 기술·서비스</h2>
+
+<div class="stat-grid">
+  <div class="stat-card stat-blue">
+    <div class="stat-label">AI 기술·서비스 이용률</div>
+    <div class="stat-value">32.9<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">전년 대비 2.6%p 증가</div>
+  </div>
+  <div class="stat-card stat-green">
+    <div class="stat-label">AI 투자(비용지출)율</div>
+    <div class="stat-value">8.3<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">신규 문항 (전년 비교 없음)</div>
+  </div>
+  <div class="stat-card stat-purple">
+    <div class="stat-label">250인 이상 이용률</div>
+    <div class="stat-value">66.9<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">규모가 클수록 이용률 증가</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">AI 기술·서비스 이용 유형 (복수응답, 단위: %)</div>
+  <div class="chart-container short">
+    <canvas id="chart-ai-type"></canvas>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: AI 이용 기업체 / 복수응답 합계치</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-ai-type')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-ai-type">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>이용 유형</th><th>비율(%)</th></tr></thead>
+        <tbody>
+          <tr><td>이미지 인식·영상 처리</td><td style="color:var(--secondary);font-weight:700">69.4</td></tr>
+          <tr><td>의사결정 지원</td><td>49.6</td></tr>
+          <tr><td>문서작성·정보 수집</td><td>47.7</td></tr>
+          <tr><td>업무자동화 지원</td><td style="color:var(--accent)">24.2</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">복수응답 / 단위: %</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">AI 기술·서비스 이용 목적 (복수응답, 단위: %)</div>
+  <div class="chart-container short">
+    <canvas id="chart-ai-purpose"></canvas>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: AI 이용 기업체 / 복수응답 합계치</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-ai-purpose')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-ai-purpose">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>이용 목적</th><th>비율(%)</th></tr></thead>
+        <tbody>
+          <tr><td>보안/감시</td><td style="color:var(--secondary);font-weight:700">65.2</td></tr>
+          <tr><td>회계·인사관리</td><td>28.3</td></tr>
+          <tr><td>비즈니스 프로세스·조직관리</td><td>25.7</td></tr>
+          <tr><td>마케팅·판매</td><td style="color:var(--accent)">24.9</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">복수응답 / 단위: %</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">AI 기술·서비스 이용 효과 (단위: 점, 100점 만점)</div>
+  <div class="prog-section" style="background:transparent;box-shadow:none;padding:0;">
+    <div class="prog-row"><div class="prog-label">업무의 효율성 향상</div><div class="prog-track"><div class="prog-fill green" style="width:74.9%">74.9점</div></div></div>
+    <div class="prog-row"><div class="prog-label">기업 핵심 영업 최적화</div><div class="prog-track"><div class="prog-fill blue" style="width:71%">71.0점</div></div></div>
+    <div class="prog-row"><div class="prog-label">기업의 품질 향상</div><div class="prog-track"><div class="prog-fill blue" style="width:70.3%">70.3점</div></div></div>
+    <div class="prog-row"><div class="prog-label">신규 사업/수익 모델 개발</div><div class="prog-track"><div class="prog-fill purple" style="width:69.3%">69.3점</div></div></div>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: AI 이용 기업체 / 신규 문항(전년 비교 없음)</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-ai-effect')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-ai-effect">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>이용 효과</th><th>점수(점)</th></tr></thead>
+        <tbody>
+          <tr><td>업무의 효율성 향상</td><td style="color:var(--secondary);font-weight:700">74.9</td></tr>
+          <tr><td>기업 핵심 영업 최적화</td><td>71.0</td></tr>
+          <tr><td>기업의 품질 향상</td><td>70.3</td></tr>
+          <tr><td>신규 사업/수익 모델 개발</td><td style="color:var(--accent)">69.3</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">BASE=AI 이용 기업체 / 단위: 점(100점 만점)</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">AI 미이용 사유 (복수응답, 단위: %)</div>
+  <div class="prog-section" style="background:transparent;box-shadow:none;padding:0;">
+    <div class="prog-row"><div class="prog-label">경제적 비용 부담</div><div class="prog-track"><div class="prog-fill orange" style="width:39.6%">39.6%</div></div></div>
+    <div class="prog-row"><div class="prog-label">인프라·역량 부족</div><div class="prog-track"><div class="prog-fill orange" style="width:34.9%">34.9%</div></div></div>
+    <div class="prog-row"><div class="prog-label">수요에 맞는 AI 부족</div><div class="prog-track"><div class="prog-fill orange" style="width:26.8%">26.8%</div></div></div>
+    <div class="prog-row"><div class="prog-label">서비스(기술) 복잡함</div><div class="prog-track"><div class="prog-fill orange" style="width:24.6%">24.6%</div></div></div>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: AI 미이용 기업체 / 복수응답 합계치</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-ai-nonuse')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-ai-nonuse">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>미이용 사유</th><th>비율(%)</th></tr></thead>
+        <tbody>
+          <tr><td>경제적 비용 부담</td><td style="color:var(--accent)">39.6</td></tr>
+          <tr><td>인프라·역량 부족</td><td>34.9</td></tr>
+          <tr><td>수요에 맞는 AI 부족</td><td>26.8</td></tr>
+          <tr><td>서비스(기술) 복잡함</td><td>24.6</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">복수응답 / 단위: %</div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<!-- ========== 챕터 6: 정보화 투자 ========== -->
+<div class="chapter-panel" id="ch6">
+  <div class="sub-tabs-bar">
+    <div class="sub-tab active" onclick="switchSub('ch6', 0, this)">정보화 투자</div>
+    <div class="sub-tab" onclick="switchSub('ch6', 1, this)">정보화 전담인력</div>
+  </div>
+  <div class="sub-panel active" id="ch6-sub0">
+
+<h2 class="section-title">1. 정보화 투자</h2>
+
+<div class="stat-grid">
+  <div class="stat-card stat-blue">
+    <div class="stat-label">정보화 투자 기업체 비율</div>
+    <div class="stat-value">100<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">전국 종사자 10인 이상 기업체</div>
+  </div>
+  <div class="stat-card stat-green">
+    <div class="stat-label">정보화 투자율(평균)</div>
+    <div class="stat-value">1.8<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">매출액 대비 / 전년 대비 비슷</div>
+  </div>
+  <div class="stat-card stat-orange">
+    <div class="stat-label">AI 투자율(평균)</div>
+    <div class="stat-value">2.3<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">매출액 대비 / 신규 문항</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">정보화 투자 유형 (복수응답, 단위: %)</div>
+  <div class="chart-container short">
+    <canvas id="chart-invest-type"></canvas>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: 정보화 투자(비용지출) 기업체 / 복수응답 합계치</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-invest-type')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-invest-type">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>투자 유형</th><th>비율(%)</th></tr></thead>
+        <tbody>
+          <tr><td>인프라 운영 비용</td><td style="color:var(--secondary);font-weight:700">83.6</td></tr>
+          <tr><td>소프트웨어 관련 비용</td><td>61.2</td></tr>
+          <tr><td>시스템 운영·유지보수 비용</td><td>54.8</td></tr>
+          <tr><td>하드웨어 관련 비용</td><td>42.9</td></tr>
+          <tr><td>신기술 도입·구축</td><td>9.2</td></tr>
+          <tr><td>R&amp;D</td><td>5.4</td></tr>
+          <tr><td>기술 교육·훈련</td><td style="color:var(--accent)">2.1</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">복수응답 / 단위: %</div>
+  </div>
+</div>
+
+<div class="highlight-box blue">
+  <strong>정보화 투자 특징</strong><br>
+  정보화 투자 유형은 인프라 운영 비용(83.6%)이 가장 많은 비중을 차지하며, 소프트웨어 관련 비용(61.2%), 시스템 유지보수(54.8%)가 뒤를 이음.
+  정보통신업(5.2%), 금융·보험업(5.0%) 등에서 매출 대비 투자율이 높게 나타남.
+</div>
+
+</div>
+  <div class="sub-panel" id="ch6-sub1">
+
+<h2 class="section-title">2. 정보화 전담인력</h2>
+
+<div class="stat-grid">
+  <div class="stat-card stat-blue">
+    <div class="stat-label">정보화 전담인력 보유율</div>
+    <div class="stat-value">43.5<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">전년 대비 비슷한 수준</div>
+  </div>
+  <div class="stat-card stat-green">
+    <div class="stat-label">금융·보험업 보유율</div>
+    <div class="stat-value">62.8<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">산업별 최고 보유율</div>
+  </div>
+  <div class="stat-card stat-orange">
+    <div class="stat-label">정보통신업 보유율</div>
+    <div class="stat-value">59.6<span style="font-size:1rem">%</span></div>
+    <div class="stat-note">금융업에 이어 높은 수준</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">산업별 정보화 전담인력 보유율 — 주요 업종 (단위: %)</div>
+  <div class="prog-section" style="background:transparent;box-shadow:none;padding:0;">
+    <div class="prog-row"><div class="prog-label">금융 및 보험업</div><div class="prog-track"><div class="prog-fill green" style="width:62.8%">62.8%</div></div></div>
+    <div class="prog-row"><div class="prog-label">정보통신업</div><div class="prog-track"><div class="prog-fill green" style="width:59.6%">59.6%</div></div></div>
+    <div class="prog-row"><div class="prog-label">교육 서비스업</div><div class="prog-track"><div class="prog-fill blue" style="width:50.9%">50.9%</div></div></div>
+    <div class="prog-row"><div class="prog-label">전체 평균</div><div class="prog-track"><div class="prog-fill blue" style="width:43.5%">43.5%</div></div></div>
+  </div>
+  <div class="chart-note">※ 기준일: 2024년 12월 31일 / BASE: 전국 종사자 10인 이상 기업체</div>
+
+  <button class="stat-toggle-btn" onclick="toggleStatTable(this,'tbl-staff-rate')">
+    📊 통계표 보기 <span class="arrow-icon">▼</span>
+  </button>
+  <div class="stat-table-panel" id="tbl-staff-rate">
+    <div class="table-wrap" style="margin-top:10px;">
+      <table>
+        <thead><tr><th>산업</th><th>보유율(%)</th></tr></thead>
+        <tbody>
+          <tr><td>금융 및 보험업</td><td style="color:var(--secondary);font-weight:700">62.8</td></tr>
+          <tr><td>정보통신업</td><td style="color:var(--secondary);font-weight:700">59.6</td></tr>
+          <tr><td>교육 서비스업</td><td>50.9</td></tr>
+          <tr><td>전체 평균</td><td>43.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:0.73rem;color:var(--text-secondary);margin-top:6px;">BASE=전체 / 단위: %</div>
+  </div>
+</div>
+
+<div class="highlight-box blue">
+  <strong>정보화 전담인력 현황</strong><br>
+  정보화 전담인력을 보유한 기업체는 43.5%이며, 금융·보험업(62.8%)과 정보통신업(59.6%)에서 높은 보유율을 보임.
+  전반적으로 기업 규모가 클수록 전담인력 보유율이 높은 경향을 보임.
+</div>
+
+</div>
+</div>
+
+</div><!-- content-area -->
+
+<button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">▲</button>
+
+<script>
+// 메인 탭 전환
+function switchMain(idx, el) {
+  document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.chapter-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('ch' + idx).classList.add('active');
+  requestAnimationFrame(() => activateVisibleToc());
+}
+
+// 서브탭 전환
+function switchSub(chId, idx, el) {
+  const ch = document.getElementById(chId);
+  ch.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+  ch.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  const nextPanel = document.getElementById(chId + '-sub' + idx);
+  nextPanel.classList.add('active');
+  requestAnimationFrame(() => activateToc(nextPanel));
+}
+
+function slugifyTocText(text) {
+  return text
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9\u3131-\u318e\uac00-\ud7a3-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '') || 'section';
+}
+
+function getTocOffset() {
+  const mainTabsBar = document.querySelector('.main-tabs-bar');
+  return (mainTabsBar ? mainTabsBar.offsetHeight : 0) + 24;
+}
+
+function shouldIncludeTocHeading(panel, heading) {
+  const text = heading.textContent.trim();
+  const chapterId = panel.closest('.chapter-panel')?.id;
+  const excludedByChapter = {
+    ch1: ['업종별 기업체 구성비 (%)', '규모별 기업체 구성비 (%)', '규모별 표본 배분 현황']
+  };
+
+  return !(excludedByChapter[chapterId] || []).includes(text);
+}
+
+function buildSubtabNav(chapter, currentSubIndex) {
+  const section = document.createElement('div');
+  section.className = 'tab-toc-section';
+
+  const label = document.createElement('div');
+  label.className = 'tab-toc-section-label';
+  label.textContent = '탭';
+
+  const nav = document.createElement('nav');
+  nav.className = 'tab-toc-nav';
+
+  Array.from(chapter.querySelectorAll('.sub-tab')).forEach((subTab, subIndex) => {
+    const link = document.createElement('a');
+    link.className = 'tab-toc-link level-0';
+    link.href = '#';
+    link.textContent = subTab.textContent.trim();
+    link.dataset.subIndex = String(subIndex);
+    link.addEventListener('click', event => {
+      event.preventDefault();
+      switchSub(chapter.id, subIndex, subTab);
+    });
+
+    if (subIndex === currentSubIndex) {
+      link.classList.add('active');
+    }
+
+    nav.appendChild(link);
+  });
+
+  section.appendChild(label);
+  section.appendChild(nav);
+  return section;
+}
+
+function getActiveTocTitle(panel) {
+  const chapter = panel?.closest('.chapter-panel');
+  const chapterIndex = chapter ? Number(chapter.id.replace('ch', '')) : -1;
+  const mainLabel = document.querySelectorAll('.main-tab')[chapterIndex]?.textContent?.trim() || '목차';
+  const subLabel = chapter?.querySelector('.sub-tab.active')?.textContent?.trim();
+  return subLabel ? `${mainLabel}\n${subLabel}` : mainLabel;
+}
+
+function buildTabTocs() {
+  document.querySelectorAll('.sub-panel').forEach((panel, panelIndex) => {
+    if (panel.dataset.tocReady === 'true') return;
+
+    const headings = Array.from(panel.querySelectorAll('.section-title, .section-subtitle, .chart-title'))
+      .filter(heading => heading.textContent.trim())
+      .filter(heading => shouldIncludeTocHeading(panel, heading));
+
+    if (!headings.length) return;
+
+    const chapter = panel.closest('.chapter-panel');
+    const currentSubIndex = Number(panel.id.split('-sub')[1] || panelIndex);
+
+    const layout = document.createElement('div');
+    layout.className = 'sub-panel-layout';
+
+    const aside = document.createElement('aside');
+    aside.className = 'tab-toc';
+
+    const tocTitle = document.createElement('div');
+    tocTitle.className = 'tab-toc-title';
+    tocTitle.textContent = getActiveTocTitle(panel);
+
+    const subtabSection = buildSubtabNav(chapter, currentSubIndex);
+
+    const detailSection = document.createElement('div');
+    detailSection.className = 'tab-toc-section';
+
+    const detailLabel = document.createElement('div');
+    detailLabel.className = 'tab-toc-section-label';
+    detailLabel.textContent = '세부 항목';
+
+    const nav = document.createElement('nav');
+    nav.className = 'tab-toc-nav';
+
+    headings.forEach((heading, headingIndex) => {
+      if (!heading.id) {
+        heading.id = `${panel.id}-${slugifyTocText(heading.textContent)}-${headingIndex + 1}`;
+      }
+
+      heading.classList.add('toc-anchor-target');
+
+      const link = document.createElement('a');
+      link.className = `tab-toc-link ${heading.classList.contains('section-subtitle') || heading.classList.contains('chart-title') ? 'level-2' : 'level-1'}`;
+      link.href = `#${heading.id}`;
+      link.textContent = heading.textContent.trim();
+      link.dataset.target = heading.id;
+      link.addEventListener('click', event => {
+        event.preventDefault();
+        document.getElementById(heading.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        panel.querySelectorAll('.tab-toc-link[data-target]').forEach(item => item.classList.toggle('active', item === link));
+      });
+      nav.appendChild(link);
+    });
+
+    detailSection.appendChild(detailLabel);
+    detailSection.appendChild(nav);
+
+    const content = document.createElement('div');
+    content.className = 'sub-panel-content';
+
+    while (panel.firstChild) {
+      content.appendChild(panel.firstChild);
+    }
+
+    aside.appendChild(tocTitle);
+    aside.appendChild(subtabSection);
+    aside.appendChild(detailSection);
+    layout.appendChild(aside);
+    layout.appendChild(content);
+    panel.appendChild(layout);
+    panel.dataset.tocReady = 'true';
+    panel.dataset.tocIndex = String(panelIndex);
+  });
+}
+
+function updateActiveToc(panel) {
+  if (!panel) return;
+
+  const headings = Array.from(panel.querySelectorAll('.toc-anchor-target'));
+  const detailLinks = Array.from(panel.querySelectorAll('.tab-toc-link[data-target]'));
+  const subtabLinks = Array.from(panel.querySelectorAll('.tab-toc-link[data-sub-index]'));
+  const title = panel.querySelector('.tab-toc-title');
+
+  if (title) {
+    title.textContent = getActiveTocTitle(panel);
+  }
+
+  const currentSubIndex = panel.id.split('-sub')[1];
+  subtabLinks.forEach(link => {
+    link.classList.toggle('active', link.dataset.subIndex === currentSubIndex);
+  });
+
+  if (!headings.length || !detailLinks.length) return;
+
+  const offset = getTocOffset();
+  let activeId = headings[0].id;
+
+  headings.forEach(heading => {
+    if (heading.getBoundingClientRect().top - offset <= 0) {
+      activeId = heading.id;
+    }
+  });
+
+  detailLinks.forEach(link => {
+    link.classList.toggle('active', link.dataset.target === activeId);
+  });
+}
+
+function activateToc(panel) {
+  updateActiveToc(panel);
+}
+
+function activateVisibleToc() {
+  const activePanel = document.querySelector('.chapter-panel.active .sub-panel.active');
+  updateActiveToc(activePanel);
+}
+
+// 통계표 토글
+function toggleStatTable(btn, panelId) {
+  const panel = document.getElementById(panelId);
+  const isOpen = panel.classList.contains('open');
+  panel.classList.toggle('open', !isOpen);
+  btn.classList.toggle('open', !isOpen);
+  btn.querySelector('.arrow-icon').textContent = isOpen ? '▼' : '▲';
+  const t = btn.childNodes[0];
+  if (t?.nodeType === Node.TEXT_NODE)
+    t.textContent = isOpen ? '\n          📊 통계표 보기 ' : '\n          📊 통계표 닫기 ';
+}
+
+// 뒤로가기 버튼
+document.addEventListener('DOMContentLoaded', () => {
+  buildTabTocs();
+  activateVisibleToc();
+});
+
+window.addEventListener('scroll', () => {
+  document.getElementById('back-to-top').style.display = window.scrollY > 400 ? 'block' : 'none';
+  activateVisibleToc();
+});
+
+// ===== 차트 그리기 =====
+window.addEventListener('load', () => {
+  const COLORS = {
+    blue: '#1a6fbf', green: '#00a86b', orange: '#e85d04', purple: '#7c3aed',
+    lightBlue: '#4a9fd4', teal: '#0d9488', amber: '#d97706', pink: '#db2777'
+  };
+
+  // 1. 업종별 기업체 수 (도넛)
+  new Chart(document.getElementById('chart-industry'), {
+    type: 'doughnut',
+    data: {
+      labels: ['제조업', '건설업', '도매·소매', '보건·복지', '전문·과학·기술', '정보통신', '사업시설관리', '숙박·음식점', '기타'],
+      datasets: [{
+        data: [30.89, 14.36, 13.52, 7.04, 6.92, 5.44, 5.19, 5.17, 11.47],
+        backgroundColor: [COLORS.blue, COLORS.green, COLORS.orange, COLORS.purple, COLORS.lightBlue, COLORS.teal, COLORS.amber, COLORS.pink, '#94a3b8'],
+        borderWidth: 2, borderColor: '#fff'
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { font: { size: 10, family: 'Noto Sans KR' }, boxWidth: 12 } } } }
+  });
+
+  // 2. 규모별 (가로 막대)
+  new Chart(document.getElementById('chart-size'), {
+    type: 'bar',
+    data: {
+      labels: ['10~49명', '50~249명', '250~999명', '1,000명+'],
+      datasets: [{ label: '구성비(%)', data: [85.50, 12.35, 1.75, 0.40], backgroundColor: [COLORS.blue, COLORS.lightBlue, COLORS.teal, COLORS.green], borderRadius: 6 }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { grid: { color: '#f0f0f0' }, ticks: { font: { size: 10 } } }, y: { ticks: { font: { size: 11, family: 'Noto Sans KR' } } } }
+    }
+  });
+
+  // 3. 무응답 사유 (도넛)
+  new Chart(document.getElementById('chart-nonresponse'), {
+    type: 'doughnut',
+    data: {
+      labels: ['기타(담당자 부재 등)', '응답 거부', '리스트 이상', '휴·폐업'],
+      datasets: [{ data: [36, 34, 29, 1], backgroundColor: [COLORS.blue, COLORS.orange, COLORS.purple, COLORS.green], borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { font: { size: 11, family: 'Noto Sans KR' }, boxWidth: 14 } } } }
+  });
+
+  // 4. 업종별 기업체 구성 (가로 막대, 표본설계 챕터)
+  new Chart(document.getElementById('chart-industry2'), {
+    type: 'bar',
+    data: {
+      labels: ['제조업','건설업','도매·소매','보건·복지','전문·과학','정보통신','사업시설관리','숙박·음식점','운수·창고','교육서비스'],
+      datasets: [{ label: '구성비(%)', data: [30.89, 14.36, 13.52, 7.04, 6.92, 5.44, 5.19, 5.17, 3.66, 1.17], backgroundColor: COLORS.blue, borderRadius: 6 }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { grid: { color: '#f0f0f0' }, max: 35, ticks: { font: { size: 10 } } }, y: { ticks: { font: { size: 10, family: 'Noto Sans KR' } } } }
+    }
+  });
+
+  // 5. 규모별 기업체 구성 (막대)
+  new Chart(document.getElementById('chart-size2'), {
+    type: 'bar',
+    data: {
+      labels: ['10~49명', '50~249명', '250~999명', '1,000명+'],
+      datasets: [
+        { label: '기업체 구성비(%)', data: [85.50, 12.35, 1.75, 0.40], backgroundColor: COLORS.blue, borderRadius: 6, yAxisID: 'y' },
+        { label: '종사자 구성비(%)', data: [32.93, 24.29, 15.87, 26.91], backgroundColor: COLORS.orange, borderRadius: 6, yAxisID: 'y' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { font: { size: 10, family: 'Noto Sans KR' }, boxWidth: 12 } } },
+      scales: { y: { grid: { color: '#f0f0f0' }, ticks: { font: { size: 10 } } }, x: { ticks: { font: { size: 10, family: 'Noto Sans KR' } } } }
+    }
+  });
+
+  // 6. 표본 배분
+  new Chart(document.getElementById('chart-sample'), {
+    type: 'bar',
+    data: {
+      labels: ['10~49명', '50~249명', '250~999명', '1,000명+'],
+      datasets: [
+        { label: '모집단 구성비(%)', data: [85.50, 12.35, 1.75, 0.40], backgroundColor: COLORS.lightBlue + 'cc', borderRadius: 6 },
+        { label: '표본 구성비(%)', data: [45.78, 30.22, 17.25, 6.76], backgroundColor: COLORS.orange + 'cc', borderRadius: 6 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { font: { size: 11, family: 'Noto Sans KR' }, boxWidth: 12 } } },
+      scales: { y: { grid: { color: '#f0f0f0' }, ticks: { font: { size: 10 } } }, x: { ticks: { font: { size: 11, family: 'Noto Sans KR' } } } }
+    }
+  });
+
+  // 7. 컴퓨터 종류별 보유
+  new Chart(document.getElementById('chart-computer-type'), {
+    type: 'bar',
+    data: {
+      labels: ['데스크탑', '노트북', '스마트폰 등 모바일'],
+      datasets: [{ label: '보유율(%)', data: [95.7, 48.8, 46.2], backgroundColor: [COLORS.blue, COLORS.green, COLORS.orange], borderRadius: 8 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y + '%' } } },
+      scales: { y: { max: 100, grid: { color: '#f0f0f0' }, ticks: { font: { size: 10 }, callback: v => v + '%' } }, x: { ticks: { font: { size: 11, family: 'Noto Sans KR' } } } }
+    }
+  });
+
+  // 8. 네트워크 구축률 업종별
+  new Chart(document.getElementById('chart-network'), {
+    type: 'bar',
+    data: {
+      labels: ['금융·보험', '보건·복지', '정보통신', '전 체', '부동산', '전기·수도', '농림수산'],
+      datasets: [{ label: '구축률(%)', data: [98.5, 96.5, 94.1, 86.0, 79.7, 78.0, 71.6], backgroundColor: [COLORS.green, COLORS.green, COLORS.green, COLORS.blue, COLORS.orange, COLORS.orange, COLORS.orange], borderRadius: 6 }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.x + '%' } } },
+      scales: { x: { min: 60, max: 100, grid: { color: '#f0f0f0' }, ticks: { font: { size: 10 }, callback: v => v + '%' } }, y: { ticks: { font: { size: 10, family: 'Noto Sans KR' } } } }
+    }
+  });
+});
+</script>
+
+
+<script>
+window.addEventListener('load', function() {
+
+    // ── 인터넷 접속방법 ──
+    if (document.getElementById('chart-internet-method')) {
+      new Chart(document.getElementById('chart-internet-method'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['광대역', '업무용 LAN(유선)', '모바일 인터넷', '전화회선'],
+          datasets: [{ data: [77.1, 70.6, 37.5, 16.5], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#1a6fbf','#00a86b','#e85d04'] }] }
+      });
+    }
+
+    // ── 웹사이트 이용 형태 ──
+    if (document.getElementById('chart-web-type')) {
+      new Chart(document.getElementById('chart-web-type'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['홈페이지', 'SNS', '이커머스 플랫폼', '모바일 앱'],
+          datasets: [{ data: [92.1, 28.2, 26.1, 12.5], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#1a6fbf','#00a86b','#e85d04'] }] }
+      });
+    }
+
+    // ── 웹사이트 제공 기능 ──
+    if (document.getElementById('chart-web-func')) {
+      new Chart(document.getElementById('chart-web-func'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['고객지원 서비스', '주문·판매', '외부링크 지원서비스', '장치인증 서비스'],
+          datasets: [{ data: [45.1, 37.5, 16.5, 2.7], borderRadius: 6,
+            backgroundColor: ['#00a86b','#0e4d8c','#1a6fbf','#e85d04'] }] }
+      });
+    }
+
+    // ── 전자상거래 고객유형 ──
+    if (document.getElementById('chart-ec-customer')) {
+      new Chart(document.getElementById('chart-ec-customer'), {
+        type: 'doughnut', options: { responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12, padding: 8 } },
+            tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed + '%' } } } },
+        data: { labels: ['최종 개인(소비자)', '기업', '정부/공공기관'],
+          datasets: [{ data: [43.9, 39.1, 17.0],
+            backgroundColor: ['#0e4d8c','#00a86b','#e85d04'], borderWidth: 2, borderColor: '#fff' }] }
+      });
+    }
+
+    // ── 전자정부 이용유형 ──
+    if (document.getElementById('chart-egov-type')) {
+      new Chart(document.getElementById('chart-egov-type'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { min: 75, max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['정보검색·조회', '각종 신청 서식 취득', '행정민원 온라인 처리', '각종 신청 서식 작성·제출'],
+          datasets: [{ data: [92.4, 84.8, 84.5, 83.9], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#1a6fbf','#1a6fbf','#1a6fbf'] }] }
+      });
+    }
+
+    // ── 공공데이터 이용목적 ──
+    if (document.getElementById('chart-pubdata-purpose')) {
+      new Chart(document.getElementById('chart-pubdata-purpose'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['기업 내부 이용', '기능적 활용', '수익 창출', '전략적 활용'],
+          datasets: [{ data: [93.6, 40.5, 15.8, 10.6], borderRadius: 6,
+            backgroundColor: ['#00a86b','#0e4d8c','#1a6fbf','#e85d04'] }] }
+      });
+    }
+
+    // ── ERP 운영방식 ──
+    if (document.getElementById('chart-erp-method')) {
+      new Chart(document.getElementById('chart-erp-method'), {
+        type: 'doughnut', options: { responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12, padding: 8 } },
+            tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed + '%' } } } },
+        data: { labels: ['아웃소싱', '자체+아웃소싱 병행', '자체구축'],
+          datasets: [{ data: [81.0, 13.5, 5.6],
+            backgroundColor: ['#0e4d8c','#1a6fbf','#e85d04'], borderWidth: 2, borderColor: '#fff' }] }
+      });
+    }
+
+    // ── CRM 운영방식 ──
+    if (document.getElementById('chart-crm-method')) {
+      new Chart(document.getElementById('chart-crm-method'), {
+        type: 'doughnut', options: { responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12, padding: 8 } },
+            tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed + '%' } } } },
+        data: { labels: ['아웃소싱', '자체구축', '자체+아웃소싱 병행'],
+          datasets: [{ data: [73.2, 15.7, 11.1],
+            backgroundColor: ['#00a86b','#0e4d8c','#e85d04'], borderWidth: 2, borderColor: '#fff' }] }
+      });
+    }
+
+    // ── 원격근무 방식 ──
+    if (document.getElementById('chart-remote-method')) {
+      new Chart(document.getElementById('chart-remote-method'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['이동/모바일 근무', '재택근무', '스마트오피스 근무'],
+          datasets: [{ data: [75.7, 41.6, 8.5], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#1a6fbf','#e85d04'] }] }
+      });
+    }
+
+    // ── IoT 이용유형 ──
+    if (document.getElementById('chart-iot-type')) {
+      new Chart(document.getElementById('chart-iot-type'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['보안/감시 서비스', '연결 서비스', '고객서비스', '물류재고·상태관리'],
+          datasets: [{ data: [81.2, 45.2, 25.2, 12.1], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#1a6fbf','#00a86b','#e85d04'] }] }
+      });
+    }
+
+    // ── IoT 이용목적 ──
+    if (document.getElementById('chart-iot-purpose')) {
+      new Chart(document.getElementById('chart-iot-purpose'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['업무효율 증가', '정보보안 강화', '근로환경 개선', '업무방식 다양화'],
+          datasets: [{ data: [58.7, 57.5, 28.5, 22.9], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#00a86b','#1a6fbf','#7c3aed'] }] }
+      });
+    }
+
+    // ── 클라우드 이용유형 ──
+    if (document.getElementById('chart-cloud-type')) {
+      new Chart(document.getElementById('chart-cloud-type'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['이메일', 'ERP 소프트웨어', '오피스 소프트웨어', '보안 소프트웨어', '파일 스토리지'],
+          datasets: [{ data: [82.9, 59.7, 48.3, 44.7, 36.9], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#1a6fbf','#00a86b','#7c3aed','#e85d04'] }] }
+      });
+    }
+
+    // ── 클라우드 이용목적 ──
+    if (document.getElementById('chart-cloud-purpose')) {
+      new Chart(document.getElementById('chart-cloud-purpose'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['업무효율 증가', '정보보안 강화', '생산성·정보공유 증대', '업무방식 다양화'],
+          datasets: [{ data: [82.9, 32.3, 28.7, 27.5], borderRadius: 6,
+            backgroundColor: ['#00a86b','#0e4d8c','#1a6fbf','#7c3aed'] }] }
+      });
+    }
+
+    // ── 데이터 유형 ──
+    if (document.getElementById('chart-data-type')) {
+      new Chart(document.getElementById('chart-data-type'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['공공데이터', '고객정보 데이터', '거래데이터', '웹데이터', '센서데이터'],
+          datasets: [{ data: [76.6, 43.1, 33.5, 23.6, 15.6], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#1a6fbf','#00a86b','#7c3aed','#e85d04'] }] }
+      });
+    }
+
+    // ── 데이터 이용목적 ──
+    if (document.getElementById('chart-data-purpose')) {
+      new Chart(document.getElementById('chart-data-purpose'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['업무효율 증가', '생산성·정보공유 증대', '의사결정 지원', '비용절감', '마케팅·판매'],
+          datasets: [{ data: [76.4, 38.7, 35.0, 30.0, 28.7], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#1a6fbf','#00a86b','#7c3aed','#e85d04'] }] }
+      });
+    }
+
+    // ── 데이터 이용형태 ──
+    if (document.getElementById('chart-data-form')) {
+      new Chart(document.getElementById('chart-data-form'), {
+        type: 'doughnut', options: { responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12, padding: 8 } },
+            tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed + '%' } } } },
+        data: { labels: ['외부 서비스 체계 분석환경 이용', '운영환경 자체 구축', '자체구축+타 서비스 이용'],
+          datasets: [{ data: [62.9, 21.0, 16.0],
+            backgroundColor: ['#0e4d8c','#00a86b','#e85d04'], borderWidth: 2, borderColor: '#fff' }] }
+      });
+    }
+
+    // ── AI 이용유형 ──
+    if (document.getElementById('chart-ai-type')) {
+      new Chart(document.getElementById('chart-ai-type'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['이미지 인식·영상 처리', '의사결정 지원', '문서작성·정보 수집', '업무자동화 지원'],
+          datasets: [{ data: [69.4, 49.6, 47.7, 24.2], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#1a6fbf','#00a86b','#7c3aed'] }] }
+      });
+    }
+
+    // ── AI 이용목적 ──
+    if (document.getElementById('chart-ai-purpose')) {
+      new Chart(document.getElementById('chart-ai-purpose'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['보안/감시', '회계·인사관리', '비즈니스 프로세스·조직관리', '마케팅·판매'],
+          datasets: [{ data: [65.2, 28.3, 25.7, 24.9], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#1a6fbf','#00a86b','#e85d04'] }] }
+      });
+    }
+
+    // ── 정보화투자 유형 ──
+    if (document.getElementById('chart-invest-type')) {
+      new Chart(document.getElementById('chart-invest-type'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['인프라 운영 비용', '소프트웨어 관련 비용', '시스템 운영·유지보수', '하드웨어 관련 비용', '신기술 도입·구축', 'R&D', '기술 교육·훈련'],
+          datasets: [{ data: [83.6, 61.2, 54.8, 42.9, 9.2, 5.4, 2.1], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#1a6fbf','#1a6fbf','#1a6fbf','#00a86b','#7c3aed','#e85d04'] }] }
+      });
+    }
+
+});
+</script>
+
+<script>
+window.addEventListener('load', function() {
+
+    // ── 인터넷 접속방법 ──
+    if (document.getElementById('chart-internet-method')) {
+      new Chart(document.getElementById('chart-internet-method'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['광대역', '업무용 LAN(유선)', '모바일 인터넷', '전화회선'],
+          datasets: [{ data: [77.1, 70.6, 37.5, 16.5], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#1a6fbf','#00a86b','#e85d04'] }] }
+      });
+    }
+
+    // ── 웹사이트 이용 형태 ──
+    if (document.getElementById('chart-web-type')) {
+      new Chart(document.getElementById('chart-web-type'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['홈페이지', 'SNS', '이커머스 플랫폼', '모바일 앱'],
+          datasets: [{ data: [92.1, 28.2, 26.1, 12.5], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#1a6fbf','#00a86b','#e85d04'] }] }
+      });
+    }
+
+    // ── 웹사이트 제공 기능 ──
+    if (document.getElementById('chart-web-func')) {
+      new Chart(document.getElementById('chart-web-func'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['고객지원 서비스', '주문·판매', '외부링크 지원서비스', '장치인증 서비스'],
+          datasets: [{ data: [45.1, 37.5, 16.5, 2.7], borderRadius: 6,
+            backgroundColor: ['#00a86b','#0e4d8c','#1a6fbf','#e85d04'] }] }
+      });
+    }
+
+    // ── 전자상거래 고객유형 ──
+    if (document.getElementById('chart-ec-customer')) {
+      new Chart(document.getElementById('chart-ec-customer'), {
+        type: 'doughnut', options: { responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12, padding: 8 } },
+            tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed + '%' } } } },
+        data: { labels: ['최종 개인(소비자)', '기업', '정부/공공기관'],
+          datasets: [{ data: [43.9, 39.1, 17.0],
+            backgroundColor: ['#0e4d8c','#00a86b','#e85d04'], borderWidth: 2, borderColor: '#fff' }] }
+      });
+    }
+
+    // ── 전자정부 이용유형 ──
+    if (document.getElementById('chart-egov-type')) {
+      new Chart(document.getElementById('chart-egov-type'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { min: 75, max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['정보검색·조회', '각종 신청 서식 취득', '행정민원 온라인 처리', '각종 신청 서식 작성·제출'],
+          datasets: [{ data: [92.4, 84.8, 84.5, 83.9], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#1a6fbf','#1a6fbf','#1a6fbf'] }] }
+      });
+    }
+
+    // ── 공공데이터 이용목적 ──
+    if (document.getElementById('chart-pubdata-purpose')) {
+      new Chart(document.getElementById('chart-pubdata-purpose'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['기업 내부 이용', '기능적 활용', '수익 창출', '전략적 활용'],
+          datasets: [{ data: [93.6, 40.5, 15.8, 10.6], borderRadius: 6,
+            backgroundColor: ['#00a86b','#0e4d8c','#1a6fbf','#e85d04'] }] }
+      });
+    }
+
+    // ── ERP 운영방식 ──
+    if (document.getElementById('chart-erp-method')) {
+      new Chart(document.getElementById('chart-erp-method'), {
+        type: 'doughnut', options: { responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12, padding: 8 } },
+            tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed + '%' } } } },
+        data: { labels: ['아웃소싱', '자체+아웃소싱 병행', '자체구축'],
+          datasets: [{ data: [81.0, 13.5, 5.6],
+            backgroundColor: ['#0e4d8c','#1a6fbf','#e85d04'], borderWidth: 2, borderColor: '#fff' }] }
+      });
+    }
+
+    // ── CRM 운영방식 ──
+    if (document.getElementById('chart-crm-method')) {
+      new Chart(document.getElementById('chart-crm-method'), {
+        type: 'doughnut', options: { responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12, padding: 8 } },
+            tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed + '%' } } } },
+        data: { labels: ['아웃소싱', '자체구축', '자체+아웃소싱 병행'],
+          datasets: [{ data: [73.2, 15.7, 11.1],
+            backgroundColor: ['#00a86b','#0e4d8c','#e85d04'], borderWidth: 2, borderColor: '#fff' }] }
+      });
+    }
+
+    // ── 원격근무 방식 ──
+    if (document.getElementById('chart-remote-method')) {
+      new Chart(document.getElementById('chart-remote-method'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['이동/모바일 근무', '재택근무', '스마트오피스 근무'],
+          datasets: [{ data: [75.7, 41.6, 8.5], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#1a6fbf','#e85d04'] }] }
+      });
+    }
+
+    // ── IoT 이용유형 ──
+    if (document.getElementById('chart-iot-type')) {
+      new Chart(document.getElementById('chart-iot-type'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['보안/감시 서비스', '연결 서비스', '고객서비스', '물류재고·상태관리'],
+          datasets: [{ data: [81.2, 45.2, 25.2, 12.1], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#1a6fbf','#00a86b','#e85d04'] }] }
+      });
+    }
+
+    // ── IoT 이용목적 ──
+    if (document.getElementById('chart-iot-purpose')) {
+      new Chart(document.getElementById('chart-iot-purpose'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['업무효율 증가', '정보보안 강화', '근로환경 개선', '업무방식 다양화'],
+          datasets: [{ data: [58.7, 57.5, 28.5, 22.9], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#00a86b','#1a6fbf','#7c3aed'] }] }
+      });
+    }
+
+    // ── 클라우드 이용유형 ──
+    if (document.getElementById('chart-cloud-type')) {
+      new Chart(document.getElementById('chart-cloud-type'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['이메일', 'ERP 소프트웨어', '오피스 소프트웨어', '보안 소프트웨어', '파일 스토리지'],
+          datasets: [{ data: [82.9, 59.7, 48.3, 44.7, 36.9], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#1a6fbf','#00a86b','#7c3aed','#e85d04'] }] }
+      });
+    }
+
+    // ── 클라우드 이용목적 ──
+    if (document.getElementById('chart-cloud-purpose')) {
+      new Chart(document.getElementById('chart-cloud-purpose'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['업무효율 증가', '정보보안 강화', '생산성·정보공유 증대', '업무방식 다양화'],
+          datasets: [{ data: [82.9, 32.3, 28.7, 27.5], borderRadius: 6,
+            backgroundColor: ['#00a86b','#0e4d8c','#1a6fbf','#7c3aed'] }] }
+      });
+    }
+
+    // ── 데이터 유형 ──
+    if (document.getElementById('chart-data-type')) {
+      new Chart(document.getElementById('chart-data-type'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['공공데이터', '고객정보 데이터', '거래데이터', '웹데이터', '센서데이터'],
+          datasets: [{ data: [76.6, 43.1, 33.5, 23.6, 15.6], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#1a6fbf','#00a86b','#7c3aed','#e85d04'] }] }
+      });
+    }
+
+    // ── 데이터 이용목적 ──
+    if (document.getElementById('chart-data-purpose')) {
+      new Chart(document.getElementById('chart-data-purpose'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['업무효율 증가', '생산성·정보공유 증대', '의사결정 지원', '비용절감', '마케팅·판매'],
+          datasets: [{ data: [76.4, 38.7, 35.0, 30.0, 28.7], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#1a6fbf','#00a86b','#7c3aed','#e85d04'] }] }
+      });
+    }
+
+    // ── 데이터 이용형태 ──
+    if (document.getElementById('chart-data-form')) {
+      new Chart(document.getElementById('chart-data-form'), {
+        type: 'doughnut', options: { responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12, padding: 8 } },
+            tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed + '%' } } } },
+        data: { labels: ['외부 서비스 체계 분석환경 이용', '운영환경 자체 구축', '자체구축+타 서비스 이용'],
+          datasets: [{ data: [62.9, 21.0, 16.0],
+            backgroundColor: ['#0e4d8c','#00a86b','#e85d04'], borderWidth: 2, borderColor: '#fff' }] }
+      });
+    }
+
+    // ── AI 이용유형 ──
+    if (document.getElementById('chart-ai-type')) {
+      new Chart(document.getElementById('chart-ai-type'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['이미지 인식·영상 처리', '의사결정 지원', '문서작성·정보 수집', '업무자동화 지원'],
+          datasets: [{ data: [69.4, 49.6, 47.7, 24.2], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#1a6fbf','#00a86b','#7c3aed'] }] }
+      });
+    }
+
+    // ── AI 이용목적 ──
+    if (document.getElementById('chart-ai-purpose')) {
+      new Chart(document.getElementById('chart-ai-purpose'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['보안/감시', '회계·인사관리', '비즈니스 프로세스·조직관리', '마케팅·판매'],
+          datasets: [{ data: [65.2, 28.3, 25.7, 24.9], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#1a6fbf','#00a86b','#e85d04'] }] }
+      });
+    }
+
+    // ── 정보화투자 유형 ──
+    if (document.getElementById('chart-invest-type')) {
+      new Chart(document.getElementById('chart-invest-type'), {
+        type: 'bar', options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { color: '#f0f0f0' } } } },
+        data: { labels: ['인프라 운영 비용', '소프트웨어 관련 비용', '시스템 운영·유지보수', '하드웨어 관련 비용', '신기술 도입·구축', 'R&D', '기술 교육·훈련'],
+          datasets: [{ data: [83.6, 61.2, 54.8, 42.9, 9.2, 5.4, 2.1], borderRadius: 6,
+            backgroundColor: ['#0e4d8c','#1a6fbf','#1a6fbf','#1a6fbf','#00a86b','#7c3aed','#e85d04'] }] }
+      });
+    }
+
+});
+</script>
+</body>
+</html>
