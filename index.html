@@ -865,37 +865,35 @@ function loadFromLocalStorage() {
   const source = saved ? JSON.parse(saved) : DEFAULT_REPORTS;
   reports = source.map((report, index) => normalizeReport(report, index + 1));
 }
-async function ghFetch(method, body = null) {async function ghFetch(method, body = null) {
+async function ghFetch(method, body = null) {
   const url = `https://api.github.com/repos/${ghCfg.repo}/contents/${ghCfg.path || 'data.json'}`;
   const opts = {
     method,
     headers: {
       'Authorization': `token ${ghCfg.token}`,
-      'Content-Type' : 'application/json',
-      'Accept'       : 'application/vnd.github.v3+json'
+      'Content-Type': 'application/json',
+      'Accept': 'application/vnd.github.v3+json'
     }
   };
   if (body) opts.body = JSON.stringify(body);
   return fetch(url, opts);
 }
 
-/* GitHub에서 읽기 */
 async function fetchFromGitHub() {
   try {
     const res = await ghFetch('GET');
     if (res.status === 404) {
-      /* 파일 없으면 기본값 업로드 */
       loadFromLocalStorage();
-      await pushToGitHub('초기 데이터 생성');
-      setSyncStatus('ok', '연결됨');
+      await pushToGitHub('Create initial data');
+      setSyncStatus('ok', 'Connected');
       return true;
     }
     if (!res.ok) return false;
     const data = await res.json();
     const json = JSON.parse(atob(data.content.replace(/\n/g, '')));
-    reports = Array.isArray(json) ? json : DEFAULT_REPORTS;
-    ghCfg._sha = data.sha;  /* 업데이트 시 필요한 sha 저장 */
-    setSyncStatus('ok', '연결됨');
+    reports = Array.isArray(json) ? json.map((report, index) => normalizeReport(report, index + 1)) : DEFAULT_REPORTS;
+    ghCfg._sha = data.sha;
+    setSyncStatus('ok', 'Connected');
     return true;
   } catch (e) {
     console.error('GitHub fetch:', e);
@@ -903,41 +901,43 @@ async function fetchFromGitHub() {
   }
 }
 
-/* GitHub에 쓰기 */
-async function pushToGitHub(message = '보고서 데이터 업데이트') {
+async function pushToGitHub(message = 'Update report data') {
   if (!ghCfg.token || !ghCfg.repo) return false;
   try {
-    setSyncStatus('busy', '저장 중…');
-    /* sha가 없으면 먼저 조회 */
+    setSyncStatus('busy', 'Saving...');
     if (!ghCfg._sha) {
       const res = await ghFetch('GET');
-      if (res.ok) { const d = await res.json(); ghCfg._sha = d.sha; }
+      if (res.ok) {
+        const d = await res.json();
+        ghCfg._sha = d.sha;
+      }
     }
-    /* Base64 인코딩 (한글 포함 안전 처리) */
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(reports, null, 2))));
     const body = { message, content, branch: ghCfg.branch || 'main' };
     if (ghCfg._sha) body.sha = ghCfg._sha;
 
     const res = await ghFetch('PUT', body);
-    if (!res.ok) { setSyncStatus('error', '저장 실패'); return false; }
+    if (!res.ok) {
+      setSyncStatus('error', 'Save failed');
+      return false;
+    }
     const d = await res.json();
-    ghCfg._sha = d.content.sha;  /* 새 sha로 갱신 */
-    setSyncStatus('ok', '저장됨');
-    setTimeout(() => setSyncStatus('ok', '연결됨'), 3000);
+    ghCfg._sha = d.content.sha;
+    setSyncStatus('ok', 'Saved');
+    setTimeout(() => setSyncStatus('ok', 'Connected'), 3000);
     return true;
   } catch (e) {
     console.error('GitHub push:', e);
-    setSyncStatus('error', '저장 실패');
+    setSyncStatus('error', 'Save failed');
     return false;
   }
 }
 
 function setSyncStatus(state, label) {
-  document.getElementById('syncDot').className = `sync-dot${state ? ' '+state : ''}`;
+  document.getElementById('syncDot').className = `sync-dot${state ? ' ' + state : ''}`;
   document.getElementById('syncLabel').textContent = label;
 }
 
-/* 통합 저장 함수 (localStorage + GitHub) */
 async function save() {
   if (manifestMode) {
     alert('Manifest mode is read-only here. Update reports/ and reports-manifest.json instead.');
@@ -947,6 +947,7 @@ async function save() {
   if (ghCfg.token && ghCfg.repo) await pushToGitHub();
   return true;
 }
+
 function openGhModal() {
   document.getElementById('ghToken').value  = ghCfg.token  || '';
   document.getElementById('ghRepo').value   = ghCfg.repo   || '';
@@ -960,34 +961,37 @@ async function testAndSaveGhConfig() {
   const token  = document.getElementById('ghToken').value.trim();
   const repo   = document.getElementById('ghRepo').value.trim();
   const branch = document.getElementById('ghBranch').value.trim() || 'main';
-  const path   = document.getElementById('ghPath').value.trim()   || 'data.json';
-  if (!token || !repo) { alert('Token과 레포지토리는 필수입니다.'); return; }
+  const path   = document.getElementById('ghPath').value.trim() || 'data.json';
+  if (!token || !repo) {
+    alert('Token and repository are required.');
+    return;
+  }
 
   ghCfg = { token, repo, branch, path, _sha: null };
   localStorage.setItem(LS_GH_KEY, JSON.stringify({ token, repo, branch, path }));
 
   const btn = document.getElementById('btnGhTest');
-  btn.textContent = '테스트 중…'; btn.disabled = true;
-  setSyncStatus('busy', '테스트 중…');
+  btn.textContent = 'Testing...';
+  btn.disabled = true;
+  setSyncStatus('busy', 'Testing...');
 
   const ok = await fetchFromGitHub();
-  btn.textContent = '연결 테스트 & 저장'; btn.disabled = false;
+  btn.textContent = 'Test Connection & Save';
+  btn.disabled = false;
 
   if (ok) {
-    buildFilters(); updateStats(); applyFilters();
+    buildFilters();
+    updateStats();
+    applyFilters();
     closeGhModal();
-    alert('✅ GitHub 연결 성공! 데이터를 불러왔습니다.');
+    alert('GitHub connection succeeded.');
   } else {
-    setSyncStatus('error', '연결 실패');
-    alert('❌ 연결 실패.\nToken·레포지토리·브랜치를 다시 확인하세요.\n형식 예: username/repo-name');
+    setSyncStatus('error', 'Connection failed');
+    alert('GitHub connection failed. Check token, repository, branch, and path.');
   }
 }
 
-/* ════════════════════════════════════════════
-   비밀번호 모달 (편집모드 / GitHub 공용)
-   pwPurpose: 'edit' | 'github'
-════════════════════════════════════════════ */
-let pwPurpose = 'edit'; /* 현재 비밀번호 모달의 목적 */
+let pwPurpose = 'edit';
 
 function requestEditMode() {
   if (manifestMode) {
@@ -1001,6 +1005,7 @@ function requestEditMode() {
   document.getElementById('pwSub').textContent   = 'Enter the admin password.';
   openPwModal();
 }
+
 function requestGhModal() {
   pwPurpose = 'github';
   document.getElementById('pwIcon').textContent  = 'GH';
@@ -1064,72 +1069,73 @@ function submitChangePw() {
 function enableEditMode() {
   editMode = true;
   document.getElementById('toggleSwitch').classList.add('on');
-  document.getElementById('toggleLabel').textContent = '편집 중';
+  document.getElementById('toggleLabel').textContent = 'Editing';
   const btn = document.getElementById('btnAddReport');
-  btn.style.opacity = '1'; btn.style.pointerEvents = 'auto';
+  btn.style.opacity = '1';
+  btn.style.pointerEvents = 'auto';
   const btnPw = document.getElementById('btnChangePw');
-  btnPw.style.opacity = '1'; btnPw.style.pointerEvents = 'auto';
+  btnPw.style.opacity = '1';
+  btnPw.style.pointerEvents = 'auto';
   applyFilters();
 }
 
 function disableEditMode() {
   editMode = false;
   document.getElementById('toggleSwitch').classList.remove('on');
-  document.getElementById('toggleLabel').textContent = '편집 모드';
+  document.getElementById('toggleLabel').textContent = 'Edit Mode';
   const btn = document.getElementById('btnAddReport');
-  btn.style.opacity = '0.35'; btn.style.pointerEvents = 'none';
+  btn.style.opacity = '0.35';
+  btn.style.pointerEvents = 'none';
   const btnPw = document.getElementById('btnChangePw');
-  btnPw.style.opacity = '0.35'; btnPw.style.pointerEvents = 'none';
+  btnPw.style.opacity = '0.35';
+  btnPw.style.pointerEvents = 'none';
   applyFilters();
 }
-
-/* ════════════════════════════════════════════
-   통계 · 필터 · 렌더
-════════════════════════════════════════════ */
 function updateStats() {
-  const u = arr => [...new Set(arr)].length;
-  document.getElementById('statTotal').textContent   = reports.length;
-  document.getElementById('statClients').textContent = u(reports.map(r => r.client));
-  document.getElementById('statYears').textContent   = u(reports.map(r => r.year));
-  document.getElementById('statTypes').textContent   = u(reports.map(r => r.type));
-  document.getElementById('totalBadge').textContent  = `총 ${reports.length}건`;
+  const uniqueCount = arr => [...new Set(arr)].length;
+  document.getElementById('statTotal').textContent = reports.length;
+  document.getElementById('statClients').textContent = uniqueCount(reports.map(r => r.client));
+  document.getElementById('statYears').textContent = uniqueCount(reports.map(r => r.year));
+  document.getElementById('statTypes').textContent = uniqueCount(reports.map(r => r.type));
+  document.getElementById('totalBadge').textContent = `Total ${reports.length}`;
 }
 
 function buildFilters() {
-  const mk = (id, values, cur, onChange) => {
+  const makeChips = (id, values, current, onChange) => {
     const el = document.getElementById(id);
     el.innerHTML = '';
-    [{ v:'전체', label:'전체' }, ...values.map(v => ({ v, label: v }))].forEach(({ v, label }) => {
-      const c = document.createElement('div');
-      c.className = `chip${String(v) === String(cur) ? ' active' : ''}`;
-      c.textContent = label;
-      c.onclick = () => onChange(String(v));
-      el.appendChild(c);
+    [{ v: 'All', label: 'All' }, ...values.map(v => ({ v: String(v), label: String(v) }))].forEach(({ v, label }) => {
+      const chip = document.createElement('div');
+      chip.className = `chip${String(v) === String(current) ? ' active' : ''}`;
+      chip.textContent = label;
+      chip.onclick = () => onChange(String(v));
+      el.appendChild(chip);
     });
   };
-  mk('clientChips', [...new Set(reports.map(r => r.client))], fClient, v => { fClient = v; applyFilters(); });
-  mk('yearChips',   [...new Set(reports.map(r => String(r.year)))].sort((a,b)=>b-a), fYear, v => { fYear = v; applyFilters(); });
-  mk('typeChips',   [...new Set(reports.map(r => r.type))], fType, v => { fType = v; applyFilters(); });
+
+  makeChips('clientChips', [...new Set(reports.map(r => r.client))], fClient, v => { fClient = v; applyFilters(); });
+  makeChips('yearChips', [...new Set(reports.map(r => String(r.year)))].sort((a, b) => Number(b) - Number(a)), fYear, v => { fYear = v; applyFilters(); });
+  makeChips('typeChips', [...new Set(reports.map(r => r.type))], fType, v => { fType = v; applyFilters(); });
 }
 
 function applyFilters() {
   buildFilters();
-  const q    = document.getElementById('searchInput').value.trim().toLowerCase();
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
   const sort = document.getElementById('sortSelect').value;
 
   let filtered = reports.filter(r => {
-    if (fClient !== '전체' && r.client !== fClient) return false;
-    if (fYear   !== '전체' && String(r.year) !== fYear) return false;
-    if (fType   !== '전체' && r.type !== fType) return false;
-    if (q && !r.title.toLowerCase().includes(q) && !r.client.toLowerCase().includes(q)) return false;
+    if (fClient !== 'All' && r.client !== fClient) return false;
+    if (fYear !== 'All' && String(r.year) !== fYear) return false;
+    if (fType !== 'All' && r.type !== fType) return false;
+    if (q && !String(r.title).toLowerCase().includes(q) && !String(r.client).toLowerCase().includes(q)) return false;
     return true;
   });
 
   filtered.sort((a, b) => {
-    if (sort === 'newest') return b.year - a.year || b.id - a.id;
-    if (sort === 'oldest') return a.year - b.year || a.id - b.id;
-    if (sort === 'name')   return a.title.localeCompare(b.title, 'ko');
-    if (sort === 'client') return a.client.localeCompare(b.client, 'ko');
+    if (sort === 'newest') return Number(b.year) - Number(a.year) || Number(b.id) - Number(a.id);
+    if (sort === 'oldest') return Number(a.year) - Number(b.year) || Number(a.id) - Number(b.id);
+    if (sort === 'name') return String(a.title).localeCompare(String(b.title), 'ko');
+    if (sort === 'client') return String(a.client).localeCompare(String(b.client), 'ko');
     return 0;
   });
 
@@ -1142,21 +1148,21 @@ function renderCards(list) {
   grid.innerHTML = '';
   if (!list.length) {
     grid.innerHTML = `<div class="empty-state">
-      <div class="empty-icon">?뱛</div>
+      <div class="empty-icon">No Data</div>
       <p>No reports matched the current filters.<br>Reset the filters or try another keyword.</p>
     </div>`;
     return;
   }
+
   list.forEach(r => {
     const wrap = document.createElement('div');
     wrap.className = `card-wrap${editMode && !manifestMode ? ' edit-mode' : ''}`;
     wrap.innerHTML = `
       <div class="card-actions">
-        <button class="btn-card-edit" title="?섏젙" onclick="openEditModal(${r.id})">??/button>
-        <button class="btn-card-del"  title="??젣" onclick="deleteReport(${r.id})">?뿊</button>
+        <button class="btn-card-edit" title="Edit" onclick="openEditModal(${r.id})">E</button>
+        <button class="btn-card-del" title="Delete" onclick="deleteReport(${r.id})">X</button>
       </div>
-      <a class="report-card" href="${r.url}" target="_blank" rel="noopener"
-         ${editMode && !manifestMode ? 'onclick="return false;"' : ''}>
+      <a class="report-card" href="${r.url}" target="_blank" rel="noopener" ${editMode && !manifestMode ? 'onclick="return false;"' : ''}>
         <div class="card-color-bar" style="background:${r.color};"></div>
         <div class="card-body">
           <div class="card-meta-row">
@@ -1169,21 +1175,20 @@ function renderCards(list) {
         </div>
         <div class="card-footer">
           <div class="card-sample-size">Sample: <strong>${r.sample || '-'}</strong></div>
-          <span class="btn-open">Open ??/span>
+          <span class="btn-open">Open</span>
         </div>
       </a>`;
     grid.appendChild(wrap);
   });
 }
-function resetFilters() {function resetFilters() {function resetFilters() {
-  fClient = '전체'; fYear = '전체'; fType = '전체';
+
+function resetFilters() {
+  fClient = 'All';
+  fYear = 'All';
+  fType = 'All';
   document.getElementById('searchInput').value = '';
   applyFilters();
 }
-
-/* ════════════════════════════════════════════
-   보고서 추가/수정 모달
-════════════════════════════════════════════ */
 function openModal() {
   if (manifestMode) {
     alert('Manifest mode is active. Upload HTML files to reports/ instead of adding cards here.');
@@ -1279,23 +1284,23 @@ async function deleteReport(id) {
   updateStats();
   applyFilters();
 }
-function buildColorSwatches() {function buildColorSwatches() {function buildColorSwatches() {
+function buildColorSwatches() {
   const container = document.getElementById('colorSwatches');
   container.innerHTML = '';
   PRESET_COLORS.forEach(c => {
     const sw = document.createElement('div');
     sw.className = `color-swatch${c === selColor ? ' selected' : ''}`;
-    sw.style.background = c; sw.title = c;
+    sw.style.background = c;
+    sw.title = c;
     sw.onclick = () => selectColor(c);
     container.appendChild(sw);
   });
   const custom = document.createElement('div');
   custom.className = 'color-custom';
-  custom.innerHTML = `<input type="color" value="${selColor}" title="직접 입력"
+  custom.innerHTML = `<input type="color" value="${selColor}" title="Custom color"
     onchange="selectColor(this.value)" oninput="selectColor(this.value)">`;
   container.appendChild(custom);
 }
-
 function selectColor(c) {
   selColor = c;
   const toRgb = h => {
