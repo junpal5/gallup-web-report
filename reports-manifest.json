@@ -14,13 +14,13 @@
   {
     "id": 2,
     "slug": "2025년 안전관리인증기준(HACCP) 소비자 인지도 조사",
-    "title": "2025년 HACCP 소비자 인지도 조사 보고서",
-    "client": "Uncategorized",
-    "year": "",
-    "type": "Other",
-    "sample": "",
-    "desc": "",
-    "color": "#2d82d4",
+    "title": "2025년 안전관리인증기준(HACCP) 소비자 인지도 조사",
+    "client": "식품의약품안전처",
+    "year": 2025,
+    "type": "개인",
+    "sample": "3,000명",
+    "desc": "국내 소비자의 안전관리인증기준(HACCP) 관련 인지도",
+    "color": "#0e4d8c",
     "path": "reports/2025년 안전관리인증기준(HACCP) 소비자 인지도 조사.html"
   },
   {
