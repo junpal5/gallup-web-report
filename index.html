@@ -1,49 +1,42 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>한국갤럽조사연구소 웹 보고서 포털</title>
+<title>갤럽 웹 보고서 포털</title>
 <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* ══════════════════════════════════════════════
-   CSS 변수
-══════════════════════════════════════════════ */
 :root {
-  --primary:       #1a5fa0;
+  --primary: #1a5fa0;
   --primary-light: #2d82d4;
-  --secondary:     #00c48c;
-  --accent:        #ff6b35;
-  --text:          #e8f0fe;
-  --text-sub:      rgba(220,235,255,0.62);
-  --border:        rgba(255,255,255,0.15);
-  --border-hover:  rgba(255,255,255,0.35);
-  --glass:         rgba(255,255,255,0.10);
-  --glass-hover:   rgba(255,255,255,0.18);
-  --glass-strong:  rgba(255,255,255,0.16);
-  --glass-blur:    blur(18px);
+  --secondary: #00c48c;
+  --accent: #ff6b35;
+  --text: #e8f0fe;
+  --text-sub: rgba(220,235,255,0.68);
+  --border: rgba(255,255,255,0.15);
+  --border-hover: rgba(255,255,255,0.35);
+  --glass: rgba(255,255,255,0.10);
+  --glass-hover: rgba(255,255,255,0.18);
+  --glass-strong: rgba(255,255,255,0.16);
+  --glass-blur: blur(18px);
   --glass-blur-sm: blur(10px);
-  --shadow-hover:  0 12px 40px rgba(0,0,20,0.42);
-  --radius:        16px;
-  --radius-sm:     10px;
+  --shadow-hover: 0 12px 40px rgba(0,0,20,0.42);
+  --radius: 16px;
+  --radius-sm: 10px;
 }
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
-/* 배경: 딥 블루 그라디언트 */
 body {
   font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
   font-size: 14px;
   min-height: 100vh;
   color: var(--text);
   background:
-    radial-gradient(ellipse 80% 60% at 10% 20%,  rgba(13,80,160,0.75) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 90% 80%,  rgba(0,90,140,0.55) 0%, transparent 55%),
-    radial-gradient(ellipse 70% 70% at 50% 50%,  rgba(8,30,80,1)     0%, transparent 100%),
+    radial-gradient(ellipse 80% 60% at 10% 20%, rgba(13,80,160,0.75) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 80%, rgba(0,90,140,0.55) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 70% at 50% 50%, rgba(8,30,80,1) 0%, transparent 100%),
     #050d1e;
   background-attachment: fixed;
 }
-/* 배경 장식 글로우 */
 body::before, body::after {
   content: '';
   position: fixed;
@@ -63,8 +56,6 @@ body::after {
   background: radial-gradient(circle, #00c48c, transparent 70%);
   bottom: -100px; right: -100px;
 }
-
-/* ── 헤더 ── */
 .site-header {
   position: sticky; top: 0; z-index: 300;
   height: 60px; padding: 0 36px;
@@ -75,18 +66,27 @@ body::after {
   border-bottom: 1px solid var(--border);
 }
 .logo-mark {
-  width: 32px; height: 32px;
+  width: 36px; height: 36px;
   background: linear-gradient(135deg, var(--primary-light), var(--secondary));
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1rem; font-weight: 800; color: #fff;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; gap: 3px;
+  color: #fff;
   flex-shrink: 0;
   box-shadow: 0 2px 10px rgba(45,130,212,0.4);
 }
+.gallup-g {
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.gallup-bar {
+  width: 4px; height: 18px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 0 10px rgba(255,255,255,0.25);
+}
 .logo-text { font-size: 0.97rem; font-weight: 700; letter-spacing: -0.3px; color: #fff; }
 .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
-
-/* 동기화 뱃지 */
 .sync-badge {
   display: flex; align-items: center; gap: 5px;
   font-size: 0.68rem; color: var(--text-sub);
@@ -97,60 +97,15 @@ body::after {
   width: 6px; height: 6px; border-radius: 50%;
   background: #555; transition: background 0.3s;
 }
-.sync-dot.ok    { background: var(--secondary); }
+.sync-dot.ok { background: var(--secondary); }
 .sync-dot.error { background: var(--accent); }
-.sync-dot.busy  { background: #f59e0b; animation: blink 1s infinite; }
+.sync-dot.busy { background: #f59e0b; animation: blink 1s infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.35} }
-
-/* GitHub 설정 버튼 */
-.btn-github-cfg {
-  padding: 5px 12px; border-radius: 20px;
-  border: 1px solid var(--border); background: var(--glass);
-  color: var(--text-sub); font-size: 0.72rem; font-weight: 600;
-  cursor: pointer; font-family: inherit; transition: all 0.18s;
-  display: flex; align-items: center; gap: 4px;
-}
-.btn-github-cfg:hover { border-color: var(--border-hover); color: var(--text); background: var(--glass-hover); }
-
-/* 편집 모드 토글 */
-.edit-mode-toggle {
-  display: flex; align-items: center; gap: 7px;
-  font-size: 0.72rem; color: var(--text-sub); cursor: pointer; user-select: none;
-  padding: 5px 10px; border-radius: 20px;
-  border: 1px solid var(--border); background: var(--glass);
-  transition: all 0.2s;
-}
-.edit-mode-toggle:hover { border-color: var(--border-hover); color: var(--text); }
-.toggle-switch {
-  width: 30px; height: 16px; background: rgba(255,255,255,0.2);
-  border-radius: 8px; position: relative; transition: background 0.2s;
-}
-.toggle-switch.on { background: var(--secondary); }
-.toggle-knob {
-  position: absolute; top: 2px; left: 2px;
-  width: 12px; height: 12px;
-  background: #fff; border-radius: 50%; transition: left 0.2s;
-}
-.toggle-switch.on .toggle-knob { left: 16px; }
-
-/* 보고서 추가 버튼 */
-.btn-add-report {
-  padding: 6px 14px; border-radius: 20px;
-  border: 1.5px solid rgba(45,130,212,0.6);
-  background: rgba(45,130,212,0.2); color: #fff;
-  font-size: 0.72rem; font-weight: 700;
-  cursor: pointer; font-family: inherit; transition: all 0.18s;
-  display: flex; align-items: center; gap: 4px;
-}
-.btn-add-report:hover { background: rgba(45,130,212,0.4); }
-
 .header-badge {
   padding: 4px 12px; border-radius: 20px;
   border: 1px solid var(--border); background: var(--glass);
   font-size: 0.7rem; font-weight: 600; color: var(--text-sub);
 }
-
-/* ── 히어로 ── */
 .hero {
   padding: 52px 40px 44px;
   text-align: center; position: relative; z-index: 1;
@@ -165,10 +120,7 @@ body::after {
   letter-spacing: -0.8px; line-height: 1.2; color: #fff;
   text-shadow: 0 2px 20px rgba(0,0,40,0.5); margin-bottom: 10px;
 }
-.hero-title span { color: var(--secondary); }
 .hero-desc { font-size: 0.88rem; color: var(--text-sub); margin-bottom: 30px; line-height: 1.7; }
-
-/* 검색창 */
 .search-wrap { display: flex; justify-content: center; margin-bottom: 36px; }
 .search-box {
   display: flex; align-items: center; gap: 10px;
@@ -176,20 +128,13 @@ body::after {
   background: var(--glass-strong); border: 1.5px solid var(--border);
   border-radius: 12px; padding: 0 18px;
   backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-.search-box:focus-within {
-  border-color: rgba(45,130,212,0.7);
-  box-shadow: 0 0 0 3px rgba(45,130,212,0.15);
 }
 .search-box input {
   flex: 1; background: transparent; border: none; outline: none;
   color: #fff; font-size: 0.9rem; padding: 13px 0; font-family: inherit;
 }
 .search-box input::placeholder { color: rgba(220,235,255,0.38); }
-.search-icon { opacity: 0.5; font-size: 1rem; }
-
-/* 히어로 통계 카드 */
+.search-icon { opacity: 0.6; font-size: 0.85rem; }
 .hero-stats { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
 .hero-stat {
   background: var(--glass); border: 1px solid var(--border);
@@ -199,16 +144,12 @@ body::after {
 }
 .hero-stat-num { font-size: 1.5rem; font-weight: 800; color: #fff; }
 .hero-stat-lbl { font-size: 0.67rem; color: var(--text-sub); margin-top: 2px; letter-spacing: 0.3px; }
-
-/* ── 메인 레이아웃 ── */
 .main-layout {
   display: flex; gap: 20px;
   max-width: 1400px; margin: 0 auto;
   padding: 20px 36px 60px; align-items: flex-start;
   position: relative; z-index: 1;
 }
-
-/* ── 필터 사이드바 ── */
 .filter-sidebar {
   width: 220px; flex-shrink: 0;
   background: var(--glass); border: 1px solid var(--border);
@@ -234,18 +175,15 @@ body::after {
   font-size: 0.68rem; font-weight: 500; color: var(--text-sub);
   cursor: pointer; transition: all 0.15s; white-space: nowrap;
 }
-.chip:hover  { border-color: var(--border-hover); color: var(--text); background: var(--glass-hover); }
+.chip:hover { border-color: var(--border-hover); color: var(--text); background: var(--glass-hover); }
 .chip.active { background: rgba(45,130,212,0.35); color: #fff; border-color: rgba(45,130,212,0.7); font-weight: 700; }
 .filter-reset {
   width: 100%; padding: 7px; margin-top: 6px;
   border: 1px solid var(--border); border-radius: var(--radius-sm);
   background: transparent; color: var(--text-sub);
   font-size: 0.72rem; font-weight: 600;
-  cursor: pointer; font-family: inherit; transition: all 0.15s;
+  cursor: pointer; font-family: inherit;
 }
-.filter-reset:hover { border-color: rgba(255,107,53,0.5); color: var(--accent); background: rgba(255,107,53,0.08); }
-
-/* ── 콘텐츠 영역 ── */
 .content-area { flex: 1; min-width: 0; }
 .result-meta {
   font-size: 0.78rem; color: var(--text-sub); margin-bottom: 14px;
@@ -259,30 +197,12 @@ body::after {
   background: var(--glass); cursor: pointer; outline: none;
 }
 .sort-select option { background: #0a1946; }
-
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
 }
-
-/* ── 보고서 카드 ── */
 .card-wrap { position: relative; }
-.card-wrap.edit-mode .card-actions { display: flex; }
-.card-actions {
-  display: none; position: absolute; top: 14px; right: 12px;
-  gap: 4px; z-index: 10;
-}
-.btn-card-edit, .btn-card-del {
-  width: 26px; height: 26px; border-radius: 50%; border: none;
-  cursor: pointer; font-size: 0.68rem;
-  display: flex; align-items: center; justify-content: center;
-}
-.btn-card-edit { background: rgba(255,255,255,0.18); color: #fff; }
-.btn-card-del  { background: rgba(220,50,50,0.25);   color: #fca5a5; }
-.btn-card-edit:hover { background: rgba(45,130,212,0.6); }
-.btn-card-del:hover  { background: rgba(220,50,50,0.6); color: #fff; }
-
 .report-card {
   display: flex; flex-direction: column;
   background: var(--glass); border: 1px solid var(--border);
@@ -302,13 +222,10 @@ body::after {
 .card-meta-row { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
 .badge { padding: 3px 8px; border-radius: 12px; font-size: 0.63rem; font-weight: 700; }
 .badge-client { background: rgba(45,130,212,0.2); color: #93c5fd; border: 1px solid rgba(45,130,212,0.3); }
-.badge-year   { background: rgba(0,196,140,0.15);  color: #6ee7b7; border: 1px solid rgba(0,196,140,0.3); }
-.badge-type   { background: rgba(255,107,53,0.15);  color: #fca572; border: 1px solid rgba(255,107,53,0.3); }
+.badge-year { background: rgba(0,196,140,0.15); color: #6ee7b7; border: 1px solid rgba(0,196,140,0.3); }
+.badge-type { background: rgba(255,107,53,0.15); color: #fca572; border: 1px solid rgba(255,107,53,0.3); }
 .card-title { font-size: 0.93rem; font-weight: 700; color: #fff; line-height: 1.4; margin-bottom: 8px; }
-.card-desc {
-  font-size: 0.75rem; color: var(--text-sub); line-height: 1.65;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-}
+.card-desc { font-size: 0.75rem; color: var(--text-sub); line-height: 1.65; }
 .card-footer {
   padding: 10px 16px 14px;
   display: flex; align-items: center; justify-content: space-between;
@@ -319,142 +236,11 @@ body::after {
 .btn-open {
   padding: 5px 13px; border-radius: 20px; font-size: 0.7rem; font-weight: 700;
   border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1);
-  color: #fff; display: flex; align-items: center; gap: 3px; transition: all 0.15s;
+  color: #fff;
 }
-.report-card:hover .btn-open { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.35); }
-
-/* 빈 상태 */
 .empty-state { grid-column: 1 / -1; text-align: center; padding: 70px 20px; color: var(--text-sub); }
-.empty-state .empty-icon { font-size: 3rem; margin-bottom: 14px; opacity: 0.4; }
+.empty-state .empty-icon { font-size: 2rem; margin-bottom: 14px; opacity: 0.7; }
 .empty-state p { font-size: 0.85rem; line-height: 1.8; }
-
-/* ══════════════════════════════════════════════
-   모달 공통
-══════════════════════════════════════════════ */
-.modal-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,5,20,0.7); z-index: 500;
-  align-items: center; justify-content: center;
-  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-}
-.modal-overlay.open { display: flex; }
-.modal {
-  background: rgba(10,25,70,0.82);
-  border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 18px;
-  box-shadow: 0 24px 80px rgba(0,0,40,0.6);
-  backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-  animation: modalIn 0.22s ease;
-  color: var(--text); overflow: hidden;
-}
-.modal-lg { width: 540px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
-.modal-sm { width: 340px; max-width: 92vw; }
-@keyframes modalIn {
-  from { transform: scale(0.93) translateY(10px); opacity: 0; }
-  to   { transform: scale(1) translateY(0); opacity: 1; }
-}
-.modal-header {
-  padding: 20px 22px 16px; border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.modal-header h3 { font-size: 0.97rem; font-weight: 700; color: #fff; }
-.modal-close {
-  width: 28px; height: 28px; border-radius: 50%;
-  border: none; background: rgba(255,255,255,0.08);
-  cursor: pointer; font-size: 0.88rem;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--text-sub); transition: all 0.15s;
-}
-.modal-close:hover { background: rgba(220,50,50,0.3); color: #fca5a5; }
-.modal-body { padding: 20px 22px; }
-.modal-footer { padding: 14px 22px 20px; display: flex; gap: 8px; justify-content: flex-end; border-top: 1px solid var(--border); }
-
-/* 폼 */
-.form-group { margin-bottom: 15px; }
-.form-label { display: block; font-size: 0.74rem; font-weight: 700; color: var(--text-sub); margin-bottom: 6px; }
-.form-label span { color: #f87171; }
-.form-input, .form-select, .form-textarea {
-  width: 100%; padding: 9px 12px;
-  border: 1.5px solid rgba(255,255,255,0.15);
-  border-radius: var(--radius-sm);
-  font-size: 0.83rem; font-family: inherit; color: #fff;
-  background: rgba(255,255,255,0.07); outline: none;
-  transition: border-color 0.15s, background 0.15s;
-}
-.form-input:focus, .form-select:focus, .form-textarea:focus {
-  border-color: rgba(45,130,212,0.7);
-  background: rgba(255,255,255,0.10);
-  box-shadow: 0 0 0 3px rgba(45,130,212,0.12);
-}
-.form-input::placeholder, .form-textarea::placeholder { color: rgba(220,235,255,0.3); }
-.form-select option { background: #0a1946; color: #fff; }
-.form-textarea { min-height: 68px; resize: vertical; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-/* 색상 스와치 */
-.color-picker-row { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
-.color-swatch {
-  width: 26px; height: 26px; border-radius: 6px;
-  border: 2px solid transparent; cursor: pointer; transition: transform 0.15s, border-color 0.15s;
-}
-.color-swatch:hover    { transform: scale(1.18); }
-.color-swatch.selected { border-color: #fff; transform: scale(1.1); }
-.color-custom input { width: 34px; height: 26px; border: none; border-radius: 6px; cursor: pointer; padding: 0; background: transparent; }
-
-/* 버튼 */
-.btn-cancel {
-  padding: 8px 16px; border: 1px solid var(--border);
-  border-radius: var(--radius-sm); background: transparent;
-  font-size: 0.78rem; font-weight: 600; cursor: pointer;
-  font-family: inherit; color: var(--text-sub); transition: all 0.15s;
-}
-.btn-cancel:hover { background: var(--glass-hover); color: var(--text); }
-.btn-submit {
-  padding: 8px 20px; border: none; border-radius: var(--radius-sm);
-  background: linear-gradient(135deg, var(--primary), var(--primary-light));
-  color: #fff; font-size: 0.78rem; font-weight: 700;
-  cursor: pointer; font-family: inherit; transition: opacity 0.15s;
-  box-shadow: 0 4px 14px rgba(29,100,200,0.35);
-}
-.btn-submit:hover { opacity: 0.88; }
-
-/* GitHub 설정 안내 박스 */
-.gh-info {
-  font-size: 0.73rem; color: var(--text-sub); line-height: 1.75;
-  background: rgba(0,0,0,0.2); border-radius: 8px;
-  padding: 10px 12px; margin-bottom: 16px;
-  border: 1px solid var(--border);
-}
-.gh-info code {
-  background: rgba(255,255,255,0.1); border-radius: 4px;
-  padding: 1px 5px; font-size: 0.78rem; color: #93c5fd;
-}
-
-/* 비밀번호 모달 전용 */
-.pw-icon  { font-size: 2.2rem; text-align: center; margin-bottom: 8px; }
-.pw-title { font-size: 0.95rem; font-weight: 700; color: #fff; text-align: center; margin-bottom: 4px; }
-.pw-sub   { font-size: 0.75rem; color: var(--text-sub); text-align: center; margin-bottom: 18px; }
-.pw-error { font-size: 0.73rem; color: #f87171; text-align: center; margin-top: 10px; min-height: 18px; }
-.pw-ok    { font-size: 0.73rem; color: #6ee7b7; text-align: center; margin-top: 10px; min-height: 18px; }
-#pwInput  { text-align: center; letter-spacing: 6px; font-size: 1.1rem; font-weight: 700; }
-
-/* 비밀번호 변경 버튼 */
-.btn-change-pw {
-  padding: 5px 12px; border-radius: 20px;
-  border: 1px solid var(--border); background: var(--glass);
-  color: var(--text-sub); font-size: 0.72rem; font-weight: 600;
-  cursor: pointer; font-family: inherit; transition: all 0.18s;
-  display: flex; align-items: center; gap: 4px;
-}
-.btn-change-pw:hover { border-color: var(--border-hover); color: var(--text); background: var(--glass-hover); }
-
-/* 구분선 */
-.form-divider {
-  border: none; border-top: 1px solid var(--border);
-  margin: 16px 0;
-}
-
-/* 반응형 */
 @media (max-width: 900px) {
   .main-layout { flex-direction: column; padding: 14px 16px 40px; }
   .filter-sidebar { width: 100%; position: static; }
@@ -471,73 +257,73 @@ body::after {
 </head>
 <body>
 <header class="site-header">
-  <div class="logo-mark">G</div>
-  <div class="logo-text">Gallup Korea Report Portal</div>
+  <div class="logo-mark" aria-label="갤럽 로고"><span class="gallup-g">G</span><span class="gallup-bar"></span></div>
+  <div class="logo-text">갤럽 웹 보고서 포털</div>
   <div class="header-right">
-    <div class="sync-badge" id="syncBadge" title="Manifest status">
+    <div class="sync-badge" id="syncBadge" title="보고서 동기화 상태">
       <div class="sync-dot" id="syncDot"></div>
-      <span id="syncLabel">Loading...</span>
+      <span id="syncLabel">불러오는 중...</span>
     </div>
-    <div class="header-badge" id="totalBadge">Total 0</div>
+    <div class="header-badge" id="totalBadge">총 0건</div>
   </div>
 </header>
 
 <section class="hero">
   <div class="hero-eyebrow">Gallup Korea Research Portal</div>
-  <div class="hero-title">Web Report Library</div>
-  <div class="hero-desc">Browse published reports by client, year, and study type.</div>
+  <div class="hero-title">웹 보고서 모음</div>
+  <div class="hero-desc">발주처, 연도, 조사 유형별로 발행된 웹 보고서를 탐색하세요.</div>
   <div class="search-wrap">
     <div class="search-box">
-      <span class="search-icon">Search</span>
-      <input type="text" id="searchInput" placeholder="Search by report title or client" oninput="applyFilters()">
+      <span class="search-icon">검색</span>
+      <input type="text" id="searchInput" placeholder="보고서 제목 또는 발주처로 검색" oninput="applyFilters()">
     </div>
   </div>
   <div class="hero-stats">
     <div class="hero-stat">
       <div class="hero-stat-num" id="statTotal">0</div>
-      <div class="hero-stat-lbl">Reports</div>
+      <div class="hero-stat-lbl">전체 보고서</div>
     </div>
     <div class="hero-stat">
       <div class="hero-stat-num" id="statClients">0</div>
-      <div class="hero-stat-lbl">Clients</div>
+      <div class="hero-stat-lbl">발주처</div>
     </div>
     <div class="hero-stat">
       <div class="hero-stat-num" id="statYears">0</div>
-      <div class="hero-stat-lbl">Years</div>
+      <div class="hero-stat-lbl">조사 연도</div>
     </div>
     <div class="hero-stat">
       <div class="hero-stat-num" id="statTypes">0</div>
-      <div class="hero-stat-lbl">Types</div>
+      <div class="hero-stat-lbl">조사 유형</div>
     </div>
   </div>
 </section>
 
 <div class="main-layout">
   <aside class="filter-sidebar">
-    <div class="filter-title">Filters</div>
+    <div class="filter-title">필터</div>
     <div class="filter-group">
-      <div class="filter-group-label"><span class="dot-badge" style="background:#93c5fd;"></span> Client</div>
+      <div class="filter-group-label"><span class="dot-badge" style="background:#93c5fd;"></span> 발주처</div>
       <div class="chip-group" id="clientChips"></div>
     </div>
     <div class="filter-group">
-      <div class="filter-group-label"><span class="dot-badge" style="background:#6ee7b7;"></span> Year</div>
+      <div class="filter-group-label"><span class="dot-badge" style="background:#6ee7b7;"></span> 연도</div>
       <div class="chip-group" id="yearChips"></div>
     </div>
     <div class="filter-group">
-      <div class="filter-group-label"><span class="dot-badge" style="background:#fca572;"></span> Type</div>
+      <div class="filter-group-label"><span class="dot-badge" style="background:#fca572;"></span> 유형</div>
       <div class="chip-group" id="typeChips"></div>
     </div>
-    <button class="filter-reset" onclick="resetFilters()">Reset Filters</button>
+    <button class="filter-reset" onclick="resetFilters()">필터 초기화</button>
   </aside>
 
   <div class="content-area">
     <div class="result-meta">
-      <span><span class="result-count" id="resultCount">0</span> reports</span>
+      <span><span class="result-count" id="resultCount">0</span>건의 보고서</span>
       <select class="sort-select" id="sortSelect" onchange="applyFilters()">
-        <option value="newest">Newest</option>
-        <option value="oldest">Oldest</option>
-        <option value="name">Name</option>
-        <option value="client">Client</option>
+        <option value="newest">최신순</option>
+        <option value="oldest">오래된순</option>
+        <option value="name">이름순</option>
+        <option value="client">발주처순</option>
       </select>
     </div>
     <div class="card-grid" id="cardGrid"></div>
@@ -573,10 +359,10 @@ function normalizeReport(report, index) {
   const parsedYear = Number.parseInt(report.year, 10);
   return {
     id: Number.isFinite(Number(report.id)) ? Number(report.id) : index,
-    title: String(report.title || 'Untitled report'),
-    client: String(report.client || 'Uncategorized'),
+    title: String(report.title || '제목 없음'),
+    client: String(report.client || '미분류'),
     year: Number.isFinite(parsedYear) ? parsedYear : '',
-    type: String(report.type || 'Other'),
+    type: String(report.type || '기타'),
     sample: String(report.sample || ''),
     desc: String(report.desc || ''),
     color: String(report.color || DEFAULT_COLORS[(index - 1) % DEFAULT_COLORS.length]),
@@ -591,11 +377,11 @@ async function loadReports() {
     const data = await res.json();
     if (!Array.isArray(data)) throw new Error('Manifest is not an array');
     reports = data.map((report, index) => normalizeReport(report, index + 1)).filter(report => report.url);
-    setSyncStatus(reports.length ? 'ok' : '', reports.length ? 'Manifest loaded' : 'No reports found');
+    setSyncStatus(reports.length ? 'ok' : '', reports.length ? '보고서 목록 불러옴' : '보고서 없음');
   } catch (error) {
     console.error(error);
     reports = [];
-    setSyncStatus('error', 'Manifest load failed');
+    setSyncStatus('error', '목록 불러오기 실패');
   }
 }
 
@@ -612,7 +398,7 @@ function updateStats() {
   document.getElementById('statClients').textContent = uniqueCount(reports.map(r => r.client));
   document.getElementById('statYears').textContent = uniqueCount(reports.map(r => r.year));
   document.getElementById('statTypes').textContent = uniqueCount(reports.map(r => r.type));
-  document.getElementById('totalBadge').textContent = `Total ${reports.length}`;
+  document.getElementById('totalBadge').textContent = `총 ${reports.length}건`;
 }
 
 function buildFilters() {
@@ -620,7 +406,7 @@ function buildFilters() {
     const el = document.getElementById(id);
     if (!el) return;
     el.innerHTML = '';
-    [{ v: 'All', label: 'All' }, ...values.map(v => ({ v: String(v), label: String(v) }))].forEach(({ v, label }) => {
+    [{ v: 'All', label: '전체' }, ...values.map(v => ({ v: String(v), label: String(v) }))].forEach(({ v, label }) => {
       const chip = document.createElement('div');
       chip.className = `chip${String(v) === String(current) ? ' active' : ''}`;
       chip.textContent = label;
@@ -640,7 +426,7 @@ function renderCards(list) {
   grid.innerHTML = '';
 
   if (!list.length) {
-    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">No Data</div><p>No reports matched the current filters.<br>Reset the filters or try another keyword.</p></div>`;
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">보고서 없음</div><p>현재 조건에 맞는 보고서가 없습니다.<br>필터를 초기화하거나 다른 검색어를 입력해 보세요.</p></div>`;
     return;
   }
 
@@ -657,11 +443,11 @@ function renderCards(list) {
             <span class="badge badge-type">${report.type}</span>
           </div>
           <div class="card-title">${report.title}</div>
-          <div class="card-desc">${report.desc || 'No description provided.'}</div>
+          <div class="card-desc">${report.desc || '설명이 없습니다.'}</div>
         </div>
         <div class="card-footer">
-          <div class="card-sample-size">Sample: <strong>${report.sample || '-'}</strong></div>
-          <span class="btn-open">Open</span>
+          <div class="card-sample-size">표본: <strong>${report.sample || '-'}</strong></div>
+          <span class="btn-open">열기</span>
         </div>
       </a>`;
     grid.appendChild(wrap);
@@ -700,7 +486,7 @@ function resetFilters() {
 }
 
 async function init() {
-  setSyncStatus('busy', 'Loading...');
+  setSyncStatus('busy', '불러오는 중...');
   await loadReports();
   updateStats();
   applyFilters();
