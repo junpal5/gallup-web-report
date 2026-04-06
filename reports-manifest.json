@@ -13,6 +13,18 @@
   },
   {
     "id": 2,
+    "slug": "2025년 안전관리인증기준(HACCP) 소비자 인지도 조사",
+    "title": "2025년 HACCP 소비자 인지도 조사 보고서",
+    "client": "Uncategorized",
+    "year": "",
+    "type": "Other",
+    "sample": "",
+    "desc": "",
+    "color": "#2d82d4",
+    "path": "reports/2025년 안전관리인증기준(HACCP) 소비자 인지도 조사.html"
+  },
+  {
+    "id": 3,
     "slug": "시청점유율기초조사",
     "title": "2024년 시청점유율기초조사",
     "client": "방송통신위원회",
