@@ -470,353 +470,95 @@ body::after {
 </style>
 </head>
 <body>
-
-<!-- ══════════════ 헤더 ══════════════ -->
 <header class="site-header">
   <div class="logo-mark">G</div>
-  <div class="logo-text">한국갤럽조사연구소 웹 보고서 포털</div>
+  <div class="logo-text">Gallup Korea Report Portal</div>
   <div class="header-right">
-    <!-- GitHub 동기화 상태 -->
-    <div class="sync-badge" id="syncBadge" title="GitHub 동기화 상태">
+    <div class="sync-badge" id="syncBadge" title="Manifest status">
       <div class="sync-dot" id="syncDot"></div>
-      <span id="syncLabel">미연결</span>
+      <span id="syncLabel">Loading...</span>
     </div>
-    <!-- GitHub 설정 버튼 (비밀번호 필요) -->
-    <button class="btn-github-cfg" onclick="requestGhModal()" title="GitHub 설정 (비밀번호 필요)">⚙ GitHub</button>
-    <!-- 비밀번호 변경 버튼 (편집 모드일 때만 활성) -->
-    <button class="btn-change-pw" id="btnChangePw" onclick="openChangePwModal()" style="opacity:0.35;pointer-events:none;" title="비밀번호 변경">🔑 비밀번호</button>
-    <!-- 편집 모드 (비밀번호 필요) -->
-    <div class="edit-mode-toggle" onclick="requestEditMode()" title="편집 모드 (비밀번호 필요)">
-      <div class="toggle-switch" id="toggleSwitch"><div class="toggle-knob"></div></div>
-      <span id="toggleLabel">편집 모드</span>
-    </div>
-    <!-- 보고서 추가 (편집 모드일 때만 활성) -->
-    <button class="btn-add-report" id="btnAddReport" onclick="openModal()" style="opacity:0.35;pointer-events:none;">
-      ＋ 보고서 추가
-    </button>
-    <div class="header-badge" id="totalBadge">총 0건</div>
+    <div class="header-badge" id="totalBadge">Total 0</div>
   </div>
 </header>
 
-<!-- ══════════════ 히어로 ══════════════ -->
 <section class="hero">
-  <div class="hero-eyebrow">Gallup Korea · Research Portal</div>
-  <div class="hero-title">웹 <span>보고서</span> 모음</div>
-  <div class="hero-desc">발주처 · 연도 · 조사 유형별 필터로 원하는 보고서에 빠르게 접근하세요.</div>
+  <div class="hero-eyebrow">Gallup Korea Research Portal</div>
+  <div class="hero-title">Web Report Library</div>
+  <div class="hero-desc">Browse published reports by client, year, and study type.</div>
   <div class="search-wrap">
     <div class="search-box">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="searchInput" placeholder="보고서 제목, 발주처 검색..." oninput="applyFilters()">
+      <span class="search-icon">Search</span>
+      <input type="text" id="searchInput" placeholder="Search by report title or client" oninput="applyFilters()">
     </div>
   </div>
   <div class="hero-stats">
     <div class="hero-stat">
       <div class="hero-stat-num" id="statTotal">0</div>
-      <div class="hero-stat-lbl">전체 보고서</div>
+      <div class="hero-stat-lbl">Reports</div>
     </div>
     <div class="hero-stat">
       <div class="hero-stat-num" id="statClients">0</div>
-      <div class="hero-stat-lbl">발주처</div>
+      <div class="hero-stat-lbl">Clients</div>
     </div>
     <div class="hero-stat">
       <div class="hero-stat-num" id="statYears">0</div>
-      <div class="hero-stat-lbl">조사 연도</div>
+      <div class="hero-stat-lbl">Years</div>
     </div>
     <div class="hero-stat">
       <div class="hero-stat-num" id="statTypes">0</div>
-      <div class="hero-stat-lbl">조사 유형</div>
+      <div class="hero-stat-lbl">Types</div>
     </div>
   </div>
 </section>
 
-<!-- ══════════════ 메인 레이아웃 ══════════════ -->
 <div class="main-layout">
-
-  <!-- 필터 사이드바 -->
   <aside class="filter-sidebar">
-    <div class="filter-title">🎛 필터</div>
+    <div class="filter-title">Filters</div>
     <div class="filter-group">
-      <div class="filter-group-label"><span class="dot-badge" style="background:#93c5fd;"></span> 발주처</div>
+      <div class="filter-group-label"><span class="dot-badge" style="background:#93c5fd;"></span> Client</div>
       <div class="chip-group" id="clientChips"></div>
     </div>
     <div class="filter-group">
-      <div class="filter-group-label"><span class="dot-badge" style="background:#6ee7b7;"></span> 조사 연도</div>
+      <div class="filter-group-label"><span class="dot-badge" style="background:#6ee7b7;"></span> Year</div>
       <div class="chip-group" id="yearChips"></div>
     </div>
     <div class="filter-group">
-      <div class="filter-group-label"><span class="dot-badge" style="background:#fca572;"></span> 조사 유형</div>
+      <div class="filter-group-label"><span class="dot-badge" style="background:#fca572;"></span> Type</div>
       <div class="chip-group" id="typeChips"></div>
     </div>
-    <button class="filter-reset" onclick="resetFilters()">✕ 필터 초기화</button>
+    <button class="filter-reset" onclick="resetFilters()">Reset Filters</button>
   </aside>
 
-  <!-- 카드 그리드 -->
   <div class="content-area">
     <div class="result-meta">
-      <span><span class="result-count" id="resultCount">0</span>건의 보고서</span>
+      <span><span class="result-count" id="resultCount">0</span> reports</span>
       <select class="sort-select" id="sortSelect" onchange="applyFilters()">
-        <option value="newest">최신순</option>
-        <option value="oldest">오래된순</option>
-        <option value="name">이름순</option>
-        <option value="client">발주처순</option>
+        <option value="newest">Newest</option>
+        <option value="oldest">Oldest</option>
+        <option value="name">Name</option>
+        <option value="client">Client</option>
       </select>
     </div>
     <div class="card-grid" id="cardGrid"></div>
   </div>
 </div>
 
-<!-- ══════════════ 비밀번호 확인 모달 ══════════════ -->
-<div class="modal-overlay" id="pwOverlay">
-  <div class="modal modal-sm">
-    <div class="modal-body" style="padding:28px 26px 20px;">
-      <div class="pw-icon" id="pwIcon">🔐</div>
-      <div class="pw-title" id="pwTitle">잠금 해제</div>
-      <div class="pw-sub" id="pwSub">관리자 비밀번호를 입력하세요.</div>
-      <input class="form-input" type="password" id="pwInput"
-        placeholder="비밀번호" maxlength="30"
-        onkeydown="if(event.key==='Enter')checkPassword()">
-      <div class="pw-error" id="pwError"></div>
-    </div>
-    <div class="modal-footer" style="border:none;padding-top:0;">
-      <button class="btn-cancel" onclick="closePwModal()">취소</button>
-      <button class="btn-submit" onclick="checkPassword()">확인</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════ 비밀번호 변경 모달 ══════════════ -->
-<div class="modal-overlay" id="changePwOverlay">
-  <div class="modal modal-sm">
-    <div class="modal-header">
-      <h3>🔑 비밀번호 변경</h3>
-      <button class="modal-close" onclick="closeChangePwModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">현재 비밀번호 <span>*</span></label>
-        <input class="form-input" type="password" id="cpCurrent"
-          placeholder="현재 비밀번호" maxlength="30"
-          onkeydown="if(event.key==='Enter')document.getElementById('cpNew').focus()">
-      </div>
-      <hr class="form-divider">
-      <div class="form-group">
-        <label class="form-label">새 비밀번호 <span>*</span></label>
-        <input class="form-input" type="password" id="cpNew"
-          placeholder="새 비밀번호 (4자 이상)" maxlength="30"
-          onkeydown="if(event.key==='Enter')document.getElementById('cpConfirm').focus()">
-      </div>
-      <div class="form-group">
-        <label class="form-label">새 비밀번호 확인 <span>*</span></label>
-        <input class="form-input" type="password" id="cpConfirm"
-          placeholder="새 비밀번호 재입력" maxlength="30"
-          onkeydown="if(event.key==='Enter')submitChangePw()">
-      </div>
-      <div class="pw-error" id="cpError"></div>
-      <div class="pw-ok"    id="cpOk"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeChangePwModal()">취소</button>
-      <button class="btn-submit" onclick="submitChangePw()">변경</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════ GitHub 설정 모달 ══════════════ -->
-<div class="modal-overlay" id="ghOverlay">
-  <div class="modal modal-lg">
-    <div class="modal-header">
-      <h3>⚙ GitHub 자동 저장 설정</h3>
-      <button class="modal-close" onclick="closeGhModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="gh-info">
-        보고서 목록을 GitHub 레포지토리의 <code>data.json</code>에 자동 저장합니다.<br>
-        팀원 모두가 같은 데이터를 공유할 수 있습니다.<br><br>
-        ① GitHub <b>Personal Access Token (PAT)</b> — <code>repo</code> 권한 필요<br>
-        ② 저장소: <code>username/repository</code> 형식 입력<br>
-        ③ 브랜치: 보통 <code>main</code>
-      </div>
-      <div class="form-group">
-        <label class="form-label">GitHub Personal Access Token <span>*</span></label>
-        <input class="form-input" type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">레포지토리 <span>*</span></label>
-          <input class="form-input" type="text" id="ghRepo" placeholder="username/report-portal">
-        </div>
-        <div class="form-group">
-          <label class="form-label">브랜치</label>
-          <input class="form-input" type="text" id="ghBranch" placeholder="main">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">data.json 경로</label>
-        <input class="form-input" type="text" id="ghPath" placeholder="data.json">
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeGhModal()">취소</button>
-      <button class="btn-submit" id="btnGhTest" onclick="testAndSaveGhConfig()">연결 테스트 &amp; 저장</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════ 보고서 추가/편집 모달 ══════════════ -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal modal-lg">
-    <div class="modal-header">
-      <h3 id="modalTitle">📋 보고서 추가</h3>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="editId">
-      <div class="form-group">
-        <label class="form-label">보고서 제목 <span>*</span></label>
-        <input class="form-input" id="fTitle" type="text" placeholder="예: 2025년 기업정보화통계집">
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">발주처 <span>*</span></label>
-          <input class="form-input" id="fClient" type="text" placeholder="예: 과학기술정보통신부">
-        </div>
-        <div class="form-group">
-          <label class="form-label">조사 연도 <span>*</span></label>
-          <input class="form-input" id="fYear" type="number" placeholder="2025" min="2000" max="2099">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">조사 유형 <span>*</span></label>
-          <select class="form-select" id="fType">
-            <option value="">선택...</option>
-            <option value="사업체">사업체</option>
-            <option value="가구">가구</option>
-            <option value="개인">개인</option>
-            <option value="혼합">혼합 (사업체+가구)</option>
-            <option value="기타">기타</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">표본 수</label>
-          <input class="form-input" id="fSample" type="text" placeholder="예: 5,000개사">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Report Path <span>*</span></label>
-        <input class="form-input" id="fUrl" type="text" placeholder="reports/report-name.html or report-name.html">
-        <div class="gh-info" style="margin-top:8px; margin-bottom:0;">
-          In manifest mode, this value is generated automatically.<br>
-          It should come from <code>reports-manifest.json</code> or report metadata.
-        </div>
-      </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">한 줄 설명</label>
-        <textarea class="form-textarea" id="fDesc" placeholder="조사 목적, 주요 내용 등을 간략히 입력하세요."></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">대표 색상 (카드 상단 바)</label>
-        <div class="color-picker-row" id="colorSwatches"></div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal()">취소</button>
-      <button class="btn-submit" onclick="submitReport()">저장</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════ JavaScript ══════════════ -->
 <script>
-/* ─── 상수 ─── */
-const LS_KEY    = 'gallup-portal-v1';   /* 보고서 데이터 */
-const LS_GH_KEY = 'gallup-portal-gh';  /* GitHub 설정 */
-const LS_PW_KEY = 'gallup-portal-pw';  /* 비밀번호 저장 키 */
-const DEFAULT_PW = '1205';             /* 최초 기본 비밀번호 */
-
-/* 현재 비밀번호 반환 (localStorage 우선, 없으면 기본값) */
-function getCurrentPw() {
-  return localStorage.getItem(LS_PW_KEY) || DEFAULT_PW;
-}
-
-const PRESET_COLORS = [
-  '#0e4d8c','#2d82d4','#00a86b','#e85d04',
-  '#7c3aed','#dc2626','#0891b2','#d97706','#be185d','#374151'
-];
-
 const REPORTS_MANIFEST_PATH = 'reports-manifest.json';
 const REPORTS_BASE_PATH = 'reports/';
+const DEFAULT_COLORS = ['#0e4d8c','#2d82d4','#00a86b','#e85d04','#7c3aed','#dc2626','#0891b2','#d97706','#be185d','#374151'];
 
-/* 珥덇린 ?섑뵆 蹂닿퀬??*/
-const DEFAULT_REPORTS = [
-  {
-    id: 1,
-    title: '2025 IT Statistics',
-    client: 'Ministry of Science and ICT',
-    year: 2025,
-    type: 'Business',
-    sample: 'About 5,000 companies',
-    desc: 'Sample report used as a fallback when no manifest is available.',
-    url: 'reports/2025-it-statistics.html',
-    color: '#2d82d4'
-  },
-  {
-    id: 2,
-    title: '2024 Media Share Survey',
-    client: 'Korea Communications Commission',
-    year: 2024,
-    type: 'Household',
-    sample: 'National household panel',
-    desc: 'Another fallback sample report for manual mode.',
-    url: 'reports/2024-media-share.html',
-    color: '#7c3aed'
-  }
-];
+let reports = [];
+let fClient = 'All';
+let fYear = 'All';
+let fType = 'All';
 
-/* ??? ???곹깭 ??? */
-let reports   = [];
-let editMode  = false;
-let editingId = null;
-let selColor  = PRESET_COLORS[0];
-let fClient = 'All', fYear = 'All', fType = 'All';
-let ghCfg = { token:'', repo:'', branch:'main', path:'data.json', _sha:null };
-let manifestMode = false;
-
-async function init() {
-  const savedGh = localStorage.getItem(LS_GH_KEY);
-  if (savedGh) ghCfg = { ...ghCfg, ...JSON.parse(savedGh) };
-
-  const manifestLoaded = await loadFromManifest();
-  if (manifestLoaded) {
-    manifestMode = true;
-    setSyncStatus('ok', 'Manifest mode');
-  } else if (ghCfg.token && ghCfg.repo) {
-    setSyncStatus('busy', 'Loading...');
-    const ok = await fetchFromGitHub();
-    if (!ok) {
-      loadFromLocalStorage();
-      setSyncStatus('error', 'GitHub error');
-    }
-  } else {
-    loadFromLocalStorage();
-    setSyncStatus('', 'Manual mode');
-  }
-
-  buildColorSwatches();
-  buildFilters();
-  updateStats();
-  applyFilters();
-}
 function normalizeReportUrl(value) {
   const raw = String(value || '').trim();
   if (!raw) return '';
-  if (/^(https?:)?\/\//i.test(raw) || raw.startsWith('/') || raw.startsWith('./') || raw.startsWith('../')) {
-    return raw;
-  }
-  if (raw.endsWith('.html') && !raw.includes('/')) {
-    return `${REPORTS_BASE_PATH}${raw}`;
-  }
+  if (/^(https?:)?\/\//i.test(raw) || raw.startsWith('/') || raw.startsWith('./') || raw.startsWith('../')) return raw;
+  if (raw.endsWith('.html') && !raw.includes('/')) return `${REPORTS_BASE_PATH}${raw}`;
   return raw;
 }
 
@@ -827,272 +569,45 @@ function inferReportUrl(report) {
   return slug ? `${REPORTS_BASE_PATH}${slug}.html` : '';
 }
 
-function normalizeReport(report, fallbackId) {
-  const year = Number.parseInt(report.year, 10);
+function normalizeReport(report, index) {
+  const parsedYear = Number.parseInt(report.year, 10);
   return {
-    id: Number.isFinite(Number(report.id)) ? Number(report.id) : fallbackId,
+    id: Number.isFinite(Number(report.id)) ? Number(report.id) : index,
     title: String(report.title || 'Untitled report'),
     client: String(report.client || 'Uncategorized'),
-    year: Number.isFinite(year) ? year : new Date().getFullYear(),
+    year: Number.isFinite(parsedYear) ? parsedYear : '',
     type: String(report.type || 'Other'),
     sample: String(report.sample || ''),
     desc: String(report.desc || ''),
-    url: inferReportUrl(report),
-    color: report.color || PRESET_COLORS[(fallbackId - 1) % PRESET_COLORS.length]
+    color: String(report.color || DEFAULT_COLORS[(index - 1) % DEFAULT_COLORS.length]),
+    url: inferReportUrl(report)
   };
 }
 
-async function loadFromManifest() {
+async function loadReports() {
   try {
     const res = await fetch(`${REPORTS_MANIFEST_PATH}?t=${Date.now()}`, { cache: 'no-store' });
-    if (!res.ok) return false;
+    if (!res.ok) throw new Error(`Manifest request failed: ${res.status}`);
     const data = await res.json();
-    if (!Array.isArray(data)) return false;
-    const normalized = data
-      .map((report, index) => normalizeReport(report, index + 1))
-      .filter(report => report.title && report.url);
-    if (!normalized.length) return false;
-    reports = normalized;
-    return true;
-  } catch (e) {
-    console.error('Manifest load:', e);
-    return false;
-  }
-}
-
-function loadFromLocalStorage() {
-  const saved = localStorage.getItem(LS_KEY);
-  const source = saved ? JSON.parse(saved) : DEFAULT_REPORTS;
-  reports = source.map((report, index) => normalizeReport(report, index + 1));
-}
-async function ghFetch(method, body = null) {
-  const url = `https://api.github.com/repos/${ghCfg.repo}/contents/${ghCfg.path || 'data.json'}`;
-  const opts = {
-    method,
-    headers: {
-      'Authorization': `token ${ghCfg.token}`,
-      'Content-Type': 'application/json',
-      'Accept': 'application/vnd.github.v3+json'
-    }
-  };
-  if (body) opts.body = JSON.stringify(body);
-  return fetch(url, opts);
-}
-
-async function fetchFromGitHub() {
-  try {
-    const res = await ghFetch('GET');
-    if (res.status === 404) {
-      loadFromLocalStorage();
-      await pushToGitHub('Create initial data');
-      setSyncStatus('ok', 'Connected');
-      return true;
-    }
-    if (!res.ok) return false;
-    const data = await res.json();
-    const json = JSON.parse(atob(data.content.replace(/\n/g, '')));
-    reports = Array.isArray(json) ? json.map((report, index) => normalizeReport(report, index + 1)) : DEFAULT_REPORTS;
-    ghCfg._sha = data.sha;
-    setSyncStatus('ok', 'Connected');
-    return true;
-  } catch (e) {
-    console.error('GitHub fetch:', e);
-    return false;
-  }
-}
-
-async function pushToGitHub(message = 'Update report data') {
-  if (!ghCfg.token || !ghCfg.repo) return false;
-  try {
-    setSyncStatus('busy', 'Saving...');
-    if (!ghCfg._sha) {
-      const res = await ghFetch('GET');
-      if (res.ok) {
-        const d = await res.json();
-        ghCfg._sha = d.sha;
-      }
-    }
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(reports, null, 2))));
-    const body = { message, content, branch: ghCfg.branch || 'main' };
-    if (ghCfg._sha) body.sha = ghCfg._sha;
-
-    const res = await ghFetch('PUT', body);
-    if (!res.ok) {
-      setSyncStatus('error', 'Save failed');
-      return false;
-    }
-    const d = await res.json();
-    ghCfg._sha = d.content.sha;
-    setSyncStatus('ok', 'Saved');
-    setTimeout(() => setSyncStatus('ok', 'Connected'), 3000);
-    return true;
-  } catch (e) {
-    console.error('GitHub push:', e);
-    setSyncStatus('error', 'Save failed');
-    return false;
+    if (!Array.isArray(data)) throw new Error('Manifest is not an array');
+    reports = data.map((report, index) => normalizeReport(report, index + 1)).filter(report => report.url);
+    setSyncStatus(reports.length ? 'ok' : '', reports.length ? 'Manifest loaded' : 'No reports found');
+  } catch (error) {
+    console.error(error);
+    reports = [];
+    setSyncStatus('error', 'Manifest load failed');
   }
 }
 
 function setSyncStatus(state, label) {
-  document.getElementById('syncDot').className = `sync-dot${state ? ' ' + state : ''}`;
-  document.getElementById('syncLabel').textContent = label;
+  const dot = document.getElementById('syncDot');
+  const text = document.getElementById('syncLabel');
+  if (dot) dot.className = `sync-dot${state ? ' ' + state : ''}`;
+  if (text) text.textContent = label;
 }
 
-async function save() {
-  if (manifestMode) {
-    alert('Manifest mode is read-only here. Update reports/ and reports-manifest.json instead.');
-    return false;
-  }
-  localStorage.setItem(LS_KEY, JSON.stringify(reports));
-  if (ghCfg.token && ghCfg.repo) await pushToGitHub();
-  return true;
-}
-
-function openGhModal() {
-  document.getElementById('ghToken').value  = ghCfg.token  || '';
-  document.getElementById('ghRepo').value   = ghCfg.repo   || '';
-  document.getElementById('ghBranch').value = ghCfg.branch || 'main';
-  document.getElementById('ghPath').value   = ghCfg.path   || 'data.json';
-  document.getElementById('ghOverlay').classList.add('open');
-}
-function closeGhModal() { document.getElementById('ghOverlay').classList.remove('open'); }
-
-async function testAndSaveGhConfig() {
-  const token  = document.getElementById('ghToken').value.trim();
-  const repo   = document.getElementById('ghRepo').value.trim();
-  const branch = document.getElementById('ghBranch').value.trim() || 'main';
-  const path   = document.getElementById('ghPath').value.trim() || 'data.json';
-  if (!token || !repo) {
-    alert('Token and repository are required.');
-    return;
-  }
-
-  ghCfg = { token, repo, branch, path, _sha: null };
-  localStorage.setItem(LS_GH_KEY, JSON.stringify({ token, repo, branch, path }));
-
-  const btn = document.getElementById('btnGhTest');
-  btn.textContent = 'Testing...';
-  btn.disabled = true;
-  setSyncStatus('busy', 'Testing...');
-
-  const ok = await fetchFromGitHub();
-  btn.textContent = 'Test Connection & Save';
-  btn.disabled = false;
-
-  if (ok) {
-    buildFilters();
-    updateStats();
-    applyFilters();
-    closeGhModal();
-    alert('GitHub connection succeeded.');
-  } else {
-    setSyncStatus('error', 'Connection failed');
-    alert('GitHub connection failed. Check token, repository, branch, and path.');
-  }
-}
-
-let pwPurpose = 'edit';
-
-function requestEditMode() {
-  if (manifestMode) {
-    alert('Manifest mode is active. Upload HTML files to reports/ and refresh reports-manifest.json.');
-    return;
-  }
-  if (editMode) { disableEditMode(); return; }
-  pwPurpose = 'edit';
-  document.getElementById('pwIcon').textContent  = 'LOCK';
-  document.getElementById('pwTitle').textContent = 'Unlock Edit Mode';
-  document.getElementById('pwSub').textContent   = 'Enter the admin password.';
-  openPwModal();
-}
-
-function requestGhModal() {
-  pwPurpose = 'github';
-  document.getElementById('pwIcon').textContent  = 'GH';
-  document.getElementById('pwTitle').textContent = 'Unlock GitHub Settings';
-  document.getElementById('pwSub').textContent   = 'Enter the admin password.';
-  openPwModal();
-}
-function openPwModal() {
-  document.getElementById('pwInput').value = '';
-  document.getElementById('pwError').textContent = '';
-  document.getElementById('pwOverlay').classList.add('open');
-  setTimeout(() => document.getElementById('pwInput').focus(), 120);
-}
-
-function closePwModal() { document.getElementById('pwOverlay').classList.remove('open'); }
-
-function checkPassword() {
-  const val = document.getElementById('pwInput').value;
-  if (val === getCurrentPw()) {
-    closePwModal();
-    if (pwPurpose === 'edit')   enableEditMode();
-    if (pwPurpose === 'github') openGhModal();
-  } else {
-    document.getElementById('pwError').textContent = '비밀번호가 올바르지 않습니다.';
-    document.getElementById('pwInput').value = '';
-    document.getElementById('pwInput').focus();
-  }
-}
-
-/* ════════════════════════════════════════════
-   비밀번호 변경 모달
-════════════════════════════════════════════ */
-function openChangePwModal() {
-  ['cpCurrent','cpNew','cpConfirm'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('cpError').textContent = '';
-  document.getElementById('cpOk').textContent    = '';
-  document.getElementById('changePwOverlay').classList.add('open');
-  setTimeout(() => document.getElementById('cpCurrent').focus(), 120);
-}
-function closeChangePwModal() { document.getElementById('changePwOverlay').classList.remove('open'); }
-
-function submitChangePw() {
-  const current  = document.getElementById('cpCurrent').value;
-  const newPw    = document.getElementById('cpNew').value;
-  const confirm  = document.getElementById('cpConfirm').value;
-  const errEl    = document.getElementById('cpError');
-  const okEl     = document.getElementById('cpOk');
-
-  errEl.textContent = ''; okEl.textContent = '';
-
-  if (current !== getCurrentPw()) { errEl.textContent = '현재 비밀번호가 올바르지 않습니다.'; return; }
-  if (newPw.length < 4)           { errEl.textContent = '새 비밀번호는 4자 이상이어야 합니다.'; return; }
-  if (newPw !== confirm)          { errEl.textContent = '새 비밀번호가 일치하지 않습니다.'; return; }
-
-  /* 저장 */
-  localStorage.setItem(LS_PW_KEY, newPw);
-  okEl.textContent = '✅ 비밀번호가 변경되었습니다.';
-  setTimeout(() => closeChangePwModal(), 1200);
-}
-
-function enableEditMode() {
-  editMode = true;
-  document.getElementById('toggleSwitch').classList.add('on');
-  document.getElementById('toggleLabel').textContent = 'Editing';
-  const btn = document.getElementById('btnAddReport');
-  btn.style.opacity = '1';
-  btn.style.pointerEvents = 'auto';
-  const btnPw = document.getElementById('btnChangePw');
-  btnPw.style.opacity = '1';
-  btnPw.style.pointerEvents = 'auto';
-  applyFilters();
-}
-
-function disableEditMode() {
-  editMode = false;
-  document.getElementById('toggleSwitch').classList.remove('on');
-  document.getElementById('toggleLabel').textContent = 'Edit Mode';
-  const btn = document.getElementById('btnAddReport');
-  btn.style.opacity = '0.35';
-  btn.style.pointerEvents = 'none';
-  const btnPw = document.getElementById('btnChangePw');
-  btnPw.style.opacity = '0.35';
-  btnPw.style.pointerEvents = 'none';
-  applyFilters();
-}
 function updateStats() {
-  const uniqueCount = arr => [...new Set(arr)].length;
+  const uniqueCount = arr => [...new Set(arr.filter(Boolean))].length;
   document.getElementById('statTotal').textContent = reports.length;
   document.getElementById('statClients').textContent = uniqueCount(reports.map(r => r.client));
   document.getElementById('statYears').textContent = uniqueCount(reports.map(r => r.year));
@@ -1103,6 +618,7 @@ function updateStats() {
 function buildFilters() {
   const makeChips = (id, values, current, onChange) => {
     const el = document.getElementById(id);
+    if (!el) return;
     el.innerHTML = '';
     [{ v: 'All', label: 'All' }, ...values.map(v => ({ v: String(v), label: String(v) }))].forEach(({ v, label }) => {
       const chip = document.createElement('div');
@@ -1113,9 +629,43 @@ function buildFilters() {
     });
   };
 
-  makeChips('clientChips', [...new Set(reports.map(r => r.client))], fClient, v => { fClient = v; applyFilters(); });
-  makeChips('yearChips', [...new Set(reports.map(r => String(r.year)))].sort((a, b) => Number(b) - Number(a)), fYear, v => { fYear = v; applyFilters(); });
-  makeChips('typeChips', [...new Set(reports.map(r => r.type))], fType, v => { fType = v; applyFilters(); });
+  makeChips('clientChips', [...new Set(reports.map(r => r.client).filter(Boolean))], fClient, value => { fClient = value; applyFilters(); });
+  makeChips('yearChips', [...new Set(reports.map(r => String(r.year)).filter(Boolean))].sort((a, b) => Number(b) - Number(a)), fYear, value => { fYear = value; applyFilters(); });
+  makeChips('typeChips', [...new Set(reports.map(r => r.type).filter(Boolean))], fType, value => { fType = value; applyFilters(); });
+}
+
+function renderCards(list) {
+  const grid = document.getElementById('cardGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">No Data</div><p>No reports matched the current filters.<br>Reset the filters or try another keyword.</p></div>`;
+    return;
+  }
+
+  list.forEach(report => {
+    const wrap = document.createElement('div');
+    wrap.className = 'card-wrap';
+    wrap.innerHTML = `
+      <a class="report-card" href="${report.url}" target="_blank" rel="noopener">
+        <div class="card-color-bar" style="background:${report.color};"></div>
+        <div class="card-body">
+          <div class="card-meta-row">
+            <span class="badge badge-client">${report.client}</span>
+            <span class="badge badge-year">${report.year || '-'}</span>
+            <span class="badge badge-type">${report.type}</span>
+          </div>
+          <div class="card-title">${report.title}</div>
+          <div class="card-desc">${report.desc || 'No description provided.'}</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-sample-size">Sample: <strong>${report.sample || '-'}</strong></div>
+          <span class="btn-open">Open</span>
+        </div>
+      </a>`;
+    grid.appendChild(wrap);
+  });
 }
 
 function applyFilters() {
@@ -1123,17 +673,15 @@ function applyFilters() {
   const q = document.getElementById('searchInput').value.trim().toLowerCase();
   const sort = document.getElementById('sortSelect').value;
 
-  let filtered = reports.filter(r => {
-    if (fClient !== 'All' && r.client !== fClient) return false;
-    if (fYear !== 'All' && String(r.year) !== fYear) return false;
-    if (fType !== 'All' && r.type !== fType) return false;
-    if (q && !String(r.title).toLowerCase().includes(q) && !String(r.client).toLowerCase().includes(q)) return false;
+  const filtered = reports.filter(report => {
+    if (fClient !== 'All' && report.client !== fClient) return false;
+    if (fYear !== 'All' && String(report.year) !== fYear) return false;
+    if (fType !== 'All' && report.type !== fType) return false;
+    if (q && !String(report.title).toLowerCase().includes(q) && !String(report.client).toLowerCase().includes(q)) return false;
     return true;
-  });
-
-  filtered.sort((a, b) => {
-    if (sort === 'newest') return Number(b.year) - Number(a.year) || Number(b.id) - Number(a.id);
-    if (sort === 'oldest') return Number(a.year) - Number(b.year) || Number(a.id) - Number(b.id);
+  }).sort((a, b) => {
+    if (sort === 'newest') return Number(b.year || 0) - Number(a.year || 0) || Number(b.id) - Number(a.id);
+    if (sort === 'oldest') return Number(a.year || 0) - Number(b.year || 0) || Number(a.id) - Number(b.id);
     if (sort === 'name') return String(a.title).localeCompare(String(b.title), 'ko');
     if (sort === 'client') return String(a.client).localeCompare(String(b.client), 'ko');
     return 0;
@@ -1143,45 +691,6 @@ function applyFilters() {
   renderCards(filtered);
 }
 
-function renderCards(list) {
-  const grid = document.getElementById('cardGrid');
-  grid.innerHTML = '';
-  if (!list.length) {
-    grid.innerHTML = `<div class="empty-state">
-      <div class="empty-icon">No Data</div>
-      <p>No reports matched the current filters.<br>Reset the filters or try another keyword.</p>
-    </div>`;
-    return;
-  }
-
-  list.forEach(r => {
-    const wrap = document.createElement('div');
-    wrap.className = `card-wrap${editMode && !manifestMode ? ' edit-mode' : ''}`;
-    wrap.innerHTML = `
-      <div class="card-actions">
-        <button class="btn-card-edit" title="Edit" onclick="openEditModal(${r.id})">E</button>
-        <button class="btn-card-del" title="Delete" onclick="deleteReport(${r.id})">X</button>
-      </div>
-      <a class="report-card" href="${r.url}" target="_blank" rel="noopener" ${editMode && !manifestMode ? 'onclick="return false;"' : ''}>
-        <div class="card-color-bar" style="background:${r.color};"></div>
-        <div class="card-body">
-          <div class="card-meta-row">
-            <span class="badge badge-client">${r.client}</span>
-            <span class="badge badge-year">${r.year}</span>
-            <span class="badge badge-type">${r.type}</span>
-          </div>
-          <div class="card-title">${r.title}</div>
-          <div class="card-desc">${r.desc || 'No description provided.'}</div>
-        </div>
-        <div class="card-footer">
-          <div class="card-sample-size">Sample: <strong>${r.sample || '-'}</strong></div>
-          <span class="btn-open">Open</span>
-        </div>
-      </a>`;
-    grid.appendChild(wrap);
-  });
-}
-
 function resetFilters() {
   fClient = 'All';
   fYear = 'All';
@@ -1189,130 +698,14 @@ function resetFilters() {
   document.getElementById('searchInput').value = '';
   applyFilters();
 }
-function openModal() {
-  if (manifestMode) {
-    alert('Manifest mode is active. Upload HTML files to reports/ instead of adding cards here.');
-    return;
-  }
-  editingId = null;
-  document.getElementById('modalTitle').textContent = 'Add Report';
-  document.getElementById('editId').value = '';
-  ['fTitle','fClient','fUrl','fDesc','fSample'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('fYear').value = new Date().getFullYear();
-  document.getElementById('fType').value = '';
-  selColor = PRESET_COLORS[0];
-  buildColorSwatches();
-  document.getElementById('modalOverlay').classList.add('open');
-}
 
-function openEditModal(id) {
-  if (manifestMode) {
-    alert('Manifest mode is active. Edit the report HTML and manifest instead.');
-    return;
-  }
-  const r = reports.find(x => x.id === id);
-  if (!r) return;
-  editingId = id;
-  document.getElementById('modalTitle').textContent = 'Edit Report';
-  document.getElementById('editId').value   = id;
-  document.getElementById('fTitle').value   = r.title;
-  document.getElementById('fClient').value  = r.client;
-  document.getElementById('fYear').value    = r.year;
-  document.getElementById('fType').value    = r.type;
-  document.getElementById('fSample').value  = r.sample || '';
-  document.getElementById('fUrl').value     = r.url;
-  document.getElementById('fDesc').value    = r.desc || '';
-  selColor = r.color || PRESET_COLORS[0];
-  buildColorSwatches();
-  document.getElementById('modalOverlay').classList.add('open');
-}
-
-function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
-
-/* 紐⑤떖 ?ㅻ쾭?덉씠 ?대┃ ???リ린 */
-['modalOverlay','ghOverlay','pwOverlay','changePwOverlay'].forEach(id => {
-  document.getElementById(id).addEventListener('click', function(e) {
-    if (e.target !== this) return;
-    if (id === 'pwOverlay')       closePwModal();
-    else if (id === 'ghOverlay')  closeGhModal();
-    else if (id === 'changePwOverlay') closeChangePwModal();
-    else closeModal();
-  });
-});
-
-async function submitReport() {
-  const title  = document.getElementById('fTitle').value.trim();
-  const client = document.getElementById('fClient').value.trim();
-  const year   = parseInt(document.getElementById('fYear').value, 10);
-  const type   = document.getElementById('fType').value;
-  const sample = document.getElementById('fSample').value.trim();
-  const url    = normalizeReportUrl(document.getElementById('fUrl').value.trim());
-  const desc   = document.getElementById('fDesc').value.trim();
-
-  if (!title || !client || !year || !type || !url) {
-    alert('Title, client, year, type, and report path are required.');
-    return;
-  }
-
-  if (editingId !== null) {
-    const idx = reports.findIndex(r => r.id === editingId);
-    if (idx !== -1) reports[idx] = { ...reports[idx], title, client, year, type, sample, url, desc, color: selColor };
-  } else {
-    const newId = reports.length ? Math.max(...reports.map(r => r.id)) + 1 : 1;
-    reports.push({ id: newId, title, client, year, type, sample, url, desc, color: selColor });
-  }
-
-  closeModal();
-  const saved = await save();
-  if (!saved) return;
-  buildFilters();
+async function init() {
+  setSyncStatus('busy', 'Loading...');
+  await loadReports();
   updateStats();
   applyFilters();
 }
 
-async function deleteReport(id) {
-  if (manifestMode) {
-    alert('Manifest mode is active. Remove the report from reports/ and the manifest.');
-    return;
-  }
-  const r = reports.find(x => x.id === id);
-  if (!r || !confirm(`Delete "${r.title}"?`)) return;
-  reports = reports.filter(x => x.id !== id);
-  const saved = await save();
-  if (!saved) return;
-  buildFilters();
-  updateStats();
-  applyFilters();
-}
-function buildColorSwatches() {
-  const container = document.getElementById('colorSwatches');
-  container.innerHTML = '';
-  PRESET_COLORS.forEach(c => {
-    const sw = document.createElement('div');
-    sw.className = `color-swatch${c === selColor ? ' selected' : ''}`;
-    sw.style.background = c;
-    sw.title = c;
-    sw.onclick = () => selectColor(c);
-    container.appendChild(sw);
-  });
-  const custom = document.createElement('div');
-  custom.className = 'color-custom';
-  custom.innerHTML = `<input type="color" value="${selColor}" title="Custom color"
-    onchange="selectColor(this.value)" oninput="selectColor(this.value)">`;
-  container.appendChild(custom);
-}
-function selectColor(c) {
-  selColor = c;
-  const toRgb = h => {
-    const r=parseInt(h.slice(1,3),16), g=parseInt(h.slice(3,5),16), b=parseInt(h.slice(5,7),16);
-    return `rgb(${r}, ${g}, ${b})`;
-  };
-  document.querySelectorAll('.color-swatch').forEach(sw => {
-    sw.classList.toggle('selected', sw.style.background === c || sw.style.background === toRgb(c));
-  });
-}
-
-/* 실행 */
 init();
 </script>
 </body>
