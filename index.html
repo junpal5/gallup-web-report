@@ -435,7 +435,24 @@ body::after {
 .pw-title { font-size: 0.95rem; font-weight: 700; color: #fff; text-align: center; margin-bottom: 4px; }
 .pw-sub   { font-size: 0.75rem; color: var(--text-sub); text-align: center; margin-bottom: 18px; }
 .pw-error { font-size: 0.73rem; color: #f87171; text-align: center; margin-top: 10px; min-height: 18px; }
+.pw-ok    { font-size: 0.73rem; color: #6ee7b7; text-align: center; margin-top: 10px; min-height: 18px; }
 #pwInput  { text-align: center; letter-spacing: 6px; font-size: 1.1rem; font-weight: 700; }
+
+/* 비밀번호 변경 버튼 */
+.btn-change-pw {
+  padding: 5px 12px; border-radius: 20px;
+  border: 1px solid var(--border); background: var(--glass);
+  color: var(--text-sub); font-size: 0.72rem; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: all 0.18s;
+  display: flex; align-items: center; gap: 4px;
+}
+.btn-change-pw:hover { border-color: var(--border-hover); color: var(--text); background: var(--glass-hover); }
+
+/* 구분선 */
+.form-divider {
+  border: none; border-top: 1px solid var(--border);
+  margin: 16px 0;
+}
 
 /* 반응형 */
 @media (max-width: 900px) {
@@ -464,8 +481,10 @@ body::after {
       <div class="sync-dot" id="syncDot"></div>
       <span id="syncLabel">미연결</span>
     </div>
-    <!-- GitHub 설정 버튼 -->
-    <button class="btn-github-cfg" onclick="openGhModal()">⚙ GitHub</button>
+    <!-- GitHub 설정 버튼 (비밀번호 필요) -->
+    <button class="btn-github-cfg" onclick="requestGhModal()" title="GitHub 설정 (비밀번호 필요)">⚙ GitHub</button>
+    <!-- 비밀번호 변경 버튼 (편집 모드일 때만 활성) -->
+    <button class="btn-change-pw" id="btnChangePw" onclick="openChangePwModal()" style="opacity:0.35;pointer-events:none;" title="비밀번호 변경">🔑 비밀번호</button>
     <!-- 편집 모드 (비밀번호 필요) -->
     <div class="edit-mode-toggle" onclick="requestEditMode()" title="편집 모드 (비밀번호 필요)">
       <div class="toggle-switch" id="toggleSwitch"><div class="toggle-knob"></div></div>
@@ -546,21 +565,58 @@ body::after {
   </div>
 </div>
 
-<!-- ══════════════ 비밀번호 모달 ══════════════ -->
+<!-- ══════════════ 비밀번호 확인 모달 ══════════════ -->
 <div class="modal-overlay" id="pwOverlay">
   <div class="modal modal-sm">
     <div class="modal-body" style="padding:28px 26px 20px;">
-      <div class="pw-icon">🔐</div>
-      <div class="pw-title">편집 모드 잠금 해제</div>
-      <div class="pw-sub">관리자 비밀번호를 입력하세요.</div>
+      <div class="pw-icon" id="pwIcon">🔐</div>
+      <div class="pw-title" id="pwTitle">잠금 해제</div>
+      <div class="pw-sub" id="pwSub">관리자 비밀번호를 입력하세요.</div>
       <input class="form-input" type="password" id="pwInput"
-        placeholder="비밀번호" maxlength="20"
+        placeholder="비밀번호" maxlength="30"
         onkeydown="if(event.key==='Enter')checkPassword()">
       <div class="pw-error" id="pwError"></div>
     </div>
     <div class="modal-footer" style="border:none;padding-top:0;">
       <button class="btn-cancel" onclick="closePwModal()">취소</button>
       <button class="btn-submit" onclick="checkPassword()">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ 비밀번호 변경 모달 ══════════════ -->
+<div class="modal-overlay" id="changePwOverlay">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3>🔑 비밀번호 변경</h3>
+      <button class="modal-close" onclick="closeChangePwModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">현재 비밀번호 <span>*</span></label>
+        <input class="form-input" type="password" id="cpCurrent"
+          placeholder="현재 비밀번호" maxlength="30"
+          onkeydown="if(event.key==='Enter')document.getElementById('cpNew').focus()">
+      </div>
+      <hr class="form-divider">
+      <div class="form-group">
+        <label class="form-label">새 비밀번호 <span>*</span></label>
+        <input class="form-input" type="password" id="cpNew"
+          placeholder="새 비밀번호 (4자 이상)" maxlength="30"
+          onkeydown="if(event.key==='Enter')document.getElementById('cpConfirm').focus()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">새 비밀번호 확인 <span>*</span></label>
+        <input class="form-input" type="password" id="cpConfirm"
+          placeholder="새 비밀번호 재입력" maxlength="30"
+          onkeydown="if(event.key==='Enter')submitChangePw()">
+      </div>
+      <div class="pw-error" id="cpError"></div>
+      <div class="pw-ok"    id="cpOk"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeChangePwModal()">취소</button>
+      <button class="btn-submit" onclick="submitChangePw()">변경</button>
     </div>
   </div>
 </div>
@@ -671,7 +727,13 @@ body::after {
 /* ─── 상수 ─── */
 const LS_KEY    = 'gallup-portal-v1';   /* 보고서 데이터 */
 const LS_GH_KEY = 'gallup-portal-gh';  /* GitHub 설정 */
-const EDIT_PW   = '1205';              /* 편집 모드 비밀번호 */
+const LS_PW_KEY = 'gallup-portal-pw';  /* 비밀번호 저장 키 */
+const DEFAULT_PW = '1205';             /* 최초 기본 비밀번호 */
+
+/* 현재 비밀번호 반환 (localStorage 우선, 없으면 기본값) */
+function getCurrentPw() {
+  return localStorage.getItem(LS_PW_KEY) || DEFAULT_PW;
+}
 
 const PRESET_COLORS = [
   '#0e4d8c','#2d82d4','#00a86b','#e85d04',
@@ -854,21 +916,43 @@ async function testAndSaveGhConfig() {
 }
 
 /* ════════════════════════════════════════════
-   편집 모드 (비밀번호 보호)
+   비밀번호 모달 (편집모드 / GitHub 공용)
+   pwPurpose: 'edit' | 'github'
 ════════════════════════════════════════════ */
+let pwPurpose = 'edit'; /* 현재 비밀번호 모달의 목적 */
+
 function requestEditMode() {
   if (editMode) { disableEditMode(); return; }
-  /* 편집 진입 시 비밀번호 확인 */
+  pwPurpose = 'edit';
+  document.getElementById('pwIcon').textContent  = '🔐';
+  document.getElementById('pwTitle').textContent = '편집 모드 잠금 해제';
+  document.getElementById('pwSub').textContent   = '관리자 비밀번호를 입력하세요.';
+  openPwModal();
+}
+
+function requestGhModal() {
+  pwPurpose = 'github';
+  document.getElementById('pwIcon').textContent  = '⚙';
+  document.getElementById('pwTitle').textContent = 'GitHub 설정 잠금 해제';
+  document.getElementById('pwSub').textContent   = '관리자 비밀번호를 입력하세요.';
+  openPwModal();
+}
+
+function openPwModal() {
   document.getElementById('pwInput').value = '';
   document.getElementById('pwError').textContent = '';
   document.getElementById('pwOverlay').classList.add('open');
   setTimeout(() => document.getElementById('pwInput').focus(), 120);
 }
 
+function closePwModal() { document.getElementById('pwOverlay').classList.remove('open'); }
+
 function checkPassword() {
-  if (document.getElementById('pwInput').value === EDIT_PW) {
+  const val = document.getElementById('pwInput').value;
+  if (val === getCurrentPw()) {
     closePwModal();
-    enableEditMode();
+    if (pwPurpose === 'edit')   enableEditMode();
+    if (pwPurpose === 'github') openGhModal();
   } else {
     document.getElementById('pwError').textContent = '비밀번호가 올바르지 않습니다.';
     document.getElementById('pwInput').value = '';
@@ -876,7 +960,36 @@ function checkPassword() {
   }
 }
 
-function closePwModal() { document.getElementById('pwOverlay').classList.remove('open'); }
+/* ════════════════════════════════════════════
+   비밀번호 변경 모달
+════════════════════════════════════════════ */
+function openChangePwModal() {
+  ['cpCurrent','cpNew','cpConfirm'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('cpError').textContent = '';
+  document.getElementById('cpOk').textContent    = '';
+  document.getElementById('changePwOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('cpCurrent').focus(), 120);
+}
+function closeChangePwModal() { document.getElementById('changePwOverlay').classList.remove('open'); }
+
+function submitChangePw() {
+  const current  = document.getElementById('cpCurrent').value;
+  const newPw    = document.getElementById('cpNew').value;
+  const confirm  = document.getElementById('cpConfirm').value;
+  const errEl    = document.getElementById('cpError');
+  const okEl     = document.getElementById('cpOk');
+
+  errEl.textContent = ''; okEl.textContent = '';
+
+  if (current !== getCurrentPw()) { errEl.textContent = '현재 비밀번호가 올바르지 않습니다.'; return; }
+  if (newPw.length < 4)           { errEl.textContent = '새 비밀번호는 4자 이상이어야 합니다.'; return; }
+  if (newPw !== confirm)          { errEl.textContent = '새 비밀번호가 일치하지 않습니다.'; return; }
+
+  /* 저장 */
+  localStorage.setItem(LS_PW_KEY, newPw);
+  okEl.textContent = '✅ 비밀번호가 변경되었습니다.';
+  setTimeout(() => closeChangePwModal(), 1200);
+}
 
 function enableEditMode() {
   editMode = true;
@@ -884,6 +997,8 @@ function enableEditMode() {
   document.getElementById('toggleLabel').textContent = '편집 중';
   const btn = document.getElementById('btnAddReport');
   btn.style.opacity = '1'; btn.style.pointerEvents = 'auto';
+  const btnPw = document.getElementById('btnChangePw');
+  btnPw.style.opacity = '1'; btnPw.style.pointerEvents = 'auto';
   applyFilters();
 }
 
@@ -893,6 +1008,8 @@ function disableEditMode() {
   document.getElementById('toggleLabel').textContent = '편집 모드';
   const btn = document.getElementById('btnAddReport');
   btn.style.opacity = '0.35'; btn.style.pointerEvents = 'none';
+  const btnPw = document.getElementById('btnChangePw');
+  btnPw.style.opacity = '0.35'; btnPw.style.pointerEvents = 'none';
   applyFilters();
 }
 
@@ -1031,11 +1148,12 @@ function openEditModal(id) {
 function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
 
 /* 모달 오버레이 클릭 시 닫기 */
-['modalOverlay','ghOverlay','pwOverlay'].forEach(id => {
+['modalOverlay','ghOverlay','pwOverlay','changePwOverlay'].forEach(id => {
   document.getElementById(id).addEventListener('click', function(e) {
     if (e.target !== this) return;
-    if (id === 'pwOverlay')  closePwModal();
-    else if (id === 'ghOverlay') closeGhModal();
+    if (id === 'pwOverlay')       closePwModal();
+    else if (id === 'ghOverlay')  closeGhModal();
+    else if (id === 'changePwOverlay') closeChangePwModal();
     else closeModal();
   });
 });
