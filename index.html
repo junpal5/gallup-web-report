@@ -66,24 +66,16 @@ body::after {
   border-bottom: 1px solid var(--border);
 }
 .logo-mark {
-  width: 36px; height: 36px;
-  background: linear-gradient(135deg, var(--primary-light), var(--secondary));
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center; gap: 3px;
-  color: #fff;
+  height: 34px;
+  display: flex;
+  align-items: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 10px rgba(45,130,212,0.4);
 }
-.gallup-g {
-  font-size: 1.05rem;
-  font-weight: 800;
-  line-height: 1;
-}
-.gallup-bar {
-  width: 4px; height: 18px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.95);
-  box-shadow: 0 0 10px rgba(255,255,255,0.25);
+.logo-mark img {
+  display: block;
+  height: 100%;
+  width: auto;
+  object-fit: contain;
 }
 .logo-text { font-size: 0.97rem; font-weight: 700; letter-spacing: -0.3px; color: #fff; }
 .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
@@ -257,7 +249,7 @@ body::after {
 </head>
 <body>
 <header class="site-header">
-  <div class="logo-mark" aria-label="갤럽 로고"><span class="gallup-g">G</span><span class="gallup-bar"></span></div>
+  <div class="logo-mark" aria-label="갤럽 로고"><img src="assets/gallup-logo.png" alt="한국갤럽 로고"></div>
   <div class="logo-text">갤럽 웹 보고서 포털</div>
   <div class="header-right">
     <div class="sync-badge" id="syncBadge" title="보고서 동기화 상태">
